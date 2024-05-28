@@ -4,6 +4,7 @@ import cats.effect.{ExitCode, IO, IOApp, Resource}
 import org.typelevel.log4cats.LoggerFactory
 import org.typelevel.log4cats.slf4j.Slf4jFactory
 import si.ogrodje.oge.clients.HyGraph
+import si.ogrodje.oge.model.{Event, Meetup, MeetupID}
 
 object MainApp extends IOApp:
   given LoggerFactory[IO] = Slf4jFactory.create[IO]
@@ -14,7 +15,7 @@ object MainApp extends IOApp:
       for out <- service.streamMeetupsWithEvents.evalTap { case (meetup, events) =>
           val filteredEvents = EventsFilter.filter(events)
           IO.whenA(filteredEvents.nonEmpty)(
-            IO.println(s"Meetup: ${meetup.name}") *>
+            IO.println(s"Meetup: ${meetup.name} / ${meetup.id}") *>
               IO.println(filteredEvents.map(e => s"[${e.dateTime}] ${e.name}").mkString("\n"))
           )
         }.compile.drain

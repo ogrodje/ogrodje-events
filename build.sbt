@@ -4,7 +4,7 @@ import com.typesafe.sbt.packager.docker.DockerPlugin.autoImport._
 import Dependencies.*
 
 ThisBuild / version            := "0.0.1"
-ThisBuild / scalaVersion       := "3.4.1"
+ThisBuild / scalaVersion       := "3.4.2"
 ThisBuild / evictionErrorLevel := Level.Info
 
 lazy val root = (project in file("."))

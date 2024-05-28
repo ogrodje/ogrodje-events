@@ -4,8 +4,10 @@ import org.http4s.Uri
 
 import java.time.ZonedDateTime
 
+type MeetupID = String
+
 final case class Meetup(
-  id: String,
+  id: MeetupID,
   name: String,
   homePageUrl: Option[Uri],
   meetupUrl: Option[Uri],

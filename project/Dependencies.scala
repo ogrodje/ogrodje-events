@@ -5,15 +5,15 @@ object Dependencies {
   type Modules = Seq[ModuleID]
 
   object Versions {
-    val http4s: Version    = "1.0.0-M39"
+    val http4s: Version    = "1.0.0-M40"
     val fs2: Version       = "3.10.2"
     val decline: Version   = "2.4.1"
-    val log4cats: Version  = "2.6.0"
+    val log4cats: Version  = "2.7.0"
     val scalaTest: Version = "3.2.18"
   }
 
   lazy val catsAndFriends: Modules = Seq(
-    "org.typelevel" %% "cats-effect" % "3.5.3"
+    "org.typelevel" %% "cats-effect" % "3.5.4"
   ) ++ Seq(
     "com.monovore" %% "decline",
     "com.monovore" %% "decline-effect"
