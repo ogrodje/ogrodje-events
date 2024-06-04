@@ -10,6 +10,7 @@ object Dependencies {
     val decline: Version   = "2.4.1"
     val log4cats: Version  = "2.7.0"
     val scalaTest: Version = "3.2.18"
+    val doobie: Version    = "1.0.0-RC4"
   }
 
   lazy val catsAndFriends: Modules = Seq(
@@ -63,8 +64,11 @@ object Dependencies {
     "org.jsoup" % "jsoup" % "1.17.2"
   )
 
-  lazy val apacheCommons: Modules = Seq(
-    "org.apache.commons" % "commons-lang3" % "3.14.0"
+  lazy val db: Modules = Seq(
+    "org.flywaydb"  % "flyway-core"      % "10.14.0",
+    "org.xerial"    % "sqlite-jdbc"      % "3.46.0.0",
+    "org.tpolecat" %% "doobie-core"      % Versions.doobie,
+    "org.tpolecat" %% "doobie-hikari"    % Versions.doobie,
   )
 
   lazy val projectResolvers: Seq[MavenRepository] = Seq(

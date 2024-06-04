@@ -13,7 +13,7 @@ import io.circe.generic.auto.*
 
 import scala.util.Try
 
-final case class OgrodjeMeetupsService private (hyGraph: HyGraph, meetupComParser: MeetupCom):
+final case class OgrodjeAPIService private (hyGraph: HyGraph, meetupComParser: MeetupCom):
   private val logger = Slf4jFactory.create[IO].getLogger
 
   given Decoder[Option[Uri]] = Decoder.decodeOption[String].emapTry {
@@ -56,7 +56,10 @@ final case class OgrodjeMeetupsService private (hyGraph: HyGraph, meetupComParse
       .covary[IO]
       .parEvalMapUnordered(maxConcurrent)(meetup => collectEvents(meetup).map(meetup -> _))
 
-object OgrodjeMeetupsService:
-  def resource(hyGraph: HyGraph): Resource[IO, OgrodjeMeetupsService] =
+object OgrodjeAPIService:
+  def resourceWithGraph(hyGraph: HyGraph): Resource[IO, OgrodjeAPIService] =
     for meetupComParser <- MeetupCom.resource
     yield apply(hyGraph, meetupComParser)
+
+  def resource: Resource[IO, OgrodjeAPIService] =
+    HyGraph.resource.flatMap(resourceWithGraph)

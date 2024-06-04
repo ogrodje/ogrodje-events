@@ -36,7 +36,7 @@ final class MeetupCom private (client: Client[IO]) {
       events <- IO(data.map { element =>
         for
           rawUri        <- Option(element.attr("href"))
-          uri           <- Option(rawUri).flatMap(raw => Try(Uri.unsafeFromString(rawUri)).toOption)
+          uri           <- Option(rawUri).flatMap(raw => Try(Uri.unsafeFromString(raw)).toOption)
           eventID       <- "events/(\\d+)/".r.findFirstMatchIn(rawUri).map(_.group(1)).map(id => s"meetup:$id")
           zonedDateTime <-
             element

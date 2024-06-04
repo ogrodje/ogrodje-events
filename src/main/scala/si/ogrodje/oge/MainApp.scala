@@ -1,27 +1,20 @@
 package si.ogrodje.oge
 
-import cats.effect.{ExitCode, IO, IOApp, Resource}
+import cats.effect.{IO, Resource, ResourceApp}
 import org.typelevel.log4cats.LoggerFactory
 import org.typelevel.log4cats.slf4j.Slf4jFactory
-import si.ogrodje.oge.clients.HyGraph
-import si.ogrodje.oge.model.{Event, Meetup, MeetupID}
 
-object MainApp extends IOApp:
-  given LoggerFactory[IO] = Slf4jFactory.create[IO]
+import scala.concurrent.duration.*
 
-  def program: Resource[IO, Unit] = for
-    graph <- HyGraph.resource
-    _     <- OgrodjeMeetupsService.resource(graph).evalMap { service =>
-      for out <- service.streamMeetupsWithEvents.evalTap { case (meetup, events) =>
-          val filteredEvents = EventsFilter.filter(events)
-          IO.whenA(filteredEvents.nonEmpty)(
-            IO.println(s"Meetup: ${meetup.name} / ${meetup.id}") *>
-              IO.println(filteredEvents.map(e => s"[${e.dateTime}] ${e.name}").mkString("\n"))
-          )
-        }.compile.drain
-      yield ()
-    }
+object MainApp extends ResourceApp.Forever:
+  private given factory: LoggerFactory[IO] = Slf4jFactory.create[IO]
+  private val logger                       = factory.getLogger
+
+  private val syncDelay: FiniteDuration = 10.minutes
+
+  def run(args: List[String]): Resource[IO, Unit] = for
+    _                 <- logger.info(s"Booting service with sync delay $syncDelay").toResource
+    transactor        <- DB.resource
+    ogrodjeAPIService <- OgrodjeAPIService.resource
+    _                 <- OgrodjeAPISync(ogrodjeAPIService, transactor).sync(syncDelay)
   yield ()
-
-  override def run(args: List[String]): IO[ExitCode] =
-    program.use_ *> IO(ExitCode.Success)
