@@ -12,7 +12,8 @@ lazy val root = (project in file("."))
   .settings(name := "ogrodje-events")
   .settings(
     libraryDependencies ++= {
-      catsAndFriends ++ fs2 ++ circe ++ logging ++ http4s ++ jsoup ++ testingDeps ++ db
+      catsAndFriends ++ fs2 ++ circe ++ logging ++
+        http4s ++ scalaTags ++ jsoup ++ testingDeps ++ db
     },
     scalacOptions ++= Seq(
       "-deprecation",
