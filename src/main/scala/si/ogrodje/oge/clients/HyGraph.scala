@@ -10,6 +10,7 @@ import org.http4s.headers.Accept
 import org.http4s.circe.CirceEntityCodec.*
 import org.typelevel.log4cats.LoggerFactory
 import org.typelevel.log4cats.slf4j.Slf4jFactory
+import si.ogrodje.oge.Config
 
 import scala.util.control.NoStackTrace
 
@@ -42,16 +43,10 @@ final class HyGraph private (
 object HyGraph:
   given LoggerFactory[IO] = Slf4jFactory.create[IO]
 
-  def resourceWithClient(client: Client[IO]): Resource[IO, HyGraph] = for
-    hyGraphEndpoint <- IO.envForIO
-      .get("HYGRAPH_ENDPOINT")
-      .flatMap(IO.fromOption(_)(new RuntimeException("Missing HYGRAPH_ENDPOINT!") with NoStackTrace))
-      .flatMap(raw => IO(Uri.unsafeFromString(raw)))
-      .toResource
-    client          <- Resource.pure(new HyGraph(client, hyGraphEndpoint))
-  yield client
+  def resourceWithClient(config: Config, client: Client[IO]): Resource[IO, HyGraph] =
+    Resource.pure(new HyGraph(client, config.hyGraphEndpoint))
 
-  def resource: Resource[IO, HyGraph] = for
+  def resource(config: Config): Resource[IO, HyGraph] = for
     client <- BlazeClientBuilder[IO].resource
-    graph  <- resourceWithClient(client)
+    graph  <- resourceWithClient(config, client)
   yield graph

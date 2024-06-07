@@ -1,3 +1,4 @@
+*-kube-config
 *.db
 .bsp/
 .idea/

@@ -15,20 +15,18 @@ object DB:
   private given factory: LoggerFactory[IO] = Slf4jFactory.create[IO]
   private val logger                       = factory.getLogger
 
-  private def databaseUrl: String = "jdbc:sqlite:./ogrodje_events.db"
-
-  private def migrate(): IO[Unit] = IO.fromTry {
+  private def migrate(appConfig: Config): IO[Unit] = IO.fromTry {
     val ds = new SQLiteDataSource()
-    ds.setUrl(databaseUrl)
+    ds.setUrl(appConfig.databaseUrl)
     Try(Flyway.configure().dataSource(ds).locations("migrations").load().migrate())
   }
 
-  def resource: Resource[IO, HikariTransactor[IO]] = for
-    _            <- migrate().toResource
+  def resource(appConfig: Config): Resource[IO, HikariTransactor[IO]] = for
+    _            <- migrate(appConfig).toResource
     hikariConfig <- Resource.pure {
       val config = new HikariConfig()
       config.setDriverClassName("org.sqlite.JDBC")
-      config.setJdbcUrl(databaseUrl)
+      config.setJdbcUrl(appConfig.databaseUrl)
       config
     }
     xa           <-

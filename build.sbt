@@ -42,20 +42,19 @@ lazy val root = (project in file("."))
         old(x)
     }
   )
-/*
   .settings(
-    dockerExposedPorts    := Seq(4447),
+    dockerExposedPorts    := Seq(7006),
     dockerExposedUdpPorts := Seq.empty[Int],
-    dockerUsername        := Some("pinkstack"),
+    dockerUsername        := Some("ogrodje"),
     dockerUpdateLatest    := true,
     dockerBaseImage       := "azul/zulu-openjdk-alpine:21-latest",
-    packageName           := "tiny-aria2",
+    packageName           := "ogrodje-events",
     dockerCommands        := dockerCommands.value.flatMap {
       case add @ Cmd("RUN", args @ _*) if args.contains("id") =>
         List(
           Cmd("LABEL", "maintainer Oto Brglez <otobrglez@gmail.com>"),
-          Cmd("LABEL", "org.opencontainers.image.url https://github.com/otobrglez/tiny-aria2"),
-          Cmd("LABEL", "org.opencontainers.image.source https://github.com/otobrglez/tiny-aria2"),
+          // Cmd("LABEL", "org.opencontainers.image.url https://github.com/ogrodje/ogrodje-events"),
+          // Cmd("LABEL", "org.opencontainers.image.source https://github.com/ogrodje/ogrodje-events"),
           Cmd("RUN", "apk add --no-cache bash jq curl"),
           Cmd("ENV", "SBT_VERSION", sbtVersion.value),
           Cmd("ENV", "SCALA_VERSION", scalaVersion.value),
@@ -64,4 +63,4 @@ lazy val root = (project in file("."))
         )
       case other                                              => List(other)
     }
-  ) */
+  )

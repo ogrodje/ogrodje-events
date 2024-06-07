@@ -61,5 +61,5 @@ object OgrodjeAPIService:
     for meetupComParser <- MeetupCom.resource
     yield apply(hyGraph, meetupComParser)
 
-  def resource: Resource[IO, OgrodjeAPIService] =
-    HyGraph.resource.flatMap(resourceWithGraph)
+  def resource(config: Config): Resource[IO, OgrodjeAPIService] =
+    HyGraph.resource(config).flatMap(resourceWithGraph)

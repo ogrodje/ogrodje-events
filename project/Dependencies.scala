@@ -39,8 +39,6 @@ object Dependencies {
     "org.http4s" %% "http4s-dsl",
     "org.http4s" %% "http4s-circe",
     "org.http4s" %% "http4s-blaze-core",
-    // "org.http4s" %% "http4s-ember-client",
-    // "org.http4s" %% "http4s-ember-server",
     "org.http4s" %% "http4s-blaze-client",
     "org.http4s" %% "http4s-blaze-server"
   ).map(_ % Versions.http4s)
