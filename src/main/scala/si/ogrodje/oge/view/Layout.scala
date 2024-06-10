@@ -26,7 +26,8 @@ object Layout:
             |.event:first-child { border: none; }
             |.event .event-name { font-weight: 700; font-size: 14pt; line-height: 20pt; }
             |.event .meetup-name { font-size: smaller; }
-            |.wrapper .footer { text-align: center; font-size: small; }""".stripMargin
+            |.wrapper .footer { text-align: center; font-size: small; }
+            |.info-observe { padding: 5px; text-align: center; font-size: smaller; }""".stripMargin
         )
       ),
       body(

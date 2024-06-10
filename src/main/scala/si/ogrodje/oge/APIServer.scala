@@ -45,6 +45,9 @@ final case class APIServer(config: Config, transactor: Transactor[IO]):
            |WHERE datetime(e.datetime_at / 1000, 'unixepoch') > CURRENT_TIMESTAMP
            |ORDER BY e.datetime_at , m.name""".stripMargin
         .queryWithLabel[Event]("upcoming-events")
+
+    val meetupsCount: doobie.Query0[Long] =
+      sql"SELECT COUNT(*) from meetups".queryWithLabel[Long]("count-meetups")
   }
 
   private def upcomingEvents(render: List[Event] => IO[Response[IO]]): IO[Response[IO]] = for
@@ -54,24 +57,33 @@ final case class APIServer(config: Config, transactor: Transactor[IO]):
 
   private val service = HttpRoutes.of[IO] {
     case GET -> Root                                 =>
-      upcomingEvents { events =>
-        renderHtml(
-          defaultLayout(
-            events.groupBy(_.weekNumber).toList.map { (week, events) =>
+      queries.meetupsCount.option.transact(transactor).flatMap { eventsCnt =>
+        upcomingEvents { events =>
+          renderHtml(
+            defaultLayout(
               div(
-                cls := "week",
-                events.map { event =>
+                cls := "events",
+                events.groupBy(_.weekNumber).toList.map { (week, events) =>
                   div(
-                    cls := "event",
-                    div(cls := "event-name", a(href := event.url, event.eventName)),
-                    div(cls := "meetup-name", event.meetupName),
-                    div(cls := "event-datetime", event.datetimeAt.toString)
+                    cls := "week",
+                    events.map { event =>
+                      div(
+                        cls := "event",
+                        div(cls := "event-name", a(href := event.url, event.eventName)),
+                        div(cls := "meetup-name", event.meetupName),
+                        div(cls := "event-datetime", event.datetimeAt.toString)
+                      )
+                    }
                   )
                 }
+              ),
+              div(
+                cls := "info-observe",
+                s"Opazujemo ${eventsCnt.getOrElse(0)} meetup-ov in organizacij."
               )
-            }
+            )
           )
-        )
+        }
       }
     case GET -> Root / "api" / "events" / "upcoming" => upcomingEvents(events => Ok(events.asJson))
   }
