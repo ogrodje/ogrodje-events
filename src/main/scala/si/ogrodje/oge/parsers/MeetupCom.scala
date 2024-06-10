@@ -15,7 +15,7 @@ import si.ogrodje.oge.model.{Event, EventKind}
 import scala.jdk.CollectionConverters.*
 import scala.util.Try
 
-final class MeetupCom private (client: Client[IO]) {
+final class MeetupCom private (client: Client[IO]) extends Parser {
   private val logger = Slf4jFactory.create[IO].getLogger
 
   def collectAll(uri: Uri): IO[Array[Event]] =
@@ -56,7 +56,7 @@ final class MeetupCom private (client: Client[IO]) {
       })
     yield events.toArray.collect { case Some(event) => event }
 
-  def collect(uri: Uri): IO[Array[Event]] =
+  private def collect(uri: Uri): IO[Array[Event]] =
     for
       request <- IO.pure(Request[IO](GET, uri))
       payload <- client.expect[String](request)

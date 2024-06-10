@@ -17,7 +17,7 @@ import cats.effect.unsafe.implicits.global
 import scala.io.Source
 import scala.language.implicitConversions
 
-final class ParsersTest extends AsyncFlatSpec with Matchers:
+final class MeetupComTest extends AsyncFlatSpec with Matchers:
   private given Conversion[IO[Assertion], Future[Assertion]] = _.unsafeToFuture()
 
   private def readResource(path: String): IO[String] = IO {
@@ -41,6 +41,9 @@ final class ParsersTest extends AsyncFlatSpec with Matchers:
       for
         meetupHomepage <- IO(Uri.unsafeFromString("?type=upcoming"))
         events         <- parser.collectAll(meetupHomepage)
-      yield events.length shouldEqual 12
+      yield {
+        println(events.head)
+        events.length shouldEqual 12
+      }
     }
   }

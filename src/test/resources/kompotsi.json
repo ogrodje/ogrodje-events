@@ -1,0 +1,942 @@
+{
+  "data": {
+    "searchEvents": {
+      "__typename": "Events",
+      "elements": [
+        {
+          "__typename": "Event",
+          "attributedTo": {
+            "__typename": "Group",
+            "avatar": {
+              "__typename": "Media",
+              "id": "224a8e28-52cd-4c0f-9f34-0a867def8a22",
+              "url": "https://dogodki.kompot.si/media/ea8851aa5612c4a97bb2b55ecb6f6184d07d90bc63300939e5cef64127ff39f2.png?name=1920-1080-max-trans.png"
+            },
+            "domain": null,
+            "id": "5",
+            "name": "Kompot",
+            "preferredUsername": "kompot",
+            "summary": "<p>Na samoupraven nacin si zagotavljamo spletne storitve temljece na prosti programski opremi, ki jih gostimo na lastni infrastrukturi.</p><p>Kontakt:</p><p>e-mail: info@kompot.si</p><p>mastodon: @kompot@toot.si</p>",
+            "type": "GROUP",
+            "url": "https://dogodki.kompot.si/@kompot"
+          },
+          "beginsOn": "2024-07-03T16:00:00Z",
+          "id": "261",
+          "options": {
+            "__typename": "EventOptions",
+            "isOnline": false
+          },
+          "organizerActor": null,
+          "participantStats": {
+            "__typename": "ParticipantStats",
+            "participant": 1
+          },
+          "physicalAddress": {
+            "__typename": "Address",
+            "country": "Slovenia",
+            "description": "Podhod Ajdovščina",
+            "geom": "14.5044054;46.0533411",
+            "id": "99",
+            "locality": "Ljubljana",
+            "originId": "nominatim:238412643",
+            "pictureInfo": null,
+            "postalCode": "1102",
+            "region": null,
+            "street": null,
+            "timezone": null,
+            "type": "street",
+            "url": "https://dogodki.kompot.si/address/cfe34abc-2720-4d54-9980-7cbb487c0e39"
+          },
+          "picture": {
+            "__typename": "Media",
+            "id": "1117",
+            "url": "https://dogodki.kompot.si/media/9e17b92cd8c5fc2fa0f1c054a681fef49f030f62d5d4720d340b41125ae6aea4.jpg?name=the-eye-of-the-master-cover.jpg"
+          },
+          "status": "CONFIRMED",
+          "tags": [
+            {
+              "__typename": "Tag",
+              "id": "1",
+              "slug": "kompot",
+              "title": "kompot"
+            },
+            {
+              "__typename": "Tag",
+              "id": "140",
+              "slug": "politika",
+              "title": "politika"
+            },
+            {
+              "__typename": "Tag",
+              "id": "332",
+              "slug": "bralni-krozek",
+              "title": "bralni krožek"
+            }
+          ],
+          "title": "Kompotov Tehno-Politični Bralni Krožek #6",
+          "url": "https://dogodki.kompot.si/events/65ae29e5-c868-4e24-b379-2ac204f17fd5",
+          "uuid": "65ae29e5-c868-4e24-b379-2ac204f17fd5"
+        },
+        {
+          "__typename": "Event",
+          "attributedTo": {
+            "__typename": "Group",
+            "avatar": {
+              "__typename": "Media",
+              "id": "224a8e28-52cd-4c0f-9f34-0a867def8a22",
+              "url": "https://dogodki.kompot.si/media/ea8851aa5612c4a97bb2b55ecb6f6184d07d90bc63300939e5cef64127ff39f2.png?name=1920-1080-max-trans.png"
+            },
+            "domain": null,
+            "id": "5",
+            "name": "Kompot",
+            "preferredUsername": "kompot",
+            "summary": "<p>Na samoupraven nacin si zagotavljamo spletne storitve temljece na prosti programski opremi, ki jih gostimo na lastni infrastrukturi.</p><p>Kontakt:</p><p>e-mail: info@kompot.si</p><p>mastodon: @kompot@toot.si</p>",
+            "type": "GROUP",
+            "url": "https://dogodki.kompot.si/@kompot"
+          },
+          "beginsOn": "2024-06-19T16:00:00Z",
+          "id": "266",
+          "options": {
+            "__typename": "EventOptions",
+            "isOnline": false
+          },
+          "organizerActor": null,
+          "participantStats": {
+            "__typename": "ParticipantStats",
+            "participant": 1
+          },
+          "physicalAddress": {
+            "__typename": "Address",
+            "country": "Slovenia",
+            "description": "Podhod Ajdovščina",
+            "geom": "14.5044054;46.0533411",
+            "id": "99",
+            "locality": "Ljubljana",
+            "originId": "nominatim:238412643",
+            "pictureInfo": null,
+            "postalCode": "1102",
+            "region": null,
+            "street": null,
+            "timezone": null,
+            "type": "street",
+            "url": "https://dogodki.kompot.si/address/cfe34abc-2720-4d54-9980-7cbb487c0e39"
+          },
+          "picture": {
+            "__typename": "Media",
+            "id": "1627",
+            "url": "https://dogodki.kompot.si/media/4d01a7b4b75e9faf7466457501b2792423df0fb6c2f4a2007fdb2f8337045f04.webp?name=mbETte7JQjm5l45KiYKb2w.webp"
+          },
+          "status": "CONFIRMED",
+          "tags": [
+            {
+              "__typename": "Tag",
+              "id": "1",
+              "slug": "kompot",
+              "title": "kompot"
+            },
+            {
+              "__typename": "Tag",
+              "id": "140",
+              "slug": "politika",
+              "title": "politika"
+            },
+            {
+              "__typename": "Tag",
+              "id": "332",
+              "slug": "bralni-krozek",
+              "title": "bralni krožek"
+            }
+          ],
+          "title": "Kompotov Tehno-Politični Bralni Krožek #5",
+          "url": "https://dogodki.kompot.si/events/ef9d0ffe-ddc2-412f-a029-fb6248dc2d7c",
+          "uuid": "ef9d0ffe-ddc2-412f-a029-fb6248dc2d7c"
+        },
+        {
+          "__typename": "Event",
+          "attributedTo": {
+            "__typename": "Group",
+            "avatar": {
+              "__typename": "Media",
+              "id": "224a8e28-52cd-4c0f-9f34-0a867def8a22",
+              "url": "https://dogodki.kompot.si/media/ea8851aa5612c4a97bb2b55ecb6f6184d07d90bc63300939e5cef64127ff39f2.png?name=1920-1080-max-trans.png"
+            },
+            "domain": null,
+            "id": "5",
+            "name": "Kompot",
+            "preferredUsername": "kompot",
+            "summary": "<p>Na samoupraven nacin si zagotavljamo spletne storitve temljece na prosti programski opremi, ki jih gostimo na lastni infrastrukturi.</p><p>Kontakt:</p><p>e-mail: info@kompot.si</p><p>mastodon: @kompot@toot.si</p>",
+            "type": "GROUP",
+            "url": "https://dogodki.kompot.si/@kompot"
+          },
+          "beginsOn": "2024-06-12T16:45:00Z",
+          "id": "268",
+          "options": {
+            "__typename": "EventOptions",
+            "isOnline": false
+          },
+          "organizerActor": null,
+          "participantStats": {
+            "__typename": "ParticipantStats",
+            "participant": 1
+          },
+          "physicalAddress": {
+            "__typename": "Address",
+            "country": "Slovenia",
+            "description": "Centralna tehniška knjižnica",
+            "geom": "14.4997087;46.0499535",
+            "id": "40",
+            "locality": "Ljubljana",
+            "originId": "nominatim:1078282872",
+            "pictureInfo": null,
+            "postalCode": "1000",
+            "region": null,
+            "street": "10 Prešernova cesta",
+            "timezone": null,
+            "type": "house",
+            "url": "https://dogodki.kompot.si/address/fc9fece6-7d4a-48dc-9316-06dd02b14413"
+          },
+          "picture": {
+            "__typename": "Media",
+            "id": "1115",
+            "url": "https://dogodki.kompot.si/media/51d4bd1fa021ebd955cac687ed09f811e31001f56a8ef03247df91d86f6edf81.jpg?name=tb.jpg"
+          },
+          "status": "CONFIRMED",
+          "tags": [
+            {
+              "__typename": "Tag",
+              "id": "1",
+              "slug": "kompot",
+              "title": "kompot"
+            },
+            {
+              "__typename": "Tag",
+              "id": "332",
+              "slug": "bralni-krozek",
+              "title": "bralni krožek"
+            },
+            {
+              "__typename": "Tag",
+              "id": "333",
+              "slug": "programiranje",
+              "title": "programiranje"
+            },
+            {
+              "__typename": "Tag",
+              "id": "334",
+              "slug": "sicp",
+              "title": "sicp"
+            }
+          ],
+          "title": "Kompotov Programerski Bralni Krožek #5",
+          "url": "https://dogodki.kompot.si/events/63a4ad96-7cc2-45a3-8560-18a1a28cf9b5",
+          "uuid": "63a4ad96-7cc2-45a3-8560-18a1a28cf9b5"
+        },
+        {
+          "__typename": "Event",
+          "attributedTo": {
+            "__typename": "Group",
+            "avatar": {
+              "__typename": "Media",
+              "id": "224a8e28-52cd-4c0f-9f34-0a867def8a22",
+              "url": "https://dogodki.kompot.si/media/ea8851aa5612c4a97bb2b55ecb6f6184d07d90bc63300939e5cef64127ff39f2.png?name=1920-1080-max-trans.png"
+            },
+            "domain": null,
+            "id": "5",
+            "name": "Kompot",
+            "preferredUsername": "kompot",
+            "summary": "<p>Na samoupraven nacin si zagotavljamo spletne storitve temljece na prosti programski opremi, ki jih gostimo na lastni infrastrukturi.</p><p>Kontakt:</p><p>e-mail: info@kompot.si</p><p>mastodon: @kompot@toot.si</p>",
+            "type": "GROUP",
+            "url": "https://dogodki.kompot.si/@kompot"
+          },
+          "beginsOn": "2024-06-10T16:00:00Z",
+          "id": "269",
+          "options": {
+            "__typename": "EventOptions",
+            "isOnline": false
+          },
+          "organizerActor": null,
+          "participantStats": {
+            "__typename": "ParticipantStats",
+            "participant": 3
+          },
+          "physicalAddress": {
+            "__typename": "Address",
+            "country": "Slovenia",
+            "description": "43 Linhartova cesta",
+            "geom": "14.52208513573195;46.067007200000006",
+            "id": "23",
+            "locality": "Ljubljana",
+            "originId": "nominatim:319250282",
+            "pictureInfo": null,
+            "postalCode": "1000",
+            "region": null,
+            "street": "43 Linhartova cesta",
+            "timezone": null,
+            "type": "house",
+            "url": "https://dogodki.kompot.si/address/efbd890c-d145-42aa-97c2-288cb33b7b7b"
+          },
+          "picture": {
+            "__typename": "Media",
+            "id": "1838",
+            "url": "https://dogodki.kompot.si/media/692daddbf5924421298796c659d84344f032442a79b7039470ba30666a437bda.jpg?name=penguin-party-2.jpg"
+          },
+          "status": "CONFIRMED",
+          "tags": [
+            {
+              "__typename": "Tag",
+              "id": "30",
+              "slug": "gnu-linux",
+              "title": "GNU/Linux"
+            }
+          ],
+          "title": "Kompot GNU/Linux install party",
+          "url": "https://dogodki.kompot.si/events/c002e754-5bdd-414c-a020-6b76dd12093b",
+          "uuid": "c002e754-5bdd-414c-a020-6b76dd12093b"
+        },
+        {
+          "__typename": "Event",
+          "attributedTo": {
+            "__typename": "Group",
+            "avatar": {
+              "__typename": "Media",
+              "id": "abba8c1b-aef9-4ca5-ad04-2bf5bc4e758e",
+              "url": "https://dogodki.kompot.si/media/5671a2ca7e925cda860757c4c4d1484bc5e3b20c929ac4e0f0ede5238b93efe0.jpg?name=emacssi%27s%20avatar.jpg"
+            },
+            "domain": null,
+            "id": "49181",
+            "name": "Emacs.si",
+            "preferredUsername": "emacssi",
+            "summary": "<p dir=\"auto\">Emacs Slovenia User Group</p><p dir=\"auto\"><a target=\"_blank\" rel=\"noopener noreferrer ugc\" href=\"http://emacs.si/\">http://emacs.si/</a></p><p dir=\"auto\">Dopisna lista: <a target=\"_blank\" rel=\"noopener noreferrer ugc\" href=\"https://groups.io/g/emacs\">https://groups.io/g/emacs</a></p>",
+            "type": "GROUP",
+            "url": "https://dogodki.kompot.si/@emacssi"
+          },
+          "beginsOn": "2024-07-04T17:00:00Z",
+          "id": "271",
+          "options": {
+            "__typename": "EventOptions",
+            "isOnline": false
+          },
+          "organizerActor": null,
+          "participantStats": {
+            "__typename": "ParticipantStats",
+            "participant": 0
+          },
+          "physicalAddress": {
+            "__typename": "Address",
+            "country": "Slovenia",
+            "description": "Centralna tehniška knjižnica",
+            "geom": "14.4997087;46.0499535",
+            "id": "40",
+            "locality": "Ljubljana",
+            "originId": "nominatim:1078282872",
+            "pictureInfo": null,
+            "postalCode": "1000",
+            "region": null,
+            "street": "10 Prešernova cesta",
+            "timezone": null,
+            "type": "house",
+            "url": "https://dogodki.kompot.si/address/fc9fece6-7d4a-48dc-9316-06dd02b14413"
+          },
+          "picture": {
+            "__typename": "Media",
+            "id": "1328",
+            "url": "https://dogodki.kompot.si/media/aa9f8130f4ac51c4ffc9791ba6e8436c5745c6008b3297b4aab30ba0edee80e8.jpg?name=emacs.jpg"
+          },
+          "status": "CONFIRMED",
+          "tags": [
+            {
+              "__typename": "Tag",
+              "id": "150",
+              "slug": "emacs",
+              "title": "emacs"
+            },
+            {
+              "__typename": "Tag",
+              "id": "188",
+              "slug": "gnu",
+              "title": "gnu"
+            }
+          ],
+          "title": "Emacs.si meetup #11 2024 (v #živo)",
+          "url": "https://dogodki.kompot.si/events/9fa1f342-0447-49f4-881c-42e0689ea80e",
+          "uuid": "9fa1f342-0447-49f4-881c-42e0689ea80e"
+        },
+        {
+          "__typename": "Event",
+          "attributedTo": {
+            "__typename": "Group",
+            "avatar": {
+              "__typename": "Media",
+              "id": "abba8c1b-aef9-4ca5-ad04-2bf5bc4e758e",
+              "url": "https://dogodki.kompot.si/media/5671a2ca7e925cda860757c4c4d1484bc5e3b20c929ac4e0f0ede5238b93efe0.jpg?name=emacssi%27s%20avatar.jpg"
+            },
+            "domain": null,
+            "id": "49181",
+            "name": "Emacs.si",
+            "preferredUsername": "emacssi",
+            "summary": "<p dir=\"auto\">Emacs Slovenia User Group</p><p dir=\"auto\"><a target=\"_blank\" rel=\"noopener noreferrer ugc\" href=\"http://emacs.si/\">http://emacs.si/</a></p><p dir=\"auto\">Dopisna lista: <a target=\"_blank\" rel=\"noopener noreferrer ugc\" href=\"https://groups.io/g/emacs\">https://groups.io/g/emacs</a></p>",
+            "type": "GROUP",
+            "url": "https://dogodki.kompot.si/@emacssi"
+          },
+          "beginsOn": "2024-09-05T17:00:00Z",
+          "id": "274",
+          "options": {
+            "__typename": "EventOptions",
+            "isOnline": false
+          },
+          "organizerActor": null,
+          "participantStats": {
+            "__typename": "ParticipantStats",
+            "participant": 0
+          },
+          "physicalAddress": {
+            "__typename": "Address",
+            "country": "Slovenia",
+            "description": "Centralna tehniška knjižnica",
+            "geom": "14.4997087;46.0499535",
+            "id": "40",
+            "locality": "Ljubljana",
+            "originId": "nominatim:1078282872",
+            "pictureInfo": null,
+            "postalCode": "1000",
+            "region": null,
+            "street": "10 Prešernova cesta",
+            "timezone": null,
+            "type": "house",
+            "url": "https://dogodki.kompot.si/address/fc9fece6-7d4a-48dc-9316-06dd02b14413"
+          },
+          "picture": {
+            "__typename": "Media",
+            "id": "1967",
+            "url": "https://dogodki.kompot.si/media/cd4691cb06881ba39b5ffaca24c431d7c30e0154ce9526e503384e0f88d3baf1.jpg?name=gnu-typewritter-4.jpg"
+          },
+          "status": "CONFIRMED",
+          "tags": [
+            {
+              "__typename": "Tag",
+              "id": "150",
+              "slug": "emacs",
+              "title": "emacs"
+            },
+            {
+              "__typename": "Tag",
+              "id": "188",
+              "slug": "gnu",
+              "title": "gnu"
+            }
+          ],
+          "title": "Emacs.si meetup #12 2024 (v #živo)",
+          "url": "https://dogodki.kompot.si/events/ae9730f1-bb73-4621-a4b1-f31ee395c8c9",
+          "uuid": "ae9730f1-bb73-4621-a4b1-f31ee395c8c9"
+        }
+      ],
+      "total": 6
+    },
+    "searchGroups": {
+      "__typename": "Groups",
+      "elements": [
+        {
+          "__typename": "Group",
+          "avatar": {
+            "__typename": "Media",
+            "id": "224a8e28-52cd-4c0f-9f34-0a867def8a22",
+            "url": "https://dogodki.kompot.si/media/ea8851aa5612c4a97bb2b55ecb6f6184d07d90bc63300939e5cef64127ff39f2.png?name=1920-1080-max-trans.png"
+          },
+          "banner": {
+            "__typename": "Media",
+            "id": "a47acfbe-87aa-4f62-9f21-c3ab94f4ea50",
+            "url": "https://dogodki.kompot.si/media/e6d8cdef4bbde3456891697b681e038dec2e7c25e22d0d02f21c173bc8530341.jpg?name=logo_jan_1.jpg"
+          },
+          "domain": null,
+          "followersCount": 24,
+          "id": "5",
+          "membersCount": 5,
+          "name": "Kompot",
+          "physicalAddress": {
+            "__typename": "Address",
+            "country": null,
+            "description": null,
+            "geom": null,
+            "id": "19",
+            "locality": null,
+            "originId": null,
+            "pictureInfo": null,
+            "postalCode": null,
+            "region": null,
+            "street": null,
+            "timezone": null,
+            "type": null,
+            "url": "https://dogodki.kompot.si/address/55e9e8b4-7667-4f4b-9ea8-5ca3b758969e"
+          },
+          "preferredUsername": "kompot",
+          "summary": "<p>Na samoupraven nacin si zagotavljamo spletne storitve temljece na prosti programski opremi, ki jih gostimo na lastni infrastrukturi.</p><p>Kontakt:</p><p>e-mail: info@kompot.si</p><p>mastodon: @kompot@toot.si</p>",
+          "type": "GROUP",
+          "url": "https://dogodki.kompot.si/@kompot"
+        },
+        {
+          "__typename": "Group",
+          "avatar": {
+            "__typename": "Media",
+            "id": "80ce36ae-16b2-4424-87ca-295ce09f9130",
+            "url": "https://dogodki.kompot.si/media/fafc5dfcdbc3f7327674bc9f92765d8142ffb14d047e52184d954a80a77baccd.jpg?name=lom_logo.jpg"
+          },
+          "banner": {
+            "__typename": "Media",
+            "id": "aa233b28-785d-42f3-99b4-8361a1c1ad6b",
+            "url": "https://dogodki.kompot.si/media/c8bce3c4cd476efa2975507e13dbbe0fda5efd8ebfa0f9b17ffe09f07d21e2d9.jpg?name=lom_banner.jpg"
+          },
+          "domain": null,
+          "followersCount": 4,
+          "id": "21",
+          "membersCount": 3,
+          "name": "LOM",
+          "physicalAddress": null,
+          "preferredUsername": "lom",
+          "summary": "<p>LOM je platforma posvečena pobudam, razpravam in akcijam za uresničevanje ideje odprtega mesta v Ljubljani. Želimo živeti v solidarni, demokratični in ustvarjalni skupnosti. Odprimo Ljubljano, naj znova postane mesto vseh nas! </p><p><a target=\"_blank\" rel=\"noopener noreferrer nofollow\" href=\"https://lom.je/\">https://lom.je/</a></p><p><a target=\"_blank\" rel=\"noopener noreferrer nofollow\" href=\"https://www.facebook.com/ljubljanaodprtomesto/\">https://www.facebook.com/ljubljanaodprtomesto/</a></p>",
+          "type": "GROUP",
+          "url": "https://dogodki.kompot.si/@lom"
+        },
+        {
+          "__typename": "Group",
+          "avatar": {
+            "__typename": "Media",
+            "id": "7d487238-71cf-46ea-be5c-ba963f63ac6e",
+            "url": "https://dogodki.kompot.si/media/55c75545e42eb0f290c37ad81e5a8b8d6d3247824bc05a3eb28ed81b35956649.png?name=logo24.png"
+          },
+          "banner": {
+            "__typename": "Media",
+            "id": "e155efd8-d3f8-44a4-9cc2-d4413f7b0609",
+            "url": "https://dogodki.kompot.si/media/a3d9eab2501b61cd78c5b442f75ccd05206f268f929a7c618d8276b387129477.png?name=snail3.png"
+          },
+          "domain": null,
+          "followersCount": 10,
+          "id": "1316",
+          "membersCount": 2,
+          "name": "tehnoklistir",
+          "physicalAddress": null,
+          "preferredUsername": "tehnoklistir",
+          "summary": "Tehno enema - radio show about regulation of technology from free software/user freedom perspective and alternatives to mainstream services. Focused on the internet.",
+          "type": "GROUP",
+          "url": "https://dogodki.kompot.si/@tehnoklistir"
+        },
+        {
+          "__typename": "Group",
+          "avatar": {
+            "__typename": "Media",
+            "id": "aec081c3-f46a-43de-a478-9c8a4565c051",
+            "url": "https://dogodki.kompot.si/media/89f48d3b9c1cfd4ba9004bf27876b52dc4377be2ed976aa708ba9b9aee827e28.jpg?name=5d811eb813d1c942df18cfe9e80e3cddc2c75de8009c685ea0454caa3bf6467c.jpg"
+          },
+          "banner": {
+            "__typename": "Media",
+            "id": "042a3a63-a53c-4af0-b83c-bc538235b929",
+            "url": "https://dogodki.kompot.si/media/9ae7e67bf1a57188de8a67bd15f071a7833a91ca51e9b6083f4be7b490c10c27.png?name=400a8e0dd30f343ea3bd92d3163ff8629d4c40f28aceb954af755434e5a439cb.png"
+          },
+          "domain": "mobilizon.fr",
+          "followersCount": 0,
+          "id": "1347",
+          "membersCount": 0,
+          "name": "NixOS Montpellier",
+          "physicalAddress": {
+            "__typename": "Address",
+            "country": "France",
+            "description": "Montpellier",
+            "geom": "3.864104;43.614719",
+            "id": "20",
+            "locality": "Montpellier",
+            "originId": null,
+            "pictureInfo": null,
+            "postalCode": null,
+            "region": "Hérault",
+            "street": null,
+            "timezone": null,
+            "type": null,
+            "url": "https://mobilizon.fr/address/7600dc19-8093-4edb-9af7-99e620cdbd8f"
+          },
+          "preferredUsername": "nix-mtp",
+          "summary": "<p>Connaissez-vous NixOS, la distribution Linux sans effet de bord ? Si la réponse est \"non\", rejoignez-nous pour découvrir ce système d'exploitation taillé pour le DevOps. Si la réponse est \"oui\", alors venez partager avec nous votre expérience ou (qui sait?) en apprendre plus. Une connaissance poussée des systèmes Unix et Linux est recommandée pour comprendre les avantages de ce système par rapport aux autres, mais les néophytes curieux sont les bienvenus…</p>",
+          "type": "GROUP",
+          "url": "https://mobilizon.fr/@nix-mtp"
+        },
+        {
+          "__typename": "Group",
+          "avatar": {
+            "__typename": "Media",
+            "id": "da2253d9-eb74-4f21-8044-065152f84fc2",
+            "url": "https://dogodki.kompot.si/media/70f6662b5f23970ffe6e76e5ed66c2218a7f24ef0ef673280dcd387deb56f2eb.jpg?name=noface.jpg"
+          },
+          "banner": {
+            "__typename": "Media",
+            "id": "0fd34467-0c41-4ea7-9ea7-7536a8bb4b77",
+            "url": "https://dogodki.kompot.si/media/b3f159129b527930e413e496aa716239b7071827209301b7158a259d58027d22.png?name=glitch_art_stars-118755.png%21d.png"
+          },
+          "domain": null,
+          "followersCount": 9,
+          "id": "1629",
+          "membersCount": 2,
+          "name": "Neznani",
+          "physicalAddress": null,
+          "preferredUsername": "neznani",
+          "summary": "Zunanji organizatorji dogodkov.",
+          "type": "GROUP",
+          "url": "https://dogodki.kompot.si/@neznani"
+        },
+        {
+          "__typename": "Group",
+          "avatar": {
+            "__typename": "Media",
+            "id": "8d6718c5-19b5-41bd-a19c-0d5f27afe989",
+            "url": "https://dogodki.kompot.si/media/f95a525b110cb7a488fafcb57ee917773b1bac3b981a273286f7985d7834d5ee.png?name=rs_big.png"
+          },
+          "banner": {
+            "__typename": "Media",
+            "id": "58af1756-18a2-46b5-9958-079ec4efdea3",
+            "url": "https://dogodki.kompot.si/media/9aacb6d5c6b9c6412202eca7de850f770451e16595d4a805aedced09cbdd9265.jpg?name=1024-768-max.jpg"
+          },
+          "domain": null,
+          "followersCount": 18,
+          "id": "2227",
+          "membersCount": 2,
+          "name": "Radio Študent",
+          "physicalAddress": null,
+          "preferredUsername": "radio_student",
+          "summary": "Frekvenca oddajanja: 89,3 MHz (500 W) UKV STEREO\n\n<a href=\"https://radiostudent.si/\" target=\"_blank\" rel=\"noopener noreferrer ugc\">https://radiostudent.si/</a>",
+          "type": "GROUP",
+          "url": "https://dogodki.kompot.si/@radio_student"
+        },
+        {
+          "__typename": "Group",
+          "avatar": {
+            "__typename": "Media",
+            "id": "f1b2af21-7b2c-4f17-bea8-64d248815be4",
+            "url": "https://dogodki.kompot.si/media/7d1afa56dafee52fac4931092e1b74ac88d8b228ba3aa72bf0b214f6b9a8029f.jpg?name=zeljava_entrance_2-640x426.jpg"
+          },
+          "banner": {
+            "__typename": "Media",
+            "id": "cf585c3f-c5b3-4d7d-9641-a3da03b1f610",
+            "url": "https://dogodki.kompot.si/media/4298d7ef813e6a56706eb75fc794cc179caf24e418cc3090015d9da259ef9296.webp?name=ss_tunnel.webp"
+          },
+          "domain": null,
+          "followersCount": 1,
+          "id": "3027",
+          "membersCount": 2,
+          "name": "Rovarjenje",
+          "physicalAddress": null,
+          "preferredUsername": "rovarjenje",
+          "summary": "Podtok hribolaza:\n<a href=\"https://liste.kompot.si/postorius/lists/hribolaz.kompot.si/\" target=\"_blank\" rel=\"noopener noreferrer ugc\">https://liste.kompot.si/postorius/lists/hribolaz.kompot.si/</a>",
+          "type": "GROUP",
+          "url": "https://dogodki.kompot.si/@rovarjenje"
+        },
+        {
+          "__typename": "Group",
+          "avatar": null,
+          "banner": null,
+          "domain": null,
+          "followersCount": 0,
+          "id": "4550",
+          "membersCount": 1,
+          "name": "bralke",
+          "physicalAddress": null,
+          "preferredUsername": "bralke",
+          "summary": "Je skupina ustvarjalk, ki se druži ob medsebojnem prebiranju poezije, proze, dramatike, prebliskov, zapisov...",
+          "type": "GROUP",
+          "url": "https://dogodki.kompot.si/@bralke"
+        },
+        {
+          "__typename": "Group",
+          "avatar": {
+            "__typename": "Media",
+            "id": "77b7e55f-2cbc-4cf9-a8db-4e1344e24b50",
+            "url": "https://dogodki.kompot.si/media/9a0f8941f27bfb0107ca5dfcd1bae5e1de7083d4a9c5c474b91f6d99517d223e.jpg?name=302577219_495017652631637_9139759202539137968_n.jpg"
+          },
+          "banner": {
+            "__typename": "Media",
+            "id": "3cacd45d-189e-452e-87cb-22cf5aa6b23b",
+            "url": "https://dogodki.kompot.si/media/a1411790e3876441ba9769b02da6410e2564fd720e5b66e4e09bfda6e959363b.jpg?name=280024121_1157545161765544_9162693632150389690_n.jpg"
+          },
+          "domain": null,
+          "followersCount": 2,
+          "id": "18493",
+          "membersCount": 1,
+          "name": "Mismo Nismo",
+          "physicalAddress": null,
+          "preferredUsername": "mismo_nismo",
+          "summary": "<a href=\"http://mismonismo.org/\" target=\"_blank\" rel=\"noopener noreferrer ugc\">http://mismonismo.org/</a>",
+          "type": "GROUP",
+          "url": "https://dogodki.kompot.si/@mismo_nismo"
+        },
+        {
+          "__typename": "Group",
+          "avatar": {
+            "__typename": "Media",
+            "id": "7fb1fdf7-ff88-452b-b520-1a64c5c698b4",
+            "url": "https://dogodki.kompot.si/media/5eb5fb41e90936ea496f713866a787dc68b4007c674103dff8d553d8c17f9c75.png?name=kiberpipa_cyberpipe%27s%20avatar.png"
+          },
+          "banner": {
+            "__typename": "Media",
+            "id": "2a7d90f7-7454-46a0-966a-8246bc1a834c",
+            "url": "https://dogodki.kompot.si/media/15cff4bc2d2aeb7a3b0bf0fbade6b7d6a97572b46a0bb5a10afd022cecf2b8af.jpg?name=kiberpipa_cyberpipe%27s%20banner.jpg"
+          },
+          "domain": null,
+          "followersCount": 48,
+          "id": "45456",
+          "membersCount": 6,
+          "name": "Kiberpipa / Cyberpipe",
+          "physicalAddress": null,
+          "preferredUsername": "kiberpipa_cyberpipe",
+          "summary": "<p dir=\"auto\">Skupnost <strong>Kiberpipa</strong> oz. <strong>Cyberpipe</strong> je (bila) en (naj)večjih in najstarejših hackerspace-ov, ki je sčasoma transcendiral svojo fizično pojavo.</p><p dir=\"auto\"></p><p dir=\"auto\">V svoji tretji, bolj grassroots, pojavnosti se dobivamo <strong>enkrat mesečno</strong> v <em>Računalniškem muzeju</em>, kjer si širimo obzorja in znanje prek predavanj, debat in splošnega druženja.</p><p dir=\"auto\"></p><p dir=\"auto\">Vabljeni ste vsi, ki delate na FOSS, OpenData, sociologiji in filozofiji kiberprostorov ali karkoli podobnega geekovskega! Če si del skupnosti, ki se v tem prepozna, <a target=\"_blank\" rel=\"noopener noreferrer ugc\" href=\"https://dok.kompot.si/imenik\">dodaj svojo skupnost v imenik</a>.</p><p dir=\"auto\"></p><p dir=\"auto\">Glavni cilj nam je ponovno povezovanje razdrobljene širše skupnosti pri nas, točne vsebine pa sproti predebatiramo – v ta namen <a target=\"_blank\" rel=\"noopener noreferrer ugc\" href=\"https://dok.kompot.si/kiberpipa_ideje_za_predavanja\">kolaborativno urejamo program za (vsaj) dva meseca vnaprej</a> ter zbiramo ideje v istem dokumentu (kar dodaj! :D).</p><p dir=\"auto\"></p><p dir=\"auto\">Glavni komunikacjiski kanal je <a target=\"_blank\" rel=\"noopener noreferrer ugc\" href=\"http://lists.arnes.si/mailman/listinfo/skupnost-kiberpipa\">javna mailing lista</a>. Dogodki pa so <a target=\"_blank\" rel=\"noopener noreferrer ugc\" href=\"https://dogodki.kompot.si/@kiberpipa_cyberpipe\">objavljeni tu</a>.</p>",
+          "type": "GROUP",
+          "url": "https://dogodki.kompot.si/@kiberpipa_cyberpipe"
+        },
+        {
+          "__typename": "Group",
+          "avatar": {
+            "__typename": "Media",
+            "id": "abba8c1b-aef9-4ca5-ad04-2bf5bc4e758e",
+            "url": "https://dogodki.kompot.si/media/5671a2ca7e925cda860757c4c4d1484bc5e3b20c929ac4e0f0ede5238b93efe0.jpg?name=emacssi%27s%20avatar.jpg"
+          },
+          "banner": {
+            "__typename": "Media",
+            "id": "7438cebe-4793-4eb7-8311-c32354382d35",
+            "url": "https://dogodki.kompot.si/media/c5d22d482c7abdede45f4cc937444b456af91797ad9df42141f872441709f982.jpg?name=emacssi%27s%20banner.jpg"
+          },
+          "domain": null,
+          "followersCount": 27,
+          "id": "49181",
+          "membersCount": 2,
+          "name": "Emacs.si",
+          "physicalAddress": null,
+          "preferredUsername": "emacssi",
+          "summary": "<p dir=\"auto\">Emacs Slovenia User Group</p><p dir=\"auto\"><a target=\"_blank\" rel=\"noopener noreferrer ugc\" href=\"http://emacs.si/\">http://emacs.si/</a></p><p dir=\"auto\">Dopisna lista: <a target=\"_blank\" rel=\"noopener noreferrer ugc\" href=\"https://groups.io/g/emacs\">https://groups.io/g/emacs</a></p>",
+          "type": "GROUP",
+          "url": "https://dogodki.kompot.si/@emacssi"
+        },
+        {
+          "__typename": "Group",
+          "avatar": {
+            "__typename": "Media",
+            "id": "76f902a8-8202-489a-aee1-863758e1873a",
+            "url": "https://dogodki.kompot.si/media/fdef54a1684497c8bc41530a689a4a9d8ab604ac4db8252f07d013673409fde3.jpg?name=00000000000000000000000000000000000000000000000000000000000002.jpg"
+          },
+          "banner": {
+            "__typename": "Media",
+            "id": "2d273d73-8fdb-4985-a377-829e25d780d2",
+            "url": "https://dogodki.kompot.si/media/674e42b3d32f8d37270cf0c78dc0c8c4c4b844418bb3ced4b1672cd43699de07.jpg?name=signal-2023-01-12-184436_002.jpg"
+          },
+          "domain": null,
+          "followersCount": 5,
+          "id": "49913",
+          "membersCount": 1,
+          "name": "sestavljanka",
+          "physicalAddress": null,
+          "preferredUsername": "sestavljanka",
+          "summary": null,
+          "type": "GROUP",
+          "url": "https://dogodki.kompot.si/@sestavljanka"
+        },
+        {
+          "__typename": "Group",
+          "avatar": {
+            "__typename": "Media",
+            "id": "2584ae3b-046c-4537-8549-81d87b7db8ba",
+            "url": "https://dogodki.kompot.si/media/5f41b41e91e6fc61fecdf25d6a088b44e5f275b01d962fef9c3308a458a58fb8.jpg?name=NASLOVKA-iz-Maska-209-210_jpeg-scaled.jpg"
+          },
+          "banner": {
+            "__typename": "Media",
+            "id": "0ab8c935-e232-42ef-aeed-e829d620ff66",
+            "url": "https://dogodki.kompot.si/media/35f4fc889a5598987ff480bf1669bb7fabc066c29ef38fa2527a00640b5b7273.jpg?name=pexels-%D0%B0%D0%BD%D1%82%D0%BE%D0%BD-%D0%B7%D0%BB%D0%BE%D0%B1%D0%B8%D0%BD-12200117.jpg"
+          },
+          "domain": null,
+          "followersCount": 8,
+          "id": "53141",
+          "membersCount": 2,
+          "name": "Jugofuturism",
+          "physicalAddress": null,
+          "preferredUsername": "yufu",
+          "summary": "Jugofuturism by maska",
+          "type": "GROUP",
+          "url": "https://dogodki.kompot.si/@yufu"
+        },
+        {
+          "__typename": "Group",
+          "avatar": {
+            "__typename": "Media",
+            "id": "970395af-eb22-4184-91a6-3e655664ed2d",
+            "url": "https://dogodki.kompot.si/media/5aa144a562c04f11921c46d4e5585e56013f54b368b045e64f1faec7ba2822db.jpg?name=fediversenews.jpg"
+          },
+          "banner": null,
+          "domain": "venera.social",
+          "followersCount": 0,
+          "id": "56007",
+          "membersCount": 0,
+          "name": "Fediverse News",
+          "physicalAddress": null,
+          "preferredUsername": "fediversenews",
+          "summary": "<p>This is a Friendica group dedicated to #Fediverse news. What are the advantages of a group over a hashtag?</p><p>This is an actively moderated group. Be sure to stay on topic, or your posts will be removed. To report any post that's offensive or goes off topic, send a direct message to @atomicpoet@atomicpoet.org.</p><p>Remember, you don't even need to be a Friendica user to participate. Because Friendica is part of the Fediverse, this group is available to everyone -- including people who use Mastodon!</p>",
+          "type": "GROUP",
+          "url": "https://venera.social/profile/fediversenews"
+        },
+        {
+          "__typename": "Group",
+          "avatar": {
+            "__typename": "Media",
+            "id": "a7517d63-2efa-46a6-a69a-d08d31fce6fb",
+            "url": "https://dogodki.kompot.si/media/54f418f26607bfaf2ca77af67c5ed005e0f5bbbd789b5c52ec90b2847c7317f0.png?name=cirkulacija2_logo.png"
+          },
+          "banner": {
+            "__typename": "Media",
+            "id": "e6922187-64f6-4c75-9ba7-bb546b68fc6d",
+            "url": "https://dogodki.kompot.si/media/a3e272837af40db69531c456c020231baee33f004cb23504cc1c1ba2614a64b1.png?name=cirkulacija2.png"
+          },
+          "domain": null,
+          "followersCount": 0,
+          "id": "70262",
+          "membersCount": 1,
+          "name": "Cirkulacija²",
+          "physicalAddress": null,
+          "preferredUsername": "cirkulacija2",
+          "summary": "Association for interdisciplinary, independent art production and the circulation of contemporary art",
+          "type": "GROUP",
+          "url": "https://dogodki.kompot.si/@cirkulacija2"
+        },
+        {
+          "__typename": "Group",
+          "avatar": {
+            "__typename": "Media",
+            "id": "6a4be41b-d431-4e6e-b7a7-20e0bec24bfd",
+            "url": "https://dogodki.kompot.si/media/10ba46b4afc9c3a9be7bdec2344f6cc4b863e43b5659251bbf753b52f43c2edf.jpg?name=273695122_3170295979851011_5874272259157661929_n.jpg"
+          },
+          "banner": {
+            "__typename": "Media",
+            "id": "fca10983-460b-49b7-a4e7-faa70142c041",
+            "url": "https://dogodki.kompot.si/media/598eac48053474015be1c6865c3869267352776adea361bbe45bf1d50b82d56e.jpg?name=58818414_2323112751236009_2476210639425503232_n.jpg"
+          },
+          "domain": null,
+          "followersCount": 1,
+          "id": "70263",
+          "membersCount": 1,
+          "name": "Kramp Fest",
+          "physicalAddress": null,
+          "preferredUsername": "kramp_fest",
+          "summary": "Punx picnic",
+          "type": "GROUP",
+          "url": "https://dogodki.kompot.si/@kramp_fest"
+        },
+        {
+          "__typename": "Group",
+          "avatar": {
+            "__typename": "Media",
+            "id": "a75c5967-317f-4759-9fb6-667e37b5cbb6",
+            "url": "https://dogodki.kompot.si/media/9e049e5c265ad9b2035e582d835a5680d5a80fced2e171557d2bc387c5950443.png?name=slovenski_toplap%27s%20avatar.png"
+          },
+          "banner": {
+            "__typename": "Media",
+            "id": "74533d9f-0aa6-440d-a8ea-1e30211b7731",
+            "url": "https://dogodki.kompot.si/media/da623b489a50b1008076045d3c6ac139261534c7a48a9efbd8fe187ea54a9f5b.png?name=slovenski_toplap%27s%20banner.png"
+          },
+          "domain": null,
+          "followersCount": 33,
+          "id": "73228",
+          "membersCount": 4,
+          "name": "Slovenski TOPLAP",
+          "physicalAddress": null,
+          "preferredUsername": "slovenski_toplap",
+          "summary": "<p dir=\"auto\"><a target=\"_blank\" rel=\"noopener noreferrer ugc\" href=\"https://dok.kompot.si/bf3ua6obRpSHdppcAJSrjQ?view\">https://dok.kompot.si/bf3ua6obRpSHdppcAJSrjQ?view</a></p><p dir=\"auto\"></p><p dir=\"auto\"><a target=\"_blank\" rel=\"noopener noreferrer ugc\" href=\"https://dogodki.kompot.si/@slovenski_toplap\">https://dogodki.kompot.si/@slovenski_toplap</a></p>",
+          "type": "GROUP",
+          "url": "https://dogodki.kompot.si/@slovenski_toplap"
+        },
+        {
+          "__typename": "Group",
+          "avatar": {
+            "__typename": "Media",
+            "id": "3bfa8135-3e65-4bfc-889b-f9ab34bc9570",
+            "url": "https://dogodki.kompot.si/media/2b12c7bc491f61edb4c750b7d2fe696dec5e458cb0fffdb2f87891d49a170baa.png?name=lugos%27s%20avatar.png"
+          },
+          "banner": {
+            "__typename": "Media",
+            "id": "c1abcfe0-c7ac-4e9f-948a-cba11a0931b8",
+            "url": "https://dogodki.kompot.si/media/1bbe90f11d2c86d767d0792b1210c769e652c0b3f9713322db9b6dbdff67dc22.png?name=Screenshot_20210914_172438.png"
+          },
+          "domain": null,
+          "followersCount": 3,
+          "id": "147334",
+          "membersCount": 1,
+          "name": "LUGOS – Linux User Group of Slovenia",
+          "physicalAddress": {
+            "__typename": "Address",
+            "country": null,
+            "description": null,
+            "geom": null,
+            "id": "59",
+            "locality": null,
+            "originId": null,
+            "pictureInfo": null,
+            "postalCode": null,
+            "region": null,
+            "street": null,
+            "timezone": null,
+            "type": null,
+            "url": "https://dogodki.kompot.si/address/df56ea35-d2fa-4cc5-8a13-a3b6574b801e"
+          },
+          "preferredUsername": "lugos",
+          "summary": "<p>Namen društva <strong>Lugos</strong> je združevanje vseh slovenskih uporabnikov prostega operacijskega sistema <a target=\"_blank\" rel=\"noopener noreferrer ugc\" href=\"http://www.lugos.si/linux\"><strong>Linux</strong></a> ter širjenje in promoviranje Linuxa med ostalimi uporabniki računalnikov.</p>",
+          "type": "GROUP",
+          "url": "https://dogodki.kompot.si/@lugos"
+        },
+        {
+          "__typename": "Group",
+          "avatar": {
+            "__typename": "Media",
+            "id": "3009998d-558c-44ff-8c5c-742c964ce042",
+            "url": "https://dogodki.kompot.si/media/70cde6d770af82f2c59656558139b27a4c6cba6ce80a4633bb47174be2eed8ce.jpg?name=rog.jpg"
+          },
+          "banner": {
+            "__typename": "Media",
+            "id": "6b0cc728-a4fa-42e1-9ee7-56a8c01c3a8e",
+            "url": "https://dogodki.kompot.si/media/5103ef7dc3911bd1855d722223022a712b08121e3fcd09c8f0f67ba9b3e45227.jpg?name=rog_bager.jpg"
+          },
+          "domain": null,
+          "followersCount": 0,
+          "id": "175421",
+          "membersCount": 1,
+          "name": "Avtonomna tovarna Rog",
+          "physicalAddress": {
+            "__typename": "Address",
+            "country": "Slovenija",
+            "description": "Rog",
+            "geom": "14.515441633759828;46.051316",
+            "id": "60",
+            "locality": "Ljubljana",
+            "originId": "nominatim:184158518",
+            "pictureInfo": null,
+            "postalCode": "1000",
+            "region": null,
+            "street": "72 Trubarjeva cesta",
+            "timezone": null,
+            "type": "house",
+            "url": "https://dogodki.kompot.si/address/36c3ef18-200f-49c6-aad7-3af5a7864559"
+          },
+          "preferredUsername": "avtonomna_tovarna_rog",
+          "summary": "<p>V soboto, 25. 3. 2006, se je v zapuščeni tovarni Rog začela izvedba novega socialnega programa ter odprla pobuda za začasno uporabo tovarne z namenom izvajanja neprofitnih in neuveljavljenih dejavnosti.</p>",
+          "type": "GROUP",
+          "url": "https://dogodki.kompot.si/@avtonomna_tovarna_rog"
+        },
+        {
+          "__typename": "Group",
+          "avatar": null,
+          "banner": null,
+          "domain": "mobilizon.nl",
+          "followersCount": 1,
+          "id": "254421",
+          "membersCount": 0,
+          "name": "GNU Guix Days",
+          "physicalAddress": null,
+          "preferredUsername": "gnu_guix_days",
+          "summary": null,
+          "type": "GROUP",
+          "url": "https://mobilizon.nl/@gnu_guix_days"
+        }
+      ],
+      "total": 22
+    }
+  }
+}
