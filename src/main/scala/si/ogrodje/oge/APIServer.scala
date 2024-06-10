@@ -1,29 +1,26 @@
 package si.ogrodje.oge
 
 import cats.effect.{IO, Resource}
-import doobie.util.transactor.Transactor
-import org.http4s.blaze.server.BlazeServerBuilder
-import org.http4s.server.Server
-import org.typelevel.log4cats.LoggerFactory
-import org.typelevel.log4cats.slf4j.Slf4jFactory
-import si.ogrodje.oge.view.Layout
-
-import java.time.LocalDateTime
-import org.http4s.*
-import org.http4s.dsl.io.*
-import org.http4s.implicits.*
 import doobie.*
 import doobie.implicits.*
 import doobie.implicits.javatime.*
-
-import java.time.format.DateTimeFormatter
-// import org.http4s.circe.CirceEntityEncoder.*
-import scalatags.Text.all.*
-
-import org.http4s.circe.*
+import doobie.util.transactor.Transactor
 import io.circe.generic.auto.*
 import io.circe.syntax.*
-import view.Layout.{defaultLayout, renderHtml}
+import org.http4s.*
+import org.http4s.blaze.server.BlazeServerBuilder
+import org.http4s.circe.*
+import org.http4s.dsl.io.*
+import org.http4s.implicits.*
+import org.http4s.server.Server
+import org.typelevel.log4cats.LoggerFactory
+import org.typelevel.log4cats.slf4j.Slf4jFactory
+import scalatags.Text.all.*
+import si.ogrodje.oge.view.Layout
+import si.ogrodje.oge.view.Layout.{defaultLayout, renderHtml}
+
+import java.time.{LocalDateTime, ZoneOffset}
+import java.time.format.DateTimeFormatter
 import java.util.Locale
 
 final case class APIServer(config: Config, transactor: Transactor[IO]):
@@ -88,17 +85,17 @@ final case class APIServer(config: Config, transactor: Transactor[IO]):
             )
             .toList
             .sortBy(_._1)
-            .map((day, events) => day -> events.sortBy(_.boost))
+            .map((day, events) => day -> events.sortBy(_.datetimeAt.toInstant(ZoneOffset.UTC)))
       )
 
   private def renderEvents(meetupsCount: Option[Long])(events: List[Event]): IO[Response[IO]] = renderHtml(
     defaultLayout(
       div(
         cls := "events",
-        groupEvents(events).map { (weekNumber, dates) =>
+        groupEvents(events).map { (_, dates) =>
           div(
             cls := "week",
-            dates.map { (date, events) =>
+            dates.map { (_, events) =>
               div(
                 cls := "date",
                 // div(cls := "date-group", date),
@@ -114,13 +111,18 @@ final case class APIServer(config: Config, transactor: Transactor[IO]):
                           .ofPattern("EEEE, d. MMMM y, HH:mm")
                           .withLocale(Locale.of("sl"))
                       )
-                    )
+                    ),
+                    div(cls := "updated_at", event.updatedAt.toString)
                   )
                 }
               )
             }
           )
         }
+      ),
+      div(
+        cls := "info-observe",
+        s"Opazujemo ${meetupsCount.getOrElse(0)} organizacij in meetup-ov."
       )
     )
   )
@@ -131,39 +133,6 @@ final case class APIServer(config: Config, transactor: Transactor[IO]):
         meetupsCount <- queries.meetupsCount.option.transact(transactor)
         out          <- upcomingEvents(renderEvents(meetupsCount))
       yield out
-    /*
-      queries.meetupsCount.option.transact(transactor).flatMap { eventsCnt =>
-        upcomingEvents { events =>
-          renderHtml(
-            defaultLayout(
-              div(
-                cls := "events",
-                events
-                  .groupBy(_.weekNumber)
-                  .toList
-                  .sortBy(_._1)
-                  .map { (week, events) =>
-                    div(
-                      cls := "week",
-                      events.map { event =>
-                        div(
-                          cls := "event",
-                          div(cls := "event-name", a(href := event.url, event.eventName)),
-                          div(cls := "meetup-name", event.meetupName),
-                          div(cls := "event-datetime", event.datetimeAt.toString)
-                        )
-                      }
-                    )
-                  }
-              ),
-              div(
-                cls := "info-observe",
-                s"Opazujemo ${eventsCnt.getOrElse(0)} meetup-ov in organizacij."
-              )
-            )
-          )
-        }
-      } */
     case GET -> Root / "api" / "events" / "upcoming" => upcomingEvents(events => Ok(events.asJson))
   }
 

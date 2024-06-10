@@ -245,10 +245,10 @@ final class KompotSi private (client: Client[IO]) extends Parser {
   } yield events).toList.flatten
 
   private def parseBeginsOn(raw: String): Either[Throwable, ZonedDateTime] = {
-    val pattern = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:00")
-    Try(LocalDateTime.parse(raw.replace("Z", ""), pattern)).toEither.fold(
+    val pattern = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:00z")
+    Try(ZonedDateTime.parse(raw, pattern)).toEither.fold(
       err => Left(err),
-      zoned => Right(zoned.atZone(ZoneId.of("CET")))
+      zoned => Right(zoned.plusHours(2))
     )
   }
 }

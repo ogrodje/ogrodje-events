@@ -55,6 +55,7 @@ final case class OgrodjeAPISync(
            ON CONFLICT (id) DO UPDATE SET
               name = ${event.name},
               url = ${event.url.toString},
+              datetime_at = $dateTime,
               updated_at = CURRENT_TIMESTAMP
         """.updateWithLabel("sync-event")
     insertQuery.run.transact(transactor).void
