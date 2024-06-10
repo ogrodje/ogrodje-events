@@ -43,7 +43,7 @@ final case class APIServer(config: Config, transactor: Transactor[IO]):
            |       strftime('%W', datetime(e.datetime_at / 1000, 'auto')) AS week_number
            |FROM events e LEFT JOIN main.meetups m on m.id = e.meetup_id
            |WHERE datetime(e.datetime_at / 1000, 'unixepoch') > CURRENT_TIMESTAMP
-           |ORDER BY e.datetime_at DESC, m.name""".stripMargin
+           |ORDER BY e.datetime_at ASC, m.name ASC""".stripMargin
         .queryWithLabel[Event]("upcoming-events")
   }
 

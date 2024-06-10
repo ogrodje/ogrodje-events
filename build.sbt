@@ -56,7 +56,7 @@ lazy val root = (project in file("."))
           Cmd("LABEL", "maintainer Oto Brglez <otobrglez@gmail.com>"),
           Cmd("LABEL", "org.opencontainers.image.url https://github.com/ogrodje/ogrodje-events"),
           Cmd("LABEL", "org.opencontainers.image.source https://github.com/ogrodje/ogrodje-events"),
-          // Cmd("RUN", "apk add --no-cache bash jq curl"),
+          Cmd("RUN", "apk add --no-cache bash jq curl"),
           Cmd("ENV", "SBT_VERSION", sbtVersion.value),
           Cmd("ENV", "SCALA_VERSION", scalaVersion.value),
           Cmd("ENV", "OGRODJE_EVENTS_VERSION", version.value),
