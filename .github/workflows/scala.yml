@@ -27,7 +27,7 @@ jobs:
       with:
         key: ${{ secrets.SSH_KEY }}
         name: id_rsa_og_events # optional
-        known_hosts: ${{ secrets.KNOWN_HOSTS }}
+        # known_hosts: ${{ secrets.KNOWN_HOSTS }}
         config: |
           Host low
             User oto
