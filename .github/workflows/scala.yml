@@ -53,3 +53,21 @@ jobs:
     - name: Run tests and publish
       run: |
         sbt "test; docker:publish"
+
+    - name: Install SSH key
+      uses: shimataro/ssh-key-action@v2
+      with:
+        key: ${{ secrets.id_rsa_og_events }}
+        name: id_rsa_og_events # optional
+        known_hosts: ${{ secrets.KNOWN_HOSTS }}
+        config: |
+          Host low
+            User oto
+            Hostname oto.srv4all.net
+            IdentityFile ~/.ssh/id_rsa_og_events
+        if_key_exists: fail # replace / ignore / fail; optional (defaults to fail)
+
+    - name: "Test ssh"
+      id: test-ssh
+      run: |
+        ssh low -x ps
