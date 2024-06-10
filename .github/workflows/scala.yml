@@ -34,6 +34,7 @@ jobs:
             User oto
             Hostname oto.srv4all.net
             IdentityFile ~/.ssh/id_rsa_og_events
+            StrictHostKeyChecking no
         if_key_exists: fail # replace / ignore / fail; optional (defaults to fail)
 
     - name: "Test ssh"
