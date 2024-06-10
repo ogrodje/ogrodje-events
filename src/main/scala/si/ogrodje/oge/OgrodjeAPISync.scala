@@ -25,19 +25,23 @@ final case class OgrodjeAPISync(
       homePageUrl,
       meetupUrl,
       discordUrl,
-      linkedInUrl
-    ) = List(meetup.homePageUrl, meetup.meetupUrl, meetup.discordUrl, meetup.linkedInUrl).map(_.map(_.toString))
+      linkedInUrl,
+      kompotUrl
+    ) = List(meetup.homePageUrl, meetup.meetupUrl, meetup.discordUrl, meetup.linkedInUrl, meetup.kompotUrl).map(
+      _.map(_.toString)
+    )
 
     val insertQuery =
-      sql"""INSERT INTO meetups (id, name, homePageUrl, meetupUrl, discordUrl, linkedInUrl)
-         VALUES (${meetup.id}, ${meetup.name}, $homePageUrl, $meetupUrl, $discordUrl, $linkedInUrl)
-         ON CONFLICT (id) DO UPDATE
-         SET
+      sql"""INSERT INTO meetups (id, name, homePageUrl, meetupUrl, discordUrl, linkedInUrl, kompotUrl)
+         VALUES (${meetup.id}, ${meetup.name},
+          $homePageUrl, $meetupUrl, $discordUrl, $linkedInUrl, $kompotUrl)
+         ON CONFLICT (id) DO UPDATE SET
             name = ${meetup.name},
             homePageUrl = $homePageUrl,
             meetupUrl = $meetupUrl,
             discordUrl = $discordUrl,
             linkedInUrl = $linkedInUrl,
+            kompotUrl = $kompotUrl,
             updated_at = CURRENT_TIMESTAMP
          """.updateWithLabel("sync-meetup")
 
@@ -48,11 +52,10 @@ final case class OgrodjeAPISync(
     val insertQuery         =
       sql"""INSERT INTO events (id, meetup_id, kind, name, url, datetime_at)
            VALUES (${event.id}, ${meetup.id}, ${event.kind.toString}, ${event.name}, ${event.url.toString}, $dateTime)
-           ON CONFLICT (id) DO UPDATE
-           SET
-            name = ${event.name},
-            url = ${event.url.toString},
-            updated_at = CURRENT_TIMESTAMP
+           ON CONFLICT (id) DO UPDATE SET
+              name = ${event.name},
+              url = ${event.url.toString},
+              updated_at = CURRENT_TIMESTAMP
         """.updateWithLabel("sync-event")
     insertQuery.run.transact(transactor).void
   }

@@ -1,23 +1,19 @@
 package si.ogrodje.oge.parsers
 
 import cats.effect.{IO, Resource}
-import fs2.Stream
 import io.circe.Json
-import org.http4s.Method.{GET, POST}
+import org.http4s.Method.POST
 import org.http4s.blaze.client.BlazeClientBuilder
+import org.http4s.circe.CirceEntityCodec.*
 import org.http4s.client.Client
-import org.http4s.{EntityDecoder, Request, Uri}
+import org.http4s.{Request, Uri}
 import org.typelevel.log4cats.LoggerFactory
 import org.typelevel.log4cats.slf4j.Slf4jFactory
-import si.ogrodje.oge.JsoupWrap
-import si.ogrodje.oge.JsoupWrap.selectArray
-import si.ogrodje.oge.model.{Event, EventKind}
-import org.http4s.circe.CirceEntityCodec.*
 import si.ogrodje.oge.model.EventKind.KompotEvent
+import si.ogrodje.oge.model.{Event, EventKind}
 
-import java.time.{LocalDateTime, ZoneId, ZonedDateTime}
 import java.time.format.DateTimeFormatter
-import scala.jdk.CollectionConverters.*
+import java.time.{LocalDateTime, ZoneId, ZonedDateTime}
 import scala.util.Try
 
 final class KompotSi private (client: Client[IO]) extends Parser {
@@ -233,32 +229,25 @@ final class KompotSi private (client: Client[IO]) extends Parser {
     _       <- logger.info(s"Collected events: ${events.size}")
   } yield events.toArray
 
+  private def readEvent(el: Json): Either[Throwable, Event] = for
+    name     <- el.hcursor.get[String]("title")
+    url      <- el.hcursor.get[String]("url").flatMap(Uri.fromString)
+    id       <- el.hcursor.get[String]("uuid")
+    dateTime <- el.hcursor.get[String]("beginsOn").flatMap(parseBeginsOn)
+  yield Event(KompotEvent, id, name, dateTime, url)
+
   private def readEvents(raw: Json): List[Event] = (for {
     data         <- raw.hcursor.downField("data").focus
     searchEvents <- data.hcursor.downField("searchEvents").focus
     elements     <- searchEvents.hcursor.downField("elements").focus
-    events       <- elements.asArray.map { element =>
-      element.map { el =>
-        for
-          title    <- el.hcursor.get[String]("title")
-          url      <- el.hcursor.get[String]("url").flatMap(Uri.fromString)
-          id       <- el.hcursor.get[String]("uuid")
-          dateTime <- el.hcursor.get[String]("beginsOn").flatMap(raw => parseBeginsOn(raw))
-        yield Event(
-          KompotEvent,
-          id = id,
-          name = title,
-          dateTime = dateTime,
-          url = url
-        )
-      }.toList.collect { case Right(v) => v }
-    }
+    events       <-
+      elements.asArray.map(_.map(readEvent).toList.collect { case Right(v) => v })
   } yield events).toList.flatten
 
-  private def parseBeginsOn(raw: String): Either[String, ZonedDateTime] = {
+  private def parseBeginsOn(raw: String): Either[Throwable, ZonedDateTime] = {
     val pattern = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:00")
     Try(LocalDateTime.parse(raw.replace("Z", ""), pattern)).toEither.fold(
-      err => Left(err.toString),
+      err => Left(err),
       zoned => Right(zoned.atZone(ZoneId.of("CET")))
     )
   }

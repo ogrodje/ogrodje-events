@@ -12,7 +12,6 @@ env:
   HYGRAPH_ENDPOINT: ${{ secrets.HYGRAPH_ENDPOINT }}
 jobs:
   build:
-
     runs-on: ubuntu-latest
     permissions:
       contents: read
