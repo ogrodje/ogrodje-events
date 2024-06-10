@@ -53,12 +53,13 @@ lazy val root = (project in file("."))
       case add @ Cmd("RUN", args @ _*) if args.contains("id") =>
         List(
           Cmd("LABEL", "maintainer Oto Brglez <otobrglez@gmail.com>"),
-          // Cmd("LABEL", "org.opencontainers.image.url https://github.com/ogrodje/ogrodje-events"),
-          // Cmd("LABEL", "org.opencontainers.image.source https://github.com/ogrodje/ogrodje-events"),
+          Cmd("LABEL", "org.opencontainers.image.url https://github.com/ogrodje/ogrodje-events"),
+          Cmd("LABEL", "org.opencontainers.image.source https://github.com/ogrodje/ogrodje-events"),
           Cmd("RUN", "apk add --no-cache bash jq curl"),
           Cmd("ENV", "SBT_VERSION", sbtVersion.value),
           Cmd("ENV", "SCALA_VERSION", scalaVersion.value),
-          Cmd("ENV", "TINY_ARIA2_VERSION", version.value),
+          Cmd("ENV", "OGRODJE_EVENTS_VERSION", version.value),
+          Cmd("ENV", "DATABASE_URL", "jdbc:sqlite:/tmp/ogrodje_events.db"),
           add
         )
       case other                                              => List(other)

@@ -34,9 +34,9 @@ jobs:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Log into Docker Hub
-      run: |
-        echo $DOCKER_HUB_SECRET | docker login --username otobrglez --password-stdin
+    #- name: Log into Docker Hub
+    #  run: |
+    #    echo $DOCKER_HUB_SECRET | docker login --username otobrglez --password-stdin
 
     - name: Extract Docker metadata
       id: meta
