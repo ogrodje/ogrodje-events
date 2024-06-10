@@ -111,8 +111,7 @@ final case class APIServer(config: Config, transactor: Transactor[IO]):
                           .ofPattern("EEEE, d. MMMM y, HH:mm")
                           .withLocale(Locale.of("sl"))
                       )
-                    ),
-                    div(cls := "updated_at", event.updatedAt.toString)
+                    )
                   )
                 }
               )
