@@ -20,55 +20,49 @@ jobs:
       id-token: write
 
     steps:
-    - uses: actions/checkout@v3
+      - uses: actions/checkout@v3
+      - name: Install SSH key
+        uses: shimataro/ssh-key-action@v2
+        with:
+          known_hosts: unnecessary
+          key: ${{ secrets.SSH_KEY }}
+          name: id_rsa_og_events
+          config: |
+            Host low
+              User oto
+              Hostname oto.srv4all.net
+              IdentityFile ~/.ssh/id_rsa_og_events
+              StrictHostKeyChecking no
+          if_key_exists: fail
 
-    - name: Install SSH key
-      uses: shimataro/ssh-key-action@v2
-      with:
-        known_hosts: unnecessary
-        key: ${{ secrets.SSH_KEY }}
-        name: id_rsa_og_events # optional
-        # known_hosts: ${{ secrets.KNOWN_HOSTS }}
-        config: |
-          Host low
-            User oto
-            Hostname oto.srv4all.net
-            IdentityFile ~/.ssh/id_rsa_og_events
-            StrictHostKeyChecking no
-        if_key_exists: fail # replace / ignore / fail; optional (defaults to fail)
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v3
+      - name: Log into registry ${{ env.REGISTRY }}
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Log into registry ${{ env.REGISTRY }}
-      if: github.event_name != 'pull_request'
-      uses: docker/login-action@v3
-      with:
-        registry: ${{ env.REGISTRY }}
-        username: ${{ github.actor }}
-        password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Extract Docker metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
 
-    #- name: Log into Docker Hub
-    #  run: |
-    #    echo $DOCKER_HUB_SECRET | docker login --username otobrglez --password-stdin
+      - name: Set up JDK 21
+        uses: actions/setup-java@v3
+        with:
+          java-version: '21'
+          distribution: 'zulu'
+          cache: 'sbt'
 
-    - name: Extract Docker metadata
-      id: meta
-      uses: docker/metadata-action@v5
-      with:
-        images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+      - name: Run tests and publish
+        run: |
+          sbt "test; docker:publish"
 
-    - name: Set up JDK 21
-      uses: actions/setup-java@v3
-      with:
-        java-version: '21'
-        distribution: 'zulu'
-        cache: 'sbt'
-    
-    - name: Run tests and publish
-      run: |
-        sbt "test; docker:publish"
-
-    - name: Deploy to low
-      run: |
-        DOCKER_HOST="ssh://low" ./bin/deploy.sh
+      - name: Deploy to low
+        run: |
+          DOCKER_HOST="ssh://low" ./bin/deploy.sh
