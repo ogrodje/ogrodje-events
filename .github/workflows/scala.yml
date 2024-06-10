@@ -65,4 +65,5 @@ jobs:
 
       - name: Deploy to low
         run: |
-          DOCKER_HOST="ssh://low" ./bin/deploy.sh
+          export DOCKER_HOST="ssh://low"
+          ./bin/deploy.sh
