@@ -9,7 +9,7 @@ on:
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
-
+  HYGRAPH_ENDPOINT: ${{ secrets.HYGRAPH_ENDPOINT }}
 jobs:
   build:
 
@@ -71,6 +71,4 @@ jobs:
 
     - name: Deploy to low
       run: |
-        DOCKER_HOST="ssh://low" \
-          HYGRAPH_ENDPOINT=${{env.HYGRAPH_ENDPOINT}} \
-          ./bin/deploy.sh
+        DOCKER_HOST="ssh://low" ./bin/deploy.sh
