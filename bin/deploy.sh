@@ -10,5 +10,5 @@ docker pull ${DOCKER_IMAGE} && \
     -e HYGRAPH_ENDPOINT=${HYGRAPH_ENDPOINT} \
     -e DATBASE_URL=jdbc:sqlite:/tmp/ogrodje_events.db \
     -e SYNC_DELAY="1 hour" \
-    -p 3000:7006 \
+    -p 127.0.0.1:3000:7006 \
     ghcr.io/ogrodje/ogrodje-events:latest
