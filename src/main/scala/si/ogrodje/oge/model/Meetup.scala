@@ -12,11 +12,13 @@ final case class Meetup(
   homePageUrl: Option[Uri],
   meetupUrl: Option[Uri],
   discordUrl: Option[Uri],
-  linkedInUrl: Option[Uri]
+  linkedInUrl: Option[Uri],
+  kompotUrl: Option[Uri]
 )
 
 enum EventKind:
   case MeetupEvent
+  case KompotEvent
 
 final case class Event(
   kind: EventKind,

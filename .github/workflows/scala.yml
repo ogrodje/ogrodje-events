@@ -12,7 +12,6 @@ env:
   HYGRAPH_ENDPOINT: ${{ secrets.HYGRAPH_ENDPOINT }}
 jobs:
   build:
-
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -59,11 +58,15 @@ jobs:
           distribution: 'zulu'
           cache: 'sbt'
 
+      - name: Run tests
+        run: sbt "test"
+
       - name: Run tests and publish
-        run: |
-          sbt "test; docker:publish"
+        if: ${{ github.ref == 'refs/heads/master' }}
+        run: sbt "docker:publish"
 
       - name: Deploy to low
+        if: ${{ github.ref == 'refs/heads/master' }}
         run: |
           export DOCKER_HOST="ssh://low"
           ./bin/deploy.sh
