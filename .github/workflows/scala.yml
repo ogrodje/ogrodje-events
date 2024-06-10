@@ -9,7 +9,6 @@ on:
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
-  DOCKER_HUB_SECRET: ${{ secrets.DOCKER_HUB_SECRET }}
 
 jobs:
   build:
@@ -51,5 +50,6 @@ jobs:
         distribution: 'zulu'
         cache: 'sbt'
     
-    - name: Run tests
-      run: sbt docker:publish
+    - name: Run tests and publish
+      run: |
+        sbt "test; docker:publish"
