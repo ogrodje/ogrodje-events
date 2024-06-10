@@ -37,11 +37,6 @@ jobs:
             StrictHostKeyChecking no
         if_key_exists: fail # replace / ignore / fail; optional (defaults to fail)
 
-    - name: "Test ssh"
-      id: test-ssh
-      run: |
-        ssh low -x ps
-
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
 
@@ -74,3 +69,8 @@ jobs:
       run: |
         sbt "test; docker:publish"
 
+    - name: Deploy to low
+      run: |
+        DOCKER_HOST="ssh://low" \
+          HYGRAPH_ENDPOINT=${{env.HYGRAPH_ENDPOINT}} \
+          ./bin/deploy.sh
