@@ -5,7 +5,8 @@ import doobie.hikari.HikariTransactor
 import fs2.Stream
 import org.typelevel.log4cats.LoggerFactory
 import org.typelevel.log4cats.slf4j.Slf4jFactory
-import si.ogrodje.oge.model.{Event, Meetup}
+import si.ogrodje.oge.model.EventKind.KompotEvent
+import si.ogrodje.oge.model.in.*
 import doobie.*
 import doobie.implicits.*
 import doobie.implicits.javasql.*

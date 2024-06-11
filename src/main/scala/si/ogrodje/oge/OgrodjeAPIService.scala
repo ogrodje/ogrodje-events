@@ -6,7 +6,8 @@ import io.circe.*
 import org.http4s.*
 import org.typelevel.log4cats.slf4j.Slf4jFactory
 import si.ogrodje.oge.clients.HyGraph
-import si.ogrodje.oge.model.{Event, Meetup}
+import si.ogrodje.oge.model.EventKind.KompotEvent
+import si.ogrodje.oge.model.in.*
 import si.ogrodje.oge.parsers.{KompotSi, MeetupCom}
 import io.circe.Decoder.Result
 import io.circe.generic.auto.*

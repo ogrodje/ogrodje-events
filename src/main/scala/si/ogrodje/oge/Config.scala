@@ -47,7 +47,7 @@ object Config {
 
   def fromEnv: IO[Config] =
     (
-      fromEnvOr("DATBASE_URL", default.databaseUrl, pure),
+      fromEnvOr("DATABASE_URL", default.databaseUrl, pure),
       fromEnvOr("SYNC_DELAY", default.syncDelay, parseToFiniteDuration),
       fromEnvOr("PORT", default.port, parseInt),
       fromEnvRequired("HYGRAPH_ENDPOINT", raw => IO(Uri.unsafeFromString(raw)))

@@ -10,7 +10,8 @@ import org.typelevel.log4cats.LoggerFactory
 import org.typelevel.log4cats.slf4j.Slf4jFactory
 import si.ogrodje.oge.JsoupWrap
 import si.ogrodje.oge.JsoupWrap.selectArray
-import si.ogrodje.oge.model.{Event, EventKind}
+import si.ogrodje.oge.model.EventKind
+import si.ogrodje.oge.model.in.*
 
 import scala.jdk.CollectionConverters.*
 import scala.util.Try
@@ -57,11 +58,11 @@ final class MeetupCom private (client: Client[IO]) extends Parser {
               .map(_.replace(" attendees", ""))
               .flatMap(raw => Try(Integer.parseInt(raw)).toOption)
         yield Event(
-          kind = EventKind.MeetupEvent,
           eventID,
+          EventKind.MeetupEvent,
           name,
-          zonedDateTime,
           uri,
+          zonedDateTime,
           attendeesCount
         )
       })

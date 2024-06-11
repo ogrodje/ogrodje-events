@@ -17,9 +17,11 @@ object MainApp extends ResourceApp.Forever:
     config            <- Config.fromEnv.toResource
     _                 <- logger.info(s"Booting service with sync delay ${config.syncDelay}").toResource
     transactor        <- DB.resource(config)
+    meetupsRepository <- DBMeetupsRepository.resource(transactor)
+    eventsRepository  <- DBEventsRepository.resource(transactor)
     ogrodjeAPIService <- OgrodjeAPIService.resource(config)
     _                 <- (
       OgrodjeAPISync(ogrodjeAPIService, transactor).sync(config.syncDelay),
-      APIServer(config, transactor).resource
+      APIServer(config, meetupsRepository, eventsRepository).resource
     ).parTupled
   yield ()
