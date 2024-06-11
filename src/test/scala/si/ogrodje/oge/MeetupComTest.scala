@@ -42,7 +42,8 @@ final class MeetupComTest extends AsyncFlatSpec with Matchers:
         meetupHomepage <- IO(Uri.unsafeFromString("?type=upcoming"))
         events         <- parser.collectAll(meetupHomepage)
       yield {
-        println(events.head)
+        val firstEvent = events.head
+        println(firstEvent)
         events.length shouldEqual 12
       }
     }

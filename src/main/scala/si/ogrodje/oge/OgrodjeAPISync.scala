@@ -20,7 +20,7 @@ final case class OgrodjeAPISync(
   private given factory: LoggerFactory[IO] = Slf4jFactory.create[IO]
   private val logger                       = factory.getLogger
 
-  private def syncMeetup(meetup: Meetup): IO[Unit] =
+  private def syncMeetup(meetup: Meetup): IO[Int] =
     val List(
       homePageUrl,
       meetupUrl,
@@ -45,26 +45,38 @@ final case class OgrodjeAPISync(
             updated_at = CURRENT_TIMESTAMP
          """.updateWithLabel("sync-meetup")
 
-    insertQuery.run.transact(transactor).void
+    insertQuery.run.transact(transactor)
 
-  private def syncEvent(meetup: Meetup)(event: Event): IO[Unit] = {
+  private def syncEvent(meetup: Meetup)(event: Event): IO[Int] = {
     val dateTime: Timestamp = Timestamp.from(event.dateTime.toInstant)
     val insertQuery         =
-      sql"""INSERT INTO events (id, meetup_id, kind, name, url, datetime_at)
-           VALUES (${event.id}, ${meetup.id}, ${event.kind.toString}, ${event.name}, ${event.url.toString}, $dateTime)
+      sql"""INSERT INTO events (id, meetup_id, kind, name, url, attendees_count, datetime_at)
+           VALUES (${event.id}, ${meetup.id},
+           ${event.kind.toString}, ${event.name},
+           ${event.url.toString},
+           ${event.attendeesCount},
+           $dateTime)
            ON CONFLICT (id) DO UPDATE SET
               name = ${event.name},
               url = ${event.url.toString},
+              attendees_count = ${event.attendeesCount},
               datetime_at = $dateTime,
               updated_at = CURRENT_TIMESTAMP
         """.updateWithLabel("sync-event")
-    insertQuery.run.transact(transactor).void
+    insertQuery.run.transact(transactor)
   }
 
   private def syncAll(): IO[Unit] =
     service.streamMeetupsWithEvents
       .parEvalMapUnordered(2)((meetup, events) =>
-        syncMeetup(meetup) &> Stream.emits(events).evalMap(syncEvent(meetup)).compile.drain
+        syncMeetup(meetup).flatTap {
+          case n if n > 0 => logger.info(s"Synced meetup ${meetup.name}")
+          case _          => IO.unit
+        } &>
+          Stream.emits(events).evalMap(syncEvent(meetup)).compile.count.flatTap {
+            case n if n > 0 => logger.info(s"Synced events for ${meetup.name}: $n")
+            case _          => IO.unit
+          }
       )
       .compile
       .drain

@@ -46,12 +46,23 @@ final class MeetupCom private (client: Client[IO]) extends Parser {
               .map(_.text())
               .flatMap(rawTime => MeetupComDateParser.parse(rawTime).toOption)
           name          <- Option(element.selectFirst("span.ds-font-title-3").text())
+          attendeesCount =
+            Try({
+              val text = element
+                .selectFirst("div.flex.items-center.justify-between div.space-x-2 span.text-gray6 span.hidden")
+                .text()
+              // println(s"text for ${uri} = ${text}")
+              text
+            }).toOption
+              .map(_.replace(" attendees", ""))
+              .flatMap(raw => Try(Integer.parseInt(raw)).toOption)
         yield Event(
           kind = EventKind.MeetupEvent,
           eventID,
           name,
           zonedDateTime,
-          uri
+          uri,
+          attendeesCount
         )
       })
     yield events.toArray.collect { case Some(event) => event }

@@ -25,5 +25,6 @@ final case class Event(
   id: String,
   name: String,
   dateTime: ZonedDateTime,
-  url: Uri
+  url: Uri,
+  attendeesCount: Option[Int]
 )

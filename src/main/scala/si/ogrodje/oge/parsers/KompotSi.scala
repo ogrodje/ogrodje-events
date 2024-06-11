@@ -234,7 +234,7 @@ final class KompotSi private (client: Client[IO]) extends Parser {
     url      <- el.hcursor.get[String]("url").flatMap(Uri.fromString)
     id       <- el.hcursor.get[String]("uuid")
     dateTime <- el.hcursor.get[String]("beginsOn").flatMap(parseBeginsOn)
-  yield Event(KompotEvent, id, name, dateTime, url)
+  yield Event(KompotEvent, id, name, dateTime, url, attendeesCount = None)
 
   private def readEvents(raw: Json): List[Event] = (for {
     data         <- raw.hcursor.downField("data").focus

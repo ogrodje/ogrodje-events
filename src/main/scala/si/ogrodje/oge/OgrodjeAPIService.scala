@@ -48,22 +48,15 @@ final case class OgrodjeAPIService private (
     _       <- logger.info(s"Number of meetups collected ${meetups.length}")
   yield meetups
 
+  private def collectFromUri(maybeUri: Option[Uri], collector: Uri => IO[Array[Event]]): IO[Array[Event]] =
+    maybeUri match
+      case Some(value) => collector(value)
+      case None        => IO.pure(Array.empty[Event])
+
   private def collectEvents(meetup: Meetup): IO[Array[Event]] =
     for
-      meetupEvents   <- meetup.meetupUrl match
-        case Some(uri) =>
-          meetupComParser.collectAll(uri).recoverWith { th =>
-            logger.warn(th)(s"Collecting from meetup.com has failed with - ${th.getMessage}")
-              *> IO.pure(Array.empty[Event])
-          }
-        case None      => IO.pure(Array.empty[Event])
-      kompotSiEvents <- meetup.kompotUrl match
-        case Some(uri) =>
-          kompotSi.collectAll(uri).recoverWith { th =>
-            logger.warn(th)(s"Collecting from kompot.si has failed with - ${th.getMessage}")
-              *> IO.pure(Array.empty[Event])
-          }
-        case None      => IO.pure(Array.empty[Event])
+      meetupEvents   <- collectFromUri(meetup.meetupUrl, meetupComParser.safeCollect)
+      kompotSiEvents <- collectFromUri(meetup.kompotUrl, kompotSi.safeCollect)
     yield meetupEvents ++ kompotSiEvents
 
   private val maxConcurrent                                       = 4

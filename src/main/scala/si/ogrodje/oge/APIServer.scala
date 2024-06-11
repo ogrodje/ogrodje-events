@@ -33,7 +33,8 @@ final case class APIServer(config: Config, transactor: Transactor[IO]):
     datetimeAt: LocalDateTime,
     url: String,
     updatedAt: LocalDateTime,
-    weekNumber: Int
+    weekNumber: Int,
+    attendeesCount: Option[Int]
   ) {
     val boost: Double =
       if kind == "KompotEvent" then 0.1
@@ -49,7 +50,8 @@ final case class APIServer(config: Config, transactor: Transactor[IO]):
            |       datetime(e.datetime_at / 1000, 'auto') AS datetime_at,
            |       e.url,
            |       e.updated_at,
-           |       strftime('%W', datetime(e.datetime_at / 1000, 'auto')) AS week_number
+           |       strftime('%W', datetime(e.datetime_at / 1000, 'auto')) AS week_number,
+           |       e.attendees_count
            |FROM events e LEFT JOIN main.meetups m on m.id = e.meetup_id
            |WHERE
            |  datetime(e.datetime_at / 1000, 'unixepoch') > CURRENT_TIMESTAMP AND
