@@ -68,6 +68,7 @@ final case class APIServer(
                   div(
                     cls := "event",
                     div(cls := "event-name", a(href := event.url.toString, event.name)),
+                    div(cls := "event-kind", event.kind.toString),
                     div(cls := "meetup-name", event.meetupName),
                     div(
                       cls   := "event-datetime",

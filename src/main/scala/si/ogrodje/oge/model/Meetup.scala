@@ -9,13 +9,21 @@ enum EventKind:
   case MeetupEvent
   case KompotEvent
 
-trait BaseMeetup {}
+trait BaseMeetup {
+  def id: String
+  def name: String
+  def homePageUrl: Option[Uri]
+  def meetupUrl: Option[Uri]
+  def discordUrl: Option[Uri]
+  def linkedInUrl: Option[Uri]
+  def kompotUrl: Option[Uri]
+}
 
-trait BaseEvent[Kind, At <: Temporal] {
+trait BaseEvent[At <: Temporal] {
   def id: String
   def name: String
   def url: Uri
-  def kind: Kind
+  def kind: EventKind
   def dateTime: At
 }
 
@@ -37,13 +45,13 @@ object in {
     url: Uri,
     dateTime: ZonedDateTime,
     attendeesCount: Option[Int]
-  ) extends BaseEvent[EventKind, ZonedDateTime]
+  ) extends BaseEvent[ZonedDateTime]
 }
 
 object db {
   final case class Event(
     id: String,
-    kind: String,
+    kind: EventKind,
     name: String,
     url: Uri,
     dateTime: LocalDateTime,
@@ -51,16 +59,16 @@ object db {
     updatedAt: LocalDateTime,
     weekNumber: Int,
     attendeesCount: Option[Int]
-  ) extends BaseEvent[String, LocalDateTime]
+  ) extends BaseEvent[LocalDateTime]
 
   final case class Meetup(
     id: String,
     name: String,
-    homePageUrl: Option[String],
-    meetupUrl: Option[String],
-    discordUrl: Option[String],
-    linkedInUrl: Option[String],
-    kompotUrl: Option[String],
+    homePageUrl: Option[Uri],
+    meetupUrl: Option[Uri],
+    discordUrl: Option[Uri],
+    linkedInUrl: Option[Uri],
+    kompotUrl: Option[Uri],
     updatedAt: LocalDateTime
   ) extends BaseMeetup
 }

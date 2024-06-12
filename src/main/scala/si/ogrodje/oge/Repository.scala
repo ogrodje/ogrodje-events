@@ -8,6 +8,7 @@ import doobie.util.transactor.Transactor
 import org.http4s.*
 import si.ogrodje.oge.model.db.{Event, Meetup}
 import doobie.Query0 as Query
+import si.ogrodje.oge.model.EventKind
 
 import scala.util.Try
 
@@ -17,11 +18,11 @@ trait Repository[F[_], M, ID]:
 
 trait MeetupsRepository[F[_], M, ID] extends Repository[F, M, ID]:
   def count: IO[Long]
-trait EventsRepository[F[_], M, ID]  extends Repository[F, M, ID]
+
+trait EventsRepository[F[_], M, ID] extends Repository[F, M, ID]
 
 final class DBMeetupsRepository private (transactor: Transactor[IO]) extends MeetupsRepository[IO, Meetup, String] {
-  // private given r: Read[Uri]          = Read[String].map(Uri.unsafeFromString)
-  // private given rx: Read[Option[Uri]] = Read[Option[Uri]].map(p => Try(Uri.unsafeFromString(p)).toOption)
+  import DBGivens.given
 
   override def sync(model: Meetup): IO[String] = IO.pure(s"model ${model.name}")
 
@@ -42,7 +43,7 @@ object DBMeetupsRepository {
 }
 
 final class DBEventsRepository private (transactor: Transactor[IO]) extends EventsRepository[IO, Event, String] {
-  private given r: Read[Uri] = Read[String].map(Uri.unsafeFromString)
+  import DBGivens.given
 
   override def sync(model: Event): IO[String] = IO.pure(s"model ${model.name}")
 
@@ -71,4 +72,15 @@ final class DBEventsRepository private (transactor: Transactor[IO]) extends Even
 object DBEventsRepository {
   def resource(transactor: Transactor[IO]): Resource[IO, DBEventsRepository] =
     Resource.pure(new DBEventsRepository(transactor))
+}
+
+object DBGivens {
+  given uri: Meta[Uri] = Meta[String].imap(Uri.unsafeFromString)(_.toString)
+
+  given maybeUri: Meta[Option[Uri]] = Meta[String].imap {
+    case r if r == null || r.isEmpty => None
+    case r                           => Uri.fromString(r).toOption
+  }(_.toString)
+
+  given eventKind: Meta[EventKind] = Meta[String].imap(EventKind.valueOf)(_.toString)
 }
