@@ -2,14 +2,11 @@ services:
   events:
     volumes:
       - events-db:/data
-    environment:
-      SENTRY_ENVIRONMENT: production
-      SYNC_DELAY: 1 hour
-      
+
 volumes:
   events-db:
     driver: "local"
     driver_opts:
       type: none
-      device: /home/oto/Projects/ogrodje-events/data
+      device: "$HOME/docker-volumes/events-db"
       o: bind

@@ -4,8 +4,7 @@ services:
     image: ghcr.io/ogrodje/ogrodje-events:latest
     ports:
       - "0.0.0.0:3000:7006"
-#    volumes:
-#      - events-db:/data
+
     environment:
       HYGRAPH_ENDPOINT: ${HYGRAPH_ENDPOINT}
       DATABASE_URL: jdbc:sqlite:/data/ogrodje_events.db
@@ -14,10 +13,3 @@ services:
       SENTRY_ENVIRONMENT: development
       SYNC_DELAY: 10 minutes
 
-# volumes:
-#   events-db:
-#     driver: "local"
-#     driver_opts:
-#       type: none
-#       device: "$HOME/docker-volumes/events-db"
-#       o: bind
