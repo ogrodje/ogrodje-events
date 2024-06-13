@@ -5,7 +5,7 @@ import org.http4s.Uri
 import org.jsoup.Jsoup
 import org.jsoup.nodes.{Document, Element}
 import org.jsoup.select.Elements
-import si.ogrodje.oge.model.Event
+import si.ogrodje.oge.model.in.Event
 
 import java.time.ZonedDateTime
 import scala.collection.mutable

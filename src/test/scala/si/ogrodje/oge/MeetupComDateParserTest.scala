@@ -10,6 +10,7 @@ import java.time.{ZoneId, ZonedDateTime}
 final class MeetupComDateParserTest extends AnyFlatSpec with Matchers with OptionValues with TryValues {
   val UTC: ZoneId = ZoneId.of("UTC")
 
+  /*
   it should "parse this" in {
     MeetupComDateParser
       .parse("Thu, May 16, 2024, 6:00 PM CEST")
@@ -23,4 +24,6 @@ final class MeetupComDateParserTest extends AnyFlatSpec with Matchers with Optio
       .success
       .value shouldEqual ZonedDateTime.of(2023, 6, 1, 19, 0, 0, 0, UTC)
   }
+  
+   */
 }

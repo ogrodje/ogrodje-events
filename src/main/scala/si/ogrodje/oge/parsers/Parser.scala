@@ -4,7 +4,7 @@ import cats.effect.IO
 import org.http4s.Uri
 import org.typelevel.log4cats.LoggerFactory
 import org.typelevel.log4cats.slf4j.Slf4jFactory
-import si.ogrodje.oge.model.Event
+import si.ogrodje.oge.model.in.Event
 
 trait Parser {
   private given factory: LoggerFactory[IO] = Slf4jFactory.create[IO]

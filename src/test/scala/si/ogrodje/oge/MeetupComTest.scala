@@ -9,10 +9,11 @@ import org.http4s.*
 import org.http4s.dsl.io.*
 import org.http4s.server.Router
 import org.scalatest.Assertion
-import si.ogrodje.oge.parsers.MeetupCom
+import si.ogrodje.oge.parsers.{MeetupCom, MeetupCom2}
 
 import scala.concurrent.Future
 import cats.effect.unsafe.implicits.global
+import si.ogrodje.oge.model.in
 
 import scala.io.Source
 import scala.language.implicitConversions
@@ -28,7 +29,7 @@ final class MeetupComTest extends AsyncFlatSpec with Matchers:
   }
 
   it should "parse events" in {
-    val meetupComService = HttpRoutes.of[IO] { case req @ GET -> Root / meetupSlug =>
+    val meetupComService = HttpRoutes.of[IO] { case req @ GET -> Root =>
       req.params.get("type") match
         case Some("upcoming") => readResource("aws-upcoming-events.html").flatMap(Ok(_))
         case Some("past")     => readResource("aws-past-events.html").flatMap(Ok(_))
@@ -37,14 +38,22 @@ final class MeetupComTest extends AsyncFlatSpec with Matchers:
 
     val fakeMeetupApp = Router("/" -> meetupComService).orNotFound
 
-    MeetupCom.resourceWithClient(Client.fromHttpApp(fakeMeetupApp)).use { parser =>
+    MeetupCom2.resourceWithClient(Client.fromHttpApp(fakeMeetupApp)).use { parser =>
       for
-        meetupHomepage <- IO(Uri.unsafeFromString("?type=upcoming"))
+        meetupHomepage <- IO(Uri.unsafeFromString("http://test/?type=upcoming"))
         events         <- parser.collectAll(meetupHomepage)
       yield {
-        val firstEvent = events.head
-        println(firstEvent)
-        events.length shouldEqual 12
+        val collectedEvents: Map[String, in.Event] = events.map(e => e.id -> e).toMap
+        val firstEvent                             = events.head
+
+        events.foreach(event => println(s"event => ${event}"))
+
+        collectedEvents.get("meetup:300759451").head.location shouldEqual Some(
+          "Celtra, razvoj informacijskih tehnologij, d.o.o."
+        )
+
+        events shouldNot be(empty)
+        events.length shouldEqual 15
       }
     }
   }

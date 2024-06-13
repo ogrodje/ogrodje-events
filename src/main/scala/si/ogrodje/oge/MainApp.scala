@@ -4,6 +4,8 @@ import cats.effect.{IO, Resource, ResourceApp}
 import cats.syntax.all.*
 import org.typelevel.log4cats.LoggerFactory
 import org.typelevel.log4cats.slf4j.Slf4jFactory
+import si.ogrodje.oge.repository.{DBEventsRepository, DBMeetupsRepository}
+import si.ogrodje.oge.sync.Sync
 
 import java.util.{Locale, TimeZone}
 object MainApp extends ResourceApp.Forever:
@@ -17,9 +19,11 @@ object MainApp extends ResourceApp.Forever:
     config            <- Config.fromEnv.toResource
     _                 <- logger.info(s"Booting service with sync delay ${config.syncDelay}").toResource
     transactor        <- DB.resource(config)
+    meetupsRepository <- DBMeetupsRepository.resource(transactor)
+    eventsRepository  <- DBEventsRepository.resource(transactor)
     ogrodjeAPIService <- OgrodjeAPIService.resource(config)
     _                 <- (
-      OgrodjeAPISync(ogrodjeAPIService, transactor).sync(config.syncDelay),
-      APIServer(config, transactor).resource
+      Sync.resource(config.syncDelay, ogrodjeAPIService, meetupsRepository, eventsRepository),
+      APIServer(config, meetupsRepository, eventsRepository).resource
     ).parTupled
   yield ()

@@ -10,7 +10,7 @@ import org.http4s.{Request, Uri}
 import org.typelevel.log4cats.LoggerFactory
 import org.typelevel.log4cats.slf4j.Slf4jFactory
 import si.ogrodje.oge.model.EventKind.KompotEvent
-import si.ogrodje.oge.model.{Event, EventKind}
+import si.ogrodje.oge.model.in.Event
 
 import java.time.format.DateTimeFormatter
 import java.time.{LocalDateTime, ZoneId, ZonedDateTime}
@@ -234,7 +234,7 @@ final class KompotSi private (client: Client[IO]) extends Parser {
     url      <- el.hcursor.get[String]("url").flatMap(Uri.fromString)
     id       <- el.hcursor.get[String]("uuid")
     dateTime <- el.hcursor.get[String]("beginsOn").flatMap(parseBeginsOn)
-  yield Event(KompotEvent, id, name, dateTime, url, attendeesCount = None)
+  yield Event(id, KompotEvent, name, url, dateTime, attendeesCount = None)
 
   private def readEvents(raw: Json): List[Event] = (for {
     data         <- raw.hcursor.downField("data").focus

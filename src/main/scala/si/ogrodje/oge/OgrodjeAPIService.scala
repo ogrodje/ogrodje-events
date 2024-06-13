@@ -6,8 +6,9 @@ import io.circe.*
 import org.http4s.*
 import org.typelevel.log4cats.slf4j.Slf4jFactory
 import si.ogrodje.oge.clients.HyGraph
-import si.ogrodje.oge.model.{Event, Meetup}
-import si.ogrodje.oge.parsers.{KompotSi, MeetupCom}
+import si.ogrodje.oge.model.EventKind.KompotEvent
+import si.ogrodje.oge.model.in.*
+import si.ogrodje.oge.parsers.{KompotSi, MeetupCom, MeetupCom2}
 import io.circe.Decoder.Result
 import io.circe.generic.auto.*
 
@@ -15,7 +16,7 @@ import scala.util.Try
 
 final case class OgrodjeAPIService private (
   hyGraph: HyGraph,
-  meetupComParser: MeetupCom,
+  meetupComParser: MeetupCom2,
   kompotSi: KompotSi
 ):
   private val logger = Slf4jFactory.create[IO].getLogger
@@ -70,7 +71,7 @@ final case class OgrodjeAPIService private (
 object OgrodjeAPIService:
   def resourceWithGraph(hyGraph: HyGraph): Resource[IO, OgrodjeAPIService] =
     for
-      meetupComParser <- MeetupCom.resource
+      meetupComParser <- MeetupCom2.resource
       kompotSiParser  <- KompotSi.resource
     yield apply(hyGraph, meetupComParser, kompotSiParser)
 

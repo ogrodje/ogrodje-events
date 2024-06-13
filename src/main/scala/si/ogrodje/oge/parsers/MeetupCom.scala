@@ -6,11 +6,13 @@ import org.http4s.Method.GET
 import org.http4s.blaze.client.BlazeClientBuilder
 import org.http4s.client.Client
 import org.http4s.{EntityDecoder, Request, Uri}
+import org.jsoup.nodes.Document
 import org.typelevel.log4cats.LoggerFactory
 import org.typelevel.log4cats.slf4j.Slf4jFactory
 import si.ogrodje.oge.JsoupWrap
 import si.ogrodje.oge.JsoupWrap.selectArray
-import si.ogrodje.oge.model.{Event, EventKind}
+import si.ogrodje.oge.model.EventKind
+import si.ogrodje.oge.model.in.*
 
 import scala.jdk.CollectionConverters.*
 import scala.util.Try
@@ -30,10 +32,37 @@ final class MeetupCom private (client: Client[IO]) extends Parser {
       .compile
       .fold(Array.empty[Event])(_ ++ _)
 
+  private case class LDEvent(uri: Uri, startDate: String, endDate: String, location: String)
+  private def parseLDs(document: Document): IO[Map[String, LDEvent]] = for {
+    jsonEvents <- JsoupWrap
+      .selectArray("head script[type='application/ld+json']")(document)
+      .map(_.map(b => Option(b.data())).collect { case Some(v) => v })
+      .map(_.filter(_.contains(""""Event"""")))
+      .map(_.map(io.circe.parser.parse))
+      .map(_.collect { case Right(v) => v })
+      .map(_.map { json =>
+        for
+          first     <- json.hcursor.downN(0).focus.toRight(new RuntimeException("Missing first element"))
+          url       <- first.hcursor.get[String]("url").flatMap(raw => Try(Uri.unsafeFromString(raw)).toEither)
+          startDate <- first.hcursor.get[String]("startDate")
+          endDate   <- first.hcursor.get[String]("endDate")
+          location  <- first.hcursor.downField("location").get[String]("name")
+        yield url.toString -> LDEvent(
+          url,
+          startDate,
+          endDate,
+          location
+        )
+      })
+      .map(_.collect { case Right(v) => v })
+  } yield jsonEvents.toMap
+
   private def parse(raw: String): IO[Array[Event]] =
     for
-      data   <- JsoupWrap.parse(raw).flatMap(selectArray("a.h-full[data-event-category=\"GroupHome\"]"))
-      events <- IO(data.map { element =>
+      document <- JsoupWrap.parse(raw)
+      lds      <- parseLDs(document)
+      data     <- IO.pure(document).flatMap(selectArray("a.h-full[data-event-category=\"GroupHome\"]"))
+      events   <- IO(data.map { element =>
         for
           rawUri        <- Option(element.attr("href"))
           uri           <- Option(rawUri).flatMap(raw => Try(Uri.unsafeFromString(raw)).toOption)
@@ -56,12 +85,16 @@ final class MeetupCom private (client: Client[IO]) extends Parser {
             }).toOption
               .map(_.replace(" attendees", ""))
               .flatMap(raw => Try(Integer.parseInt(raw)).toOption)
+
+          location = lds.get(uri.toString).map(_.location)
         yield Event(
-          kind = EventKind.MeetupEvent,
           eventID,
+          EventKind.MeetupEvent,
           name,
-          zonedDateTime,
           uri,
+          dateTime = zonedDateTime,
+          dateTimeEnd = None,
+          location = location,
           attendeesCount
         )
       })
