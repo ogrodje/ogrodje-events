@@ -9,6 +9,9 @@ docker pull ${DOCKER_IMAGE} && \
     --name ogrodje-events \
     -e HYGRAPH_ENDPOINT=${HYGRAPH_ENDPOINT} \
     -e DATABASE_URL=jdbc:sqlite:/tmp/ogrodje_events.db \
+    -e SENTRY_DNS=${SENTRY_DNS} \
+    -e SENTRY_AUTH_TOKEN=${SENTRY_AUTH_TOKEN} \
+    -e SENTRY_ENVIRONMENT=production \
     -e SYNC_DELAY="1 hour" \
     -p 0.0.0.0:3000:7006 \
     ghcr.io/ogrodje/ogrodje-events:latest
