@@ -10,6 +10,8 @@ env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
   HYGRAPH_ENDPOINT: ${{ secrets.HYGRAPH_ENDPOINT }}
+  SENTRY_DNS: ${{ secrets.SENTRY_DNS }}
+  SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -69,4 +71,5 @@ jobs:
         if: ${{ github.ref == 'refs/heads/master' }}
         run: |
           export DOCKER_HOST="ssh://low"
-          ./bin/deploy.sh
+          ./bin/og-prod.sh pull && \
+            ./bin/og-prod.sh up -d --remove-orphans

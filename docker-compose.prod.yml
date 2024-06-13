@@ -1,0 +1,12 @@
+services:
+  events:
+    volumes:
+      - events-db:/data
+
+volumes:
+  events-db:
+    driver: "local"
+    driver_opts:
+      type: none
+      device: /home/oto/Projects/ogrodje-events/data
+      o: bind

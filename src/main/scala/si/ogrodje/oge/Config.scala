@@ -33,7 +33,7 @@ object Config {
   private def fromEnvRequired[T](key: String, conversion: String => IO[T]): IO[T] =
     envForIO
       .get(key)
-      .flatMap(IO.fromOption(_)(new RuntimeException(s"Missing ${key} environment variable") with NoStackTrace))
+      .flatMap(IO.fromOption(_)(new RuntimeException(s"Missing $key environment variable") with NoStackTrace))
       .flatMap(conversion)
 
   private def parseToFiniteDuration(raw: String): IO[FiniteDuration] =
