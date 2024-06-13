@@ -1,9 +1,11 @@
 package si.ogrodje.oge.model
 
 import org.http4s.Uri
+import si.ogrodje.oge.model.db.CollectedFields
 
+import java.sql.Timestamp
 import java.time.temporal.Temporal
-import java.time.{LocalDateTime, ZonedDateTime}
+import java.time.{LocalDateTime, ZoneId, ZonedDateTime}
 
 enum EventKind:
   case MeetupEvent
@@ -25,6 +27,8 @@ trait BaseEvent[At <: Temporal] {
   def url: Uri
   def kind: EventKind
   def dateTime: At
+  def dateTimeEnd: Option[At]
+  def location: Option[String]
 }
 
 object in {
@@ -44,22 +48,36 @@ object in {
     name: String,
     url: Uri,
     dateTime: ZonedDateTime,
+    dateTimeEnd: Option[ZonedDateTime] = None,
+    location: Option[String] = None,
     attendeesCount: Option[Int]
   ) extends BaseEvent[ZonedDateTime]
 }
 
 object db {
+  trait CollectedFields {
+    def meetupID: String
+    def meetupName: String
+    def updatedAt: LocalDateTime    = LocalDateTime.now(ZoneId.of("CET"))
+    def weekNumber: Int
+    def attendeesCount: Option[Int] = None
+  }
+
   final case class Event(
     id: String,
+    meetupID: String,
     kind: EventKind,
     name: String,
     url: Uri,
     dateTime: LocalDateTime,
+    dateTimeEnd: Option[LocalDateTime],
+    location: Option[String] = None,
     meetupName: String,
-    updatedAt: LocalDateTime,
+    override val updatedAt: LocalDateTime,
     weekNumber: Int,
-    attendeesCount: Option[Int]
+    override val attendeesCount: Option[Int] = None
   ) extends BaseEvent[LocalDateTime]
+      with CollectedFields
 
   final case class Meetup(
     id: String,
@@ -71,4 +89,40 @@ object db {
     kompotUrl: Option[Uri],
     updatedAt: LocalDateTime
   ) extends BaseMeetup
+}
+
+object Converters {
+  extension (meetup: in.Meetup) {
+    def toDB(updatedAt: LocalDateTime = LocalDateTime.now(ZoneId.of("CET"))): db.Meetup =
+      db.Meetup(
+        meetup.id,
+        meetup.name,
+        meetup.homePageUrl,
+        meetup.meetupUrl,
+        meetup.discordUrl,
+        meetup.linkedInUrl,
+        meetup.kompotUrl,
+        updatedAt
+      )
+  }
+
+  extension (event: in.Event) {
+    def toDB(
+      extraFields: CollectedFields
+    ): db.Event =
+      db.Event(
+        event.id,
+        meetupID = extraFields.meetupID,
+        event.kind,
+        event.name,
+        event.url,
+        dateTime = event.dateTime.toLocalDateTime, // Timestamp.from(event.dateTime.toInstant)
+        dateTimeEnd = event.dateTimeEnd.map(_.toLocalDateTime),
+        location = event.location,
+        meetupName = extraFields.meetupName,
+        updatedAt = LocalDateTime.now(ZoneId.of("CET")),
+        weekNumber = extraFields.weekNumber,
+        attendeesCount = extraFields.attendeesCount
+      )
+  }
 }

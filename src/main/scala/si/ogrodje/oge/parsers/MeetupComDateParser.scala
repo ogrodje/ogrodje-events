@@ -8,6 +8,7 @@ import scala.util.{Failure, Success, Try}
 
 object MeetupComDateParser:
   val UTC: ZoneId = ZoneId.of("UTC")
+  val CET: ZoneId = ZoneId.of("CET")
 
   private def clean(raw: String): String =
     raw
@@ -17,7 +18,7 @@ object MeetupComDateParser:
       .strip()
 
   private def tryParseInUtc(raw: String, formatter: DateTimeFormatter): Try[ZonedDateTime] =
-    Try(LocalDateTime.parse(raw, formatter).atZone(UTC))
+    Try(LocalDateTime.parse(raw, formatter).atZone(CET))
 
   private val dateTimePatterns: List[String] = List(
     "MMMM dd, yyyy, h:mm a",

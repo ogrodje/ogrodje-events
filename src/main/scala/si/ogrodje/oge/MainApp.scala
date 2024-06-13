@@ -4,6 +4,8 @@ import cats.effect.{IO, Resource, ResourceApp}
 import cats.syntax.all.*
 import org.typelevel.log4cats.LoggerFactory
 import org.typelevel.log4cats.slf4j.Slf4jFactory
+import si.ogrodje.oge.repository.{DBEventsRepository, DBMeetupsRepository}
+import si.ogrodje.oge.sync.Sync
 
 import java.util.{Locale, TimeZone}
 object MainApp extends ResourceApp.Forever:
@@ -21,7 +23,7 @@ object MainApp extends ResourceApp.Forever:
     eventsRepository  <- DBEventsRepository.resource(transactor)
     ogrodjeAPIService <- OgrodjeAPIService.resource(config)
     _                 <- (
-      OgrodjeAPISync(ogrodjeAPIService, transactor).sync(config.syncDelay),
+      Sync.resource(config.syncDelay, ogrodjeAPIService, meetupsRepository, eventsRepository),
       APIServer(config, meetupsRepository, eventsRepository).resource
     ).parTupled
   yield ()

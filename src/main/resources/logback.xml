@@ -3,20 +3,29 @@
     <statusListener class="ch.qos.logback.core.status.NopStatusListener"/>
     <property scope="context" name="appLogLevel" value="${LOG_LEVEL:-INFO}"/>
 
-    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+    <appender name="Console" class="ch.qos.logback.core.ConsoleAppender">
         <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
             <level>${appLogLevel}</level>
         </filter>
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
-            <pattern>%d{HH:mm:ss.SSS} %highlight(%-5level) %logger{36} - %msg%n</pattern>
+            <pattern>%d{HH:mm:ss.SSS} %highlight(%-5level) %logger{20} - %msg%n</pattern>
         </encoder>
     </appender>
 
+    <appender name="Sentry" class="io.sentry.logback.SentryAppender">
+        <options>
+            <debug>false</debug>
+            <dsn>${SENTRY_DNS}</dsn>
+        </options>
+        <minimumEventLevel>ERROR</minimumEventLevel>
+        <minimumBreadcrumbLevel>INFO</minimumBreadcrumbLevel>
+    </appender>
 
     <logger name="com.ogrodje.oge" level="DEBUG"/>
     <logger name="org.http4s.blaze.client" level="INFO"/>
 
-    <root level="trace">
-        <appender-ref ref="STDOUT"/>
+    <root level="${appLogLevel}">
+        <appender-ref ref="Console"/>
+        <appender-ref ref="Sentry"/>
     </root>
 </configuration>

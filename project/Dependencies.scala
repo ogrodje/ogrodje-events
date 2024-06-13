@@ -5,13 +5,13 @@ object Dependencies {
   type Modules = Seq[ModuleID]
 
   object Versions {
-    val http4s: Version    = "1.0.0-M40"
-    val fs2: Version       = "3.10.2"
-    val decline: Version   = "2.4.1"
-    val log4cats: Version  = "2.7.0"
-    val scalaTest: Version = "3.2.18"
-    val doobie: Version    = "1.0.0-RC4"
-    val caliban: Version   = "2.7.1"
+    val http4s: Version        = "1.0.0-M40"
+    val fs2: Version           = "3.10.2"
+    val decline: Version       = "2.4.1"
+    val log4cats: Version      = "2.7.0"
+    val scalaTest: Version     = "3.2.18"
+    val doobie: Version        = "1.0.0-RC4"
+    val sentryLogback: Version = "7.10.0"
   }
 
   lazy val catsAndFriends: Modules = Seq(
@@ -48,7 +48,9 @@ object Dependencies {
   ) ++ Seq(
     "org.typelevel" %% "log4cats-core",
     "org.typelevel" %% "log4cats-slf4j"
-  ).map(_ % Versions.log4cats)
+  ).map(_ % Versions.log4cats) ++ Seq(
+    "io.sentry" % "sentry-logback" % Versions.sentryLogback
+  )
 
   lazy val testingDeps: Modules = Seq(
     "org.scalatest" %% "scalatest",
