@@ -5,7 +5,7 @@ services:
     environment:
       SENTRY_ENVIRONMENT: production
       SYNC_DELAY: 1 hour
-      
+
 volumes:
   events-db:
     driver: "local"

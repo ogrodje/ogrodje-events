@@ -63,13 +63,29 @@ jobs:
       - name: Run tests
         run: sbt "test"
 
+      - name: Setup Sentry CLI
+        if: ${{ github.ref == 'refs/heads/master' }}
+        uses: mathieu-bour/setup-sentry-cli@v1
+        with:
+          version: latest
+          token: ${{ SECRETS.SENTRY_AUTH_TOKEN }}
+          organization: ogrodje-ok
+          project: ogrodje-events
+
       - name: Run tests and publish
         if: ${{ github.ref == 'refs/heads/master' }}
         run: sbt "docker:publish"
 
-      - name: Deploy to low
+      - name: Deploy to production
         if: ${{ github.ref == 'refs/heads/master' }}
         run: |
+          export VERSION=$(sentry-cli releases propose-version)
+          sentry-cli releases new -p ogrodje-events $VERSION && \
+            sentry-cli releases set-commits --auto $VERSION
+          
           export DOCKER_HOST="ssh://low"
           ./bin/og-prod.sh pull && \
             ./bin/og-prod.sh up -d --remove-orphans
+
+          sentry-cli releases finalize $VERSION && \
+            sentry-cli releases deploys $VERSION new -e production
