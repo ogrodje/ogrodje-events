@@ -3,7 +3,6 @@ package si.ogrodje.oge.model
 import org.http4s.Uri
 import si.ogrodje.oge.model.db.CollectedFields
 
-import java.sql.Timestamp
 import java.time.temporal.Temporal
 import java.time.{LocalDateTime, ZoneId, ZonedDateTime}
 
@@ -20,6 +19,7 @@ trait BaseMeetup {
   def discordUrl: Option[Uri]
   def linkedInUrl: Option[Uri]
   def kompotUrl: Option[Uri]
+  def icalUrl: Option[Uri]
 }
 
 trait BaseEvent[At <: Temporal] {
@@ -40,7 +40,8 @@ object in {
     meetupUrl: Option[Uri],
     discordUrl: Option[Uri],
     linkedInUrl: Option[Uri],
-    kompotUrl: Option[Uri]
+    kompotUrl: Option[Uri],
+    icalUrl: Option[Uri]
   ) extends BaseMeetup
 
   final case class Event(
@@ -88,6 +89,7 @@ object db {
     discordUrl: Option[Uri],
     linkedInUrl: Option[Uri],
     kompotUrl: Option[Uri],
+    icalUrl: Option[Uri],
     updatedAt: LocalDateTime
   ) extends BaseMeetup
 }
@@ -103,6 +105,7 @@ object Converters {
         meetup.discordUrl,
         meetup.linkedInUrl,
         meetup.kompotUrl,
+        meetup.icalUrl,
         updatedAt
       )
   }

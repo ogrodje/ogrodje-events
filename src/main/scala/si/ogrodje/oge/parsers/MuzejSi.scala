@@ -80,7 +80,6 @@ final class MuzejSi private (client: Client[IO]) extends Parser:
       .compile
       .toVector
 
-object MuzejSi:
-  given LoggerFactory[IO]                                           = Slf4jFactory.create[IO]
+object MuzejSi extends ParserResource[MuzejSi]:
   def resourceWithClient(client: Client[IO]): Resource[IO, MuzejSi] = Resource.pure(new MuzejSi(client))
-  def resource: Resource[IO, MuzejSi] = BlazeClientBuilder[IO].resource.flatMap(resourceWithClient)
+ 

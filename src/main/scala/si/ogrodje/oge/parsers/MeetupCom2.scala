@@ -20,7 +20,7 @@ import scala.collection.immutable.Map
 final class MeetupCom2 private (client: Client[IO]) extends Parser {
   import JsoupExtension.*
   import JsoupExtension.given
-  
+
   private given Decoder[in.Event] = Decoder[Json].emapTry(json =>
     for
       id          <- json.hcursor.get[String]("id").toTry
@@ -76,8 +76,6 @@ final class MeetupCom2 private (client: Client[IO]) extends Parser {
   ).parMapN((upcoming, past) => upcoming ++ past)
 }
 
-object MeetupCom2 {
-  given LoggerFactory[IO]                                              = Slf4jFactory.create[IO]
+object MeetupCom2 extends ParserResource[MeetupCom2] {
   def resourceWithClient(client: Client[IO]): Resource[IO, MeetupCom2] = Resource.pure(new MeetupCom2(client))
-  def resource: Resource[IO, MeetupCom2] = BlazeClientBuilder[IO].resource.flatMap(resourceWithClient)
 }

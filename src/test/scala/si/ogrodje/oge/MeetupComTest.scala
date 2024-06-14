@@ -18,21 +18,12 @@ import si.ogrodje.oge.model.in
 import scala.io.Source
 import scala.language.implicitConversions
 
-final class MeetupComTest extends AsyncFlatSpec with Matchers:
-  private given Conversion[IO[Assertion], Future[Assertion]] = _.unsafeToFuture()
-
-  private def readResource(path: String): IO[String] = IO {
-    val source           = Source.fromResource(path)
-    val upcoming: String = source.getLines().mkString("\n")
-    source.close()
-    upcoming
-  }
-
+final class MeetupComTest extends AsyncFlatSpec with Matchers with AsyncParserSpec:
   it should "parse events" in {
     val meetupComService = HttpRoutes.of[IO] { case req @ GET -> Root =>
       req.params.get("type") match
-        case Some("upcoming") => readResource("aws-upcoming-events.html").flatMap(Ok(_))
-        case Some("past")     => readResource("aws-past-events.html").flatMap(Ok(_))
+        case Some("upcoming") => readAndServe("aws-upcoming-events.html")
+        case Some("past")     => readAndServe("aws-past-events.html")
         case other            => IO.raiseError(new RuntimeException(s"Not implemented type - ${other}"))
     }
 

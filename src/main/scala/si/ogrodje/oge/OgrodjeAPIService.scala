@@ -41,6 +41,7 @@ final case class OgrodjeAPIService private (
             |   discordUrl 
             |   linkedInUrl 
             |   kompotUrl
+            |   icalUrl
             | }
             |}""".stripMargin,
           "size" -> Json.fromInt(42)

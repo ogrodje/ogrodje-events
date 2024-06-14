@@ -253,8 +253,5 @@ final class KompotSi private (client: Client[IO]) extends Parser {
   }
 }
 
-object KompotSi:
-  given LoggerFactory[IO] = Slf4jFactory.create[IO]
-
+object KompotSi extends ParserResource[KompotSi]:
   def resourceWithClient(client: Client[IO]): Resource[IO, KompotSi] = Resource.pure(new KompotSi(client))
-  def resource: Resource[IO, KompotSi] = BlazeClientBuilder[IO].resource.flatMap(resourceWithClient)
