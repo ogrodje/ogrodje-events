@@ -3,21 +3,21 @@ package si.ogrodje.oge
 import cats.effect.{IO, Resource}
 import fs2.Stream
 import io.circe.*
+import io.circe.Decoder.Result
+import io.circe.generic.auto.*
 import org.http4s.*
 import org.typelevel.log4cats.slf4j.Slf4jFactory
 import si.ogrodje.oge.clients.HyGraph
-import si.ogrodje.oge.model.EventKind.KompotEvent
 import si.ogrodje.oge.model.in.*
-import si.ogrodje.oge.parsers.{KompotSi, MeetupCom, MeetupCom2}
-import io.circe.Decoder.Result
-import io.circe.generic.auto.*
+import si.ogrodje.oge.parsers.{KompotSi, MeetupCom2, MuzejSi}
 
 import scala.util.Try
 
 final case class OgrodjeAPIService private (
   hyGraph: HyGraph,
   meetupComParser: MeetupCom2,
-  kompotSi: KompotSi
+  kompotSi: KompotSi,
+  muzejSi: MuzejSi
 ):
   private val logger = Slf4jFactory.create[IO].getLogger
 
@@ -49,22 +49,23 @@ final case class OgrodjeAPIService private (
     _       <- logger.info(s"Number of meetups collected ${meetups.length}")
   yield meetups
 
-  private def collectFromUri(maybeUri: Option[Uri], collector: Uri => IO[Array[Event]]): IO[Array[Event]] =
-    maybeUri match
-      case Some(value) => collector(value)
-      case None        => IO.pure(Array.empty[Event])
+  private def collectFromUri(maybeUri: Option[Uri], collector: Uri => IO[Seq[Event]]): IO[Seq[Event]] =
+    maybeUri.fold(IO.pure(Seq.empty))(collector)
 
-  private def collectEvents(meetup: Meetup): IO[Array[Event]] =
-    for
-      meetupEvents   <- collectFromUri(meetup.meetupUrl, meetupComParser.safeCollect)
-      kompotSiEvents <- collectFromUri(meetup.kompotUrl, kompotSi.safeCollect)
-    yield meetupEvents ++ kompotSiEvents
+  private def collectEvents(meetup: Meetup): IO[Seq[Event]] = for
+    meetupEvents   <- collectFromUri(meetup.meetupUrl, meetupComParser.safeCollect)
+    kompotSiEvents <- collectFromUri(meetup.kompotUrl, kompotSi.safeCollect)
+    muzejSiEvents  <- collectFromUri(
+      meetup.homePageUrl.filter(_.host.exists(_.value == "www.racunalniski-muzej.si")),
+      muzejSi.safeCollect
+    )
+  yield meetupEvents ++ kompotSiEvents ++ muzejSiEvents
 
   private val maxConcurrent                                       = 4
-  def streamMeetupsWithEvents: Stream[IO, (Meetup, Array[Event])] =
+  def streamMeetupsWithEvents: Stream[IO, (Meetup, Seq[Event])] =
     Stream
       .eval(allMeetups)
-      .flatMap(m => Stream.emits(m))
+      .flatMap(Stream.emits)
       .covary[IO]
       .parEvalMapUnordered(maxConcurrent)(meetup => collectEvents(meetup).map(meetup -> _))
 
@@ -73,7 +74,8 @@ object OgrodjeAPIService:
     for
       meetupComParser <- MeetupCom2.resource
       kompotSiParser  <- KompotSi.resource
-    yield apply(hyGraph, meetupComParser, kompotSiParser)
+      muzejSiParser   <- MuzejSi.resource
+    yield apply(hyGraph, meetupComParser, kompotSiParser, muzejSiParser)
 
   def resource(config: Config): Resource[IO, OgrodjeAPIService] =
     HyGraph.resource(config).flatMap(resourceWithGraph)
