@@ -10,6 +10,7 @@ import java.time.{LocalDateTime, ZoneId, ZonedDateTime}
 enum EventKind:
   case MeetupEvent
   case KompotEvent
+  case MuzejEvent
 
 trait BaseMeetup {
   def id: String

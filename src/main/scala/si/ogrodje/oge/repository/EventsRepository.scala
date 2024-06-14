@@ -13,12 +13,13 @@ import si.ogrodje.oge.model.db.Event
 import java.sql.Timestamp
 import java.time.ZoneOffset
 
-trait EventsRepository[F[_], M, ID] extends Repository[F, M, ID] with Synchronizable[F, M]
+trait EventsRepository[F[_], M, ID] extends Repository[F, M, ID] with Synchronizable[F, M]:
+  def forDate(date: String): IO[Seq[Event]]
 
 final class DBEventsRepository private (transactor: Transactor[IO]) extends EventsRepository[IO, Event, String] {
   import DBGivens.given
 
-  private val upcomingEvents: Query[Event] =
+  private val upcomingEvents: String => Query[Event] = date =>
     sql"""SELECT e.id,
          |       m.id as meetup_id,
          |       e.kind,
@@ -35,12 +36,14 @@ final class DBEventsRepository private (transactor: Transactor[IO]) extends Even
          |WHERE
          |  datetime(e.datetime_at / 1000, 'unixepoch') > CURRENT_TIMESTAMP AND
          |  datetime(e.datetime_at / 1000, 'unixepoch') <=
-         |    datetime('now', 'start of month','+2 month')
+         |    datetime(${date}, 'start of month','+2 month')
          |ORDER BY
          |    datetime(e.datetime_at / 1000, 'unixepoch')""".stripMargin
       .queryWithLabel[Event]("upcoming-events")
 
-  override def all: IO[Seq[Event]] = upcomingEvents.to[Seq].transact(transactor)
+  override def all: IO[Seq[Event]] = upcomingEvents("now").to[Seq].transact(transactor)
+
+  def forDate(date: String): IO[Seq[Event]] = upcomingEvents(date).to[Seq].transact(transactor)
 
   private val upsertEvent: Event => Update0 = { event =>
     val dateTime: Timestamp            = Timestamp.from(event.dateTime.toInstant(ZoneOffset.of("Z")))

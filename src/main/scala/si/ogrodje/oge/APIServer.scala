@@ -26,10 +26,12 @@ final case class APIServer(
   private given factory: LoggerFactory[IO] = Slf4jFactory.create[IO]
 
   private val service = HttpRoutes.of[IO] {
-    case GET -> Root                                 =>
+    case GET -> Root                                       =>
       view.Home.renderHome(meetupsRepository, eventsRepository)
-    case GET -> Root / "api" / "events" / "upcoming" =>
+    case GET -> Root / "api" / "events" / "upcoming"       =>
       eventsRepository.all.flatMap(events => Ok(events.asJson))
+    case GET -> Root / "api" / "events" / "forDate" / date =>
+      eventsRepository.forDate(date).flatMap(events => Ok(events.asJson))
   }
 
   def resource: Resource[IO, Server] =

@@ -8,8 +8,7 @@ import org.http4s.*
 import org.http4s.blaze.client.BlazeClientBuilder
 import org.http4s.client.Client
 import org.jsoup.Jsoup
-import org.jsoup.nodes.{Document, Element}
-import org.jsoup.select.Elements
+import org.jsoup.nodes.Document
 import org.typelevel.log4cats.LoggerFactory
 import org.typelevel.log4cats.slf4j.Slf4jFactory
 import si.ogrodje.oge.model.EventKind.MeetupEvent
@@ -17,28 +16,12 @@ import si.ogrodje.oge.model.in
 
 import java.time.ZonedDateTime
 import scala.collection.immutable.Map
-import scala.collection.mutable
-import scala.jdk.CollectionConverters.*
-
-object JsoupExtension {
-  extension (doc: Document)
-    infix def $(cssQuery: String): IO[Elements]                 = IO(doc.select(cssQuery))
-    infix def $$(cssQuery: String): IO[mutable.Buffer[Element]] = (doc $ cssQuery).map(_.asScala)
-    infix def $0(cssQuery: String): IO[Option[Element]]         = (doc $$ cssQuery).map(_.headOption)
-    infix def $0x(cssQuery: String): IO[Element]                =
-      (doc $0 cssQuery).flatMap(
-        IO.fromOption(_)(new RuntimeException(s"Can't get first element with '$cssQuery'"))
-      )
-
-  extension (element: Element)
-    def textAsJson: IO[Json] = fromEither(io.circe.parser.parse(element.text()))
-    def dataAsJson: IO[Json] = fromEither(io.circe.parser.parse(element.data()))
-}
 
 final class MeetupCom2 private (client: Client[IO]) extends Parser {
   import JsoupExtension.*
-  private given EntityDecoder[IO, Document] = EntityDecoder.text[IO].map(Jsoup.parse)
-  private given Decoder[in.Event]           = Decoder[Json].emapTry(json =>
+  import JsoupExtension.given
+  
+  private given Decoder[in.Event] = Decoder[Json].emapTry(json =>
     for
       id          <- json.hcursor.get[String]("id").toTry
       name        <- json.hcursor.get[String]("title").toTry
@@ -61,7 +44,7 @@ final class MeetupCom2 private (client: Client[IO]) extends Parser {
 
   private def error(msg: String): Throwable = new RuntimeException(msg)
 
-  private def readEventsFromMeta(json: Json): IO[Array[in.Event]] =
+  private def readEventsFromMeta(json: Json): IO[Seq[in.Event]] =
     for
       apolloState <- fromOption(
         json.hcursor.downField("props").downField("pageProps").downField("__APOLLO_STATE__").focus
@@ -81,13 +64,13 @@ final class MeetupCom2 private (client: Client[IO]) extends Parser {
       }.parUnorderedSequence
     yield eventsWithLocations.toArray
 
-  private def collectPage(uri: Uri): IO[Array[in.Event]] = for
+  private def collectPage(uri: Uri): IO[Seq[in.Event]] = for
     document <- client.expect[Document](uri)
     metaJson <- (document $0x "script[id='__NEXT_DATA__'][type='application/json']").flatMap(_.dataAsJson)
     events   <- readEventsFromMeta(metaJson)
   yield events
 
-  override def collectAll(uri: Uri): IO[Array[in.Event]] = (
+  override def collectAll(uri: Uri): IO[Seq[in.Event]] = (
     collectPage(uri withQueryParams Map("type" -> "upcoming")),
     collectPage(uri withQueryParams Map("type" -> "past"))
   ).parMapN((upcoming, past) => upcoming ++ past)

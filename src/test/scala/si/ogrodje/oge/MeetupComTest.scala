@@ -9,7 +9,7 @@ import org.http4s.*
 import org.http4s.dsl.io.*
 import org.http4s.server.Router
 import org.scalatest.Assertion
-import si.ogrodje.oge.parsers.{MeetupCom, MeetupCom2}
+import si.ogrodje.oge.parsers.MeetupCom2
 
 import scala.concurrent.Future
 import cats.effect.unsafe.implicits.global
@@ -46,7 +46,7 @@ final class MeetupComTest extends AsyncFlatSpec with Matchers:
         val collectedEvents: Map[String, in.Event] = events.map(e => e.id -> e).toMap
         val firstEvent                             = events.head
 
-        events.foreach(event => println(s"event => ${event}"))
+        // events.foreach(event => println(s"event => ${event}"))
 
         collectedEvents.get("meetup:300759451").head.location shouldEqual Some(
           "Celtra, razvoj informacijskih tehnologij, d.o.o."

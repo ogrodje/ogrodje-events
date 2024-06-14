@@ -19,7 +19,7 @@ import scala.util.Try
 final class KompotSi private (client: Client[IO]) extends Parser {
   private val logger = Slf4jFactory.create[IO].getLogger
 
-  def collectAll(uri: Uri): IO[Array[Event]] = for {
+  def collectAll(uri: Uri): IO[Seq[Event]] = for {
     now     <- IO {
       val pattern = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:00'Z'")
       LocalDateTime.now.format(pattern)

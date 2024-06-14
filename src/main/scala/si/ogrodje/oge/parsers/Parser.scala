@@ -10,12 +10,12 @@ trait Parser {
   private given factory: LoggerFactory[IO] = Slf4jFactory.create[IO]
   private val logger                       = factory.getLogger
 
-  def collectAll(uri: Uri): IO[Array[Event]]
+  def collectAll(uri: Uri): IO[Seq[Event]]
 
-  final def safeCollect(uri: Uri): IO[Array[Event]] =
+  final def safeCollect(uri: Uri): IO[Seq[Event]] =
     collectAll(uri).handleErrorWith { th =>
       logger.warn(th)(s"Parsing and collection of $uri has failed.")
-        *> IO.pure(Array.empty[Event])
+        *> IO.pure(Seq.empty[Event])
     }.timed
       .flatTap((duration, items) => logger.info(s"Collected ${items.length} from $uri in ${duration.toMillis} ms."))
       .map(_._2)
