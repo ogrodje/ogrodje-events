@@ -19,17 +19,24 @@ final class ICalFetchTest extends AsyncFlatSpec with Matchers with AsyncParserSp
   it should "parse events from ical" in {
     val fakeICalService =
       Router(
-        "/" -> HttpRoutes.of[IO] { case POST -> Root / "api" =>
-          readAndServe("kompotsi.json")
+        "/" -> HttpRoutes.of[IO] { case GET -> Root / "calendar" / "ical" / id / "public" / "basic" =>
+          // https://calendar.google.com/calendar/ical/<id>/public/basic.ics
+          readAndServe("ikt-calendar.ics")
         }
       ).orNotFound
 
     ICalFetch.resourceWithClient(Client.fromHttpApp(fakeICalService)).use { parser =>
       for
-        seed   <- IO(Uri.unsafeFromString("http://server"))
+        seed   <- IO(Uri.unsafeFromString("http://server/calendar/ical/secret-id/public/basic"))
         events <- parser.collectAll(seed)
       yield {
-        1 shouldEqual 1
+        val lastEvent = events.last
+
+        println(
+          lastEvent
+        )
+
+        events shouldNot be(empty)
       }
     }
   }

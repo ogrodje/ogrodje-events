@@ -10,6 +10,7 @@ enum EventKind:
   case MeetupEvent
   case KompotEvent
   case MuzejEvent
+  case ICalEvent
 
 trait BaseMeetup {
   def id: String
