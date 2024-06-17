@@ -61,7 +61,9 @@ final class MuzejSi private (client: Client[IO]) extends Parser:
     name,
     uri,
     dateTime,
+    noStartTime = false,
     dateTimeEnd,
+    noEndTime = false,
     None,
     None
   )
@@ -82,4 +84,3 @@ final class MuzejSi private (client: Client[IO]) extends Parser:
 
 object MuzejSi extends ParserResource[MuzejSi]:
   def resourceWithClient(client: Client[IO]): Resource[IO, MuzejSi] = Resource.pure(new MuzejSi(client))
- 

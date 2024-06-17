@@ -2,6 +2,9 @@ services:
   events:
     volumes:
       - events-db:/data
+  pg:
+    volumes:
+      - events-pg-db:/var/lib/postgresql/data
 
 volumes:
   events-db:
@@ -9,4 +12,11 @@ volumes:
     driver_opts:
       type: none
       device: "$HOME/docker-volumes/events-db"
+      o: bind
+
+  events-pg-db:
+    driver: "local"
+    driver_opts:
+      type: none
+      device: "$HOME/docker-volumes/events-pg-db"
       o: bind

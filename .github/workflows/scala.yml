@@ -12,6 +12,8 @@ env:
   HYGRAPH_ENDPOINT: ${{ secrets.HYGRAPH_ENDPOINT }}
   SENTRY_DNS: ${{ secrets.SENTRY_DNS }}
   SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+  POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+
 jobs:
   build:
     runs-on: ubuntu-latest

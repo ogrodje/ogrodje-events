@@ -36,7 +36,9 @@ final class MeetupCom2 private (client: Client[IO]) extends Parser {
       name,
       uri,
       dateTime,
+      noStartTime = false,
       Some(dateTimeEnd),
+      noEndTime = false,
       maybeVenueID,
       going
     )

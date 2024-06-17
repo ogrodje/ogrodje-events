@@ -6,6 +6,8 @@ import doobie.implicits.javasql.*
 import doobie.implicits.javatimedrivernative.*
 import doobie.util.transactor.Transactor
 import doobie.{Query0 as Query, *}
+import doobie.postgres.*
+import doobie.postgres.implicits.*
 import org.http4s.*
 import si.ogrodje.oge.model.EventKind
 import si.ogrodje.oge.model.db.Event
@@ -20,25 +22,24 @@ final class DBEventsRepository private (transactor: Transactor[IO]) extends Even
   import DBGivens.given
 
   private val upcomingEvents: String => Query[Event] = date =>
-    sql"""SELECT e.id,
-         |       m.id as meetup_id,
-         |       e.kind,
-         |       e.name,
-         |       e.url,
-         |       datetime(e.datetime_at / 1000, 'auto') AS datetime_at,
-         |       datetime(e.datetime_end_at / 1000, 'auto') AS datetime_end_at,
-         |       e.location,
-         |       m.name as meetupName,
-         |       e.updated_at,
-         |       strftime('%W', datetime(e.datetime_at / 1000, 'auto')) AS week_number,
-         |       e.attendees_count
-         |FROM events e LEFT JOIN main.meetups m on m.id = e.meetup_id
-         |WHERE
-         |  datetime(e.datetime_at / 1000, 'unixepoch') > CURRENT_TIMESTAMP AND
-         |  datetime(e.datetime_at / 1000, 'unixepoch') <=
-         |    datetime(${date}, 'start of month','+2 month')
-         |ORDER BY
-         |    datetime(e.datetime_at / 1000, 'unixepoch')""".stripMargin
+    sql"""SELECT
+         |    e.id,
+         |    e.meetup_id,
+         |    e.kind,
+         |    e.name,
+         |    e.url,
+         |    e.datetime_start_at,
+         |    e.no_start_time,
+         |    e.datetime_end_at,
+         |    e.no_end_time,
+         |    e.location,
+         |    m.name as meetup_name,
+         |    e.updated_at,
+         |    DATE_PART('week', datetime_end_at) as week
+         |FROM events AS e
+         |LEFT JOIN meetups AS m
+         |ON e.meetup_id = m.id
+         |ORDER BY e.datetime_start_at DESC""".stripMargin
       .queryWithLabel[Event]("upcoming-events")
 
   override def all: IO[Seq[Event]] = upcomingEvents("now").to[Seq].transact(transactor)
@@ -46,29 +47,32 @@ final class DBEventsRepository private (transactor: Transactor[IO]) extends Even
   def forDate(date: String): IO[Seq[Event]] = upcomingEvents(date).to[Seq].transact(transactor)
 
   private val upsertEvent: Event => Update0 = { event =>
-    val dateTime: Timestamp            = Timestamp.from(event.dateTime.toInstant(ZoneOffset.of("Z")))
-    val dateTimeEnd: Option[Timestamp] = event.dateTimeEnd.map(t => Timestamp.from(t.toInstant(ZoneOffset.of("Z"))))
+    // val dateTime: Timestamp            = Timestamp.from(event.dateTime.toInstant(ZoneOffset.of("Z")))
+    // val dateTimeEnd: Option[Timestamp] = event.dateTimeEnd.map(t => Timestamp.from(t.toInstant(ZoneOffset.of("Z"))))
 
-    sql"""INSERT INTO events (id, meetup_id, kind, name, url, attendees_count, datetime_at, datetime_end_at, location)
+    sql"""INSERT INTO events (id, meetup_id, kind, name, url, location,
+          datetime_start_at, no_start_time, datetime_end_at, no_end_time)
        VALUES (
           ${event.id},
           ${event.meetupID},
           ${event.kind},
           ${event.name},
           ${event.url},
-          ${event.attendeesCount},
+          ${event.location},
           ${event.dateTime},
+          ${event.noStartTime},
           ${event.dateTimeEnd},
-          ${event.location}
+          ${event.noEndTime}
        )
        ON CONFLICT (id) DO UPDATE SET
           name = ${event.name},
           url = ${event.url},
-          attendees_count = ${event.attendeesCount},
-          datetime_at = $dateTime,
-          datetime_end_at = $dateTimeEnd,
           location = ${event.location},
-          updated_at = CURRENT_TIMESTAMP
+          datetime_start_at = ${event.dateTime},
+          no_start_time = ${event.noStartTime},
+          datetime_end_at = ${event.dateTimeEnd},
+          no_end_time = ${event.noEndTime},
+          updated_at = now()
     """.updateWithLabel("sync-event")
   }
 

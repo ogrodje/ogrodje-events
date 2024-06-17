@@ -5,6 +5,9 @@ services:
     environment:
       SENTRY_ENVIRONMENT: production
       SYNC_DELAY: 1 hour
+  pg:
+    volumes:
+      - events-pg-db:/var/lib/postgresql/data
 
 volumes:
   events-db:
@@ -12,4 +15,11 @@ volumes:
     driver_opts:
       type: none
       device: /home/oto/Projects/ogrodje-events/data
+      o: bind
+
+  events-pg-db:
+    driver: "local"
+    driver_opts:
+      type: none
+      device: /home/oto/Projects/ogrodje-events/events-pg-db
       o: bind

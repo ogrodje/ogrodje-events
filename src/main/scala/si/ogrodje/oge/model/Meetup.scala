@@ -29,7 +29,9 @@ trait BaseEvent[At <: Temporal] {
   def url: Uri
   def kind: EventKind
   def dateTime: At
+  def noStartTime: Boolean
   def dateTimeEnd: Option[At]
+  def noEndTime: Boolean
   def location: Option[String]
 }
 
@@ -51,7 +53,9 @@ object in {
     name: String,
     url: Uri,
     dateTime: ZonedDateTime,
+    noStartTime: Boolean,
     dateTimeEnd: Option[ZonedDateTime] = None,
+    noEndTime: Boolean,
     location: Option[String] = None,
     attendeesCount: Option[Int]
   ) extends BaseEvent[ZonedDateTime]
@@ -61,9 +65,8 @@ object db {
   trait CollectedFields {
     def meetupID: String
     def meetupName: String
-    def updatedAt: LocalDateTime    = LocalDateTime.now(ZoneId.of("CET"))
+    def updatedAt: ZonedDateTime    = ZonedDateTime.now(ZoneId.of("CET"))
     def weekNumber: Int
-    def attendeesCount: Option[Int] = None
   }
 
   final case class Event(
@@ -72,14 +75,15 @@ object db {
     kind: EventKind,
     name: String,
     url: Uri,
-    dateTime: LocalDateTime,
-    dateTimeEnd: Option[LocalDateTime],
+    dateTime: ZonedDateTime,
+    noStartTime: Boolean = false,
+    dateTimeEnd: Option[ZonedDateTime],
+    noEndTime: Boolean = false,
     location: Option[String] = None,
     meetupName: String,
-    override val updatedAt: LocalDateTime,
-    weekNumber: Int,
-    override val attendeesCount: Option[Int] = None
-  ) extends BaseEvent[LocalDateTime]
+    override val updatedAt: ZonedDateTime,
+    weekNumber: Int
+  ) extends BaseEvent[ZonedDateTime]
       with CollectedFields
 
   final case class Meetup(
@@ -91,13 +95,13 @@ object db {
     linkedInUrl: Option[Uri],
     kompotUrl: Option[Uri],
     icalUrl: Option[Uri],
-    updatedAt: LocalDateTime
+    updatedAt: ZonedDateTime
   ) extends BaseMeetup
 }
 
 object Converters {
   extension (meetup: in.Meetup) {
-    def toDB(updatedAt: LocalDateTime = LocalDateTime.now(ZoneId.of("CET"))): db.Meetup =
+    def toDB(updatedAt: ZonedDateTime = ZonedDateTime.now(ZoneId.of("CET"))): db.Meetup =
       db.Meetup(
         meetup.id,
         meetup.name,
@@ -121,13 +125,12 @@ object Converters {
         event.kind,
         event.name,
         event.url,
-        dateTime = event.dateTime.toLocalDateTime, // Timestamp.from(event.dateTime.toInstant)
-        dateTimeEnd = event.dateTimeEnd.map(_.toLocalDateTime),
+        dateTime = event.dateTime, // Timestamp.from(event.dateTime.toInstant)
+        dateTimeEnd = event.dateTimeEnd,
         location = event.location,
         meetupName = extraFields.meetupName,
-        updatedAt = LocalDateTime.now(ZoneId.of("CET")),
+        updatedAt = ZonedDateTime.now(ZoneId.of("CET")),
         weekNumber = extraFields.weekNumber,
-        attendeesCount = extraFields.attendeesCount
       )
   }
 }

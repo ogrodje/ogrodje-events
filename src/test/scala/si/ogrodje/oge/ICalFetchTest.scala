@@ -33,9 +33,10 @@ final class ICalFetchTest extends AsyncFlatSpec with Matchers with AsyncParserSp
         val lastEvent = events.last
 
         println(
-          lastEvent
+          s"Last Event ${lastEvent.name} / ${lastEvent.dateTime} / ${lastEvent.location}"
         )
 
+        println(events.length)
         events shouldNot be(empty)
       }
     }

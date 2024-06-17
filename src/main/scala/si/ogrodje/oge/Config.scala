@@ -11,6 +11,8 @@ import scala.util.control.NoStackTrace
 
 final case class Config private (
   databaseUrl: String,
+  databasePassword: String,
+  databaseUsername: String,
   syncDelay: FiniteDuration,
   port: Int,
   hyGraphEndpoint: Uri
@@ -18,7 +20,9 @@ final case class Config private (
 
 object Config {
   private val default: Config = apply(
-    databaseUrl = "jdbc:sqlite:./ogrodje_events.db",
+    databaseUrl = "jdbc:postgresql://localhost:5438/og_events",
+    databasePassword = "",
+    databaseUsername = "postgres",
     syncDelay = 10.minutes,
     port = 7006,
     hyGraphEndpoint = Uri.unsafeFromString("http://x")
@@ -48,6 +52,8 @@ object Config {
   def fromEnv: IO[Config] =
     (
       fromEnvOr("DATABASE_URL", default.databaseUrl, pure),
+      fromEnvRequired("DATABASE_PASSWORD", pure),
+      fromEnvOr("DATABASE_USERNAME", default.databaseUsername, pure),
       fromEnvOr("SYNC_DELAY", default.syncDelay, parseToFiniteDuration),
       fromEnvOr("PORT", default.port, parseInt),
       fromEnvRequired("HYGRAPH_ENDPOINT", raw => IO(Uri.unsafeFromString(raw)))

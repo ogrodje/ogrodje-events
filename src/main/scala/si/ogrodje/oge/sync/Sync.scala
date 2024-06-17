@@ -28,7 +28,7 @@ final case class Sync private (
         meetupsRepository.sync(meetup.toDB()).flatTap {
           case n if n > 0 => logger.info(s"Synced meetup ${meetup.name}")
           case _          => IO.unit
-        } &>
+        } *>
           Stream
             .emits(events)
             .map { event =>
@@ -36,7 +36,6 @@ final case class Sync private (
                 override val meetupName: String          = meetup.name
                 override val meetupID: String            = meetup.id
                 override val weekNumber: Int             = -1
-                override val attendeesCount: Option[Int] = event.attendeesCount
               })
             }
             .evalMap(eventsRepository.sync)

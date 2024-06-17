@@ -15,58 +15,89 @@ import org.typelevel.log4cats.slf4j.Slf4jFactory
 import si.ogrodje.oge.model.EventKind
 
 import java.io.{FileInputStream, StringReader}
-import java.time.{LocalDateTime, ZonedDateTime}
+import java.time.format.DateTimeFormatter
+import java.time.{LocalDateTime, ZoneId, ZonedDateTime}
 import java.util
 import java.util.Date
 import scala.jdk.CollectionConverters.*
 import scala.jdk.OptionConverters.*
+import scala.util.Try
+
+object VEventOps:
+  extension [T](optional: java.util.Optional[T])
+    private def itsValue[B](f: T => B): Either[Throwable, B] =
+      optional.toScala
+        .map(f)
+        .toRight(new RuntimeException(s"Failed getting value from $optional"))
+
+  private val UTC = ZoneId.of("UTC")
+  extension (vevent: VEvent)
+    private def parseRawDateTime(raw: String): Either[Throwable, (LocalDateTime, Boolean)] =
+      if (raw.length == 8)
+        Try(
+          LocalDateTime.parse(
+            raw + " 12:00:00", // Faking time for easier parsing.
+            DateTimeFormatter.ofPattern("yyyyMMdd[ [HH][:mm][:ss][.SSS]]").withZone(ZoneId.of("UTC"))
+          )
+        )
+          .map(_ -> true)
+          .toEither
+      else
+        Try(LocalDateTime.parse(raw, DateTimeFormatter.ofPattern("yyyyMMdd'T'HHmmss'Z'")))
+          .map(_ -> false)
+          .toEither
+
+    def toEvent(baseUri: Uri): Either[Throwable, Event] = for {
+      uid                      <- vevent.getUid.itsValue(_.getValue)
+      name                     <- vevent.getSummary.itsValue(_.getValue)
+      (dateTime, noStartTime)  <-
+        vevent.getDateTimeStart.itsValue(_.getValue).flatMap(parseRawDateTime)
+      (dateTimeEnd, noEndTime) <-
+        vevent.getEndDate.itsValue(_.getValue).flatMap(parseRawDateTime)
+
+      url = vevent.getUrl.itsValue(_.getValue).flatMap(Uri.fromString)
+    } yield Event(
+      uid,
+      EventKind.ICalEvent,
+      name,
+      url.getOrElse(baseUri),
+      dateTime = dateTime.atZone(UTC),
+      noStartTime = noStartTime,
+      dateTimeEnd = Some(dateTimeEnd.atZone(UTC)),
+      noEndTime = noEndTime,
+      None,
+      None
+    )
 
 /** Inspiration:
   * https://github.com/OneCalendar/OneCalendar/blob/39c1d75ce12b065acafd2ca270011bd47525da12/app/api/icalendar/VEvent.scala
   * @param client
   */
 final class ICalFetch private (client: Client[IO]) extends Parser {
+  import VEventOps.*
 
   private def parseICal(raw: String): IO[Calendar] =
     Resource.fromAutoCloseable(IO(new StringReader(raw))).use(sb => IO(new CalendarBuilder().build(sb)))
 
-  private def parseToEvent(baseUri: Uri)(vevent: AnyRef): Either[Throwable, Event] =
-    vevent match {
-      case vevent: VEvent =>
-        for {
-          uid  <- vevent.getUid.toScala.map(_.getValue).toRight(new RuntimeException("No uid"))
-          name <- vevent.getSummary.toScala.map(_.getValue).toRight(new RuntimeException("Missing name"))
-          url = vevent.getUrl.toScala
-            .map(_.getValue)
-            .toRight(new RuntimeException("No URL"))
-            .flatMap(Uri.fromString)
-        } yield Event(
-          uid,
-          EventKind.ICalEvent,
-          name,
-          url.getOrElse(baseUri),
-          dateTime = ZonedDateTime.now(),
-          dateTimeEnd = Some(ZonedDateTime.now()),
-          None,
-          None
-        )
-      case x              => Left(new RuntimeException(s"Unknown event kind ${x}"))
-    }
+  private def parseToEvent(baseUri: Uri)(vevent: AnyRef): Either[Throwable, Event] = vevent match
+    case vevent: VEvent => vevent.toEvent(baseUri)
+    case event          => Left(new RuntimeException(s"Unsupported event kind $event as $baseUri"))
 
-  override def collectAll(uri: Uri): IO[Seq[Event]] =
-    for {
-      calendar <- client.expect[String](uri).flatMap(parseICal)
-      events   <- IO(
-        calendar
-          .getComponents(Component.VEVENT)
-          .asInstanceOf[util.ArrayList[AnyRef]]
-          .asScala
-          .map(parseToEvent(uri))
-          .collect { case Right(v) => v }
-          .toIndexedSeq
-          // TODO: Filter here.
-      )
-    } yield events
+  private def since: ZonedDateTime =
+    LocalDateTime.now.minusMonths(3).atZone(ZoneId.of("CET"))
+
+  override def collectAll(uri: Uri): IO[Seq[Event]] = for {
+    calendar <- client.expect[String](uri).flatMap(parseICal)
+    events   <- IO(
+      calendar
+        .getComponents(Component.VEVENT)
+        .asInstanceOf[util.ArrayList[AnyRef]]
+        .asScala
+        .map(parseToEvent(uri))
+        .collect { case Right(v) if v.dateTime.isAfter(since) => v }
+        .toIndexedSeq
+    )
+  } yield events
 }
 
 object ICalFetch extends ParserResource[ICalFetch] {

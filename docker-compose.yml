@@ -13,3 +13,12 @@ services:
       SENTRY_ENVIRONMENT: development
       SYNC_DELAY: 10 minutes
 
+  pg:
+    image: postgres:16
+    restart: always
+    ports:
+      - "0.0.0.0:5438:5432"
+    environment:
+      POSTGRES_DB: "og_events"
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+

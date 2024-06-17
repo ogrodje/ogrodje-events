@@ -234,14 +234,22 @@ final class KompotSi private (client: Client[IO]) extends Parser {
     url      <- el.hcursor.get[String]("url").flatMap(Uri.fromString)
     id       <- el.hcursor.get[String]("uuid")
     dateTime <- el.hcursor.get[String]("beginsOn").flatMap(parseBeginsOn)
-  yield Event(id, KompotEvent, name, url, dateTime, attendeesCount = None)
+  yield Event(
+    id,
+    KompotEvent,
+    name,
+    url,
+    dateTime,
+    noStartTime = false,
+    noEndTime = false,
+    attendeesCount = None
+  )
 
   private def readEvents(raw: Json): List[Event] = (for {
     data         <- raw.hcursor.downField("data").focus
     searchEvents <- data.hcursor.downField("searchEvents").focus
     elements     <- searchEvents.hcursor.downField("elements").focus
-    events       <-
-      elements.asArray.map(_.map(readEvent).toList.collect { case Right(v) => v })
+    events       <- elements.asArray.map(_.map(readEvent).toList.collect { case Right(v) => v })
   } yield events).toList.flatten
 
   private def parseBeginsOn(raw: String): Either[Throwable, ZonedDateTime] = {

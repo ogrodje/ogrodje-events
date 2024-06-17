@@ -30,7 +30,7 @@ object Home {
             )
             .toList
             .sortBy(_._1)
-            .map((day, events) => day -> events.sortBy(_.dateTime.toInstant(ZoneOffset.UTC)))
+            .map((day, events) => day -> events /* .sortBy(_.dateTime.toInstant(ZoneOffset.UTC))*/ )
       )
 
   private def whenAndWhere(event: Event) =
