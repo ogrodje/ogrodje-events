@@ -10,7 +10,7 @@ object Dependencies {
     val decline: Version       = "2.4.1"
     val log4cats: Version      = "2.7.0"
     val scalaTest: Version     = "3.2.18"
-    val doobie: Version        = "1.0.0-RC4"
+    val doobie: Version        = "1.0.0-RC5"
     val sentryLogback: Version = "7.10.0"
     val ical4j: Version        = "4.0.0-rc6"
   }
@@ -68,11 +68,10 @@ object Dependencies {
 
   lazy val db: Modules = Seq(
     "org.flywaydb"   % "flyway-core"                % "10.15.0",
-    "org.xerial"     % "sqlite-jdbc"                % "3.46.0.0",
     "org.tpolecat"  %% "doobie-core"                % Versions.doobie,
     "org.tpolecat"  %% "doobie-hikari"              % Versions.doobie,
     "org.tpolecat"  %% "doobie-postgres"            % Versions.doobie,
-    "org.postgresql" % "postgresql"                 % "42.6.0",
+    "org.postgresql" % "postgresql"                 % "42.7.3",
     "org.flywaydb"   % "flyway-database-postgresql" % "10.15.0"
   )
 
