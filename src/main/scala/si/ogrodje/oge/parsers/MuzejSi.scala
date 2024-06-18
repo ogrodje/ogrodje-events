@@ -54,15 +54,15 @@ final class MuzejSi private (client: Client[IO]) extends Parser:
 
       dateTime -> Some(dateTimeEnd)
     }
-    idHash                  <- hashString(id).map(r => "muzej:" + r)
+    idHash                  <- hashString(id).map(r => "muzej:" + uri.toString)
   yield Event(
     idHash,
     EventKind.MuzejEvent,
     name,
     uri,
-    dateTime,
+    dateTime.toOffsetDateTime,
     noStartTime = false,
-    dateTimeEnd,
+    dateTimeEnd.map(_.toOffsetDateTime),
     noEndTime = false,
     None,
     None

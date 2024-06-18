@@ -13,15 +13,17 @@ import si.ogrodje.oge.model.in.Event
 import org.typelevel.log4cats.LoggerFactory
 import org.typelevel.log4cats.slf4j.Slf4jFactory
 import si.ogrodje.oge.model.EventKind
+import si.ogrodje.oge.model.time.{CET, CET_OFFSET}
 
 import java.io.{FileInputStream, StringReader}
 import java.time.format.DateTimeFormatter
-import java.time.{LocalDateTime, ZoneId, ZonedDateTime}
+import java.time.{LocalDateTime, OffsetDateTime, ZoneId, ZonedDateTime}
 import java.util
 import java.util.Date
 import scala.jdk.CollectionConverters.*
 import scala.jdk.OptionConverters.*
 import scala.util.Try
+import si.ogrodje.oge.model.time
 
 object VEventOps:
   extension [T](optional: java.util.Optional[T])
@@ -61,9 +63,9 @@ object VEventOps:
       EventKind.ICalEvent,
       name,
       url.getOrElse(baseUri),
-      dateTime = dateTime.atZone(UTC),
+      dateTime = dateTime.atOffset(CET_OFFSET) /* dateTime.atZone(UTC) */,
       noStartTime = noStartTime,
-      dateTimeEnd = Some(dateTimeEnd.atZone(UTC)),
+      dateTimeEnd = Some(dateTimeEnd.atOffset(CET_OFFSET)),
       noEndTime = noEndTime,
       None,
       None
@@ -83,8 +85,7 @@ final class ICalFetch private (client: Client[IO]) extends Parser {
     case vevent: VEvent => vevent.toEvent(baseUri)
     case event          => Left(new RuntimeException(s"Unsupported event kind $event as $baseUri"))
 
-  private def since: ZonedDateTime =
-    LocalDateTime.now.minusMonths(3).atZone(ZoneId.of("CET"))
+  private def since: OffsetDateTime = OffsetDateTime.now(time.CET).minusMonths(3)
 
   override def collectAll(uri: Uri): IO[Seq[Event]] = for {
     calendar <- client.expect[String](uri).flatMap(parseICal)

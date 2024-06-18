@@ -20,7 +20,7 @@ trait EventsRepository[F[_], M, ID] extends Repository[F, M, ID] with Synchroniz
 
 final class DBEventsRepository private (transactor: Transactor[IO]) extends EventsRepository[IO, Event, String] {
   import DBGivens.given
-
+  import doobie.postgres.implicits.given
   private val upcomingEvents: String => Query[Event] = date =>
     sql"""SELECT
          |    e.id,
@@ -35,11 +35,13 @@ final class DBEventsRepository private (transactor: Transactor[IO]) extends Even
          |    e.location,
          |    m.name as meetup_name,
          |    e.updated_at,
-         |    DATE_PART('week', datetime_end_at) as week
+         |    DATE_PART('week', datetime_start_at) as week
          |FROM events AS e
          |LEFT JOIN meetups AS m
          |ON e.meetup_id = m.id
-         |ORDER BY e.datetime_start_at DESC""".stripMargin
+         |WHERE DATE_PART('week', datetime_start_at) IS NOT NULL
+         |  AND (datetime_start_at between now() - interval '-1 day' AND now() + interval '1 month 3 weeks')
+         |ORDER BY e.datetime_start_at ASC""".stripMargin
       .queryWithLabel[Event]("upcoming-events")
 
   override def all: IO[Seq[Event]] = upcomingEvents("now").to[Seq].transact(transactor)
@@ -47,9 +49,6 @@ final class DBEventsRepository private (transactor: Transactor[IO]) extends Even
   def forDate(date: String): IO[Seq[Event]] = upcomingEvents(date).to[Seq].transact(transactor)
 
   private val upsertEvent: Event => Update0 = { event =>
-    // val dateTime: Timestamp            = Timestamp.from(event.dateTime.toInstant(ZoneOffset.of("Z")))
-    // val dateTimeEnd: Option[Timestamp] = event.dateTimeEnd.map(t => Timestamp.from(t.toInstant(ZoneOffset.of("Z"))))
-
     sql"""INSERT INTO events (id, meetup_id, kind, name, url, location,
           datetime_start_at, no_start_time, datetime_end_at, no_end_time)
        VALUES (

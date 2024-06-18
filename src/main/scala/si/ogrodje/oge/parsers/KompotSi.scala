@@ -239,7 +239,7 @@ final class KompotSi private (client: Client[IO]) extends Parser {
     KompotEvent,
     name,
     url,
-    dateTime,
+    dateTime.toOffsetDateTime,
     noStartTime = false,
     noEndTime = false,
     attendeesCount = None

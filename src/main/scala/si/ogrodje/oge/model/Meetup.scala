@@ -2,9 +2,15 @@ package si.ogrodje.oge.model
 
 import org.http4s.Uri
 import si.ogrodje.oge.model.db.CollectedFields
+import time.CET
 
 import java.time.temporal.Temporal
-import java.time.{LocalDateTime, ZoneId, ZonedDateTime}
+import java.time.{LocalDateTime, OffsetDateTime, ZoneId, ZoneOffset, ZonedDateTime}
+
+object time {
+  val CET: ZoneId            = ZoneId.of("CET")
+  val CET_OFFSET: ZoneOffset = CET.getRules.getOffset(ZonedDateTime.now().toInstant)
+}
 
 enum EventKind:
   case MeetupEvent
@@ -52,20 +58,20 @@ object in {
     kind: EventKind,
     name: String,
     url: Uri,
-    dateTime: ZonedDateTime,
+    dateTime: OffsetDateTime,
     noStartTime: Boolean,
-    dateTimeEnd: Option[ZonedDateTime] = None,
+    dateTimeEnd: Option[OffsetDateTime] = None,
     noEndTime: Boolean,
     location: Option[String] = None,
     attendeesCount: Option[Int]
-  ) extends BaseEvent[ZonedDateTime]
+  ) extends BaseEvent[OffsetDateTime]
 }
 
 object db {
   trait CollectedFields {
     def meetupID: String
     def meetupName: String
-    def updatedAt: ZonedDateTime    = ZonedDateTime.now(ZoneId.of("CET"))
+    def updatedAt: OffsetDateTime = OffsetDateTime.now(time.CET)
     def weekNumber: Int
   }
 
@@ -75,15 +81,15 @@ object db {
     kind: EventKind,
     name: String,
     url: Uri,
-    dateTime: ZonedDateTime,
+    dateTime: OffsetDateTime,
     noStartTime: Boolean = false,
-    dateTimeEnd: Option[ZonedDateTime],
+    dateTimeEnd: Option[OffsetDateTime],
     noEndTime: Boolean = false,
     location: Option[String] = None,
     meetupName: String,
-    override val updatedAt: ZonedDateTime,
+    override val updatedAt: OffsetDateTime,
     weekNumber: Int
-  ) extends BaseEvent[ZonedDateTime]
+  ) extends BaseEvent[OffsetDateTime]
       with CollectedFields
 
   final case class Meetup(
@@ -95,13 +101,13 @@ object db {
     linkedInUrl: Option[Uri],
     kompotUrl: Option[Uri],
     icalUrl: Option[Uri],
-    updatedAt: ZonedDateTime
+    updatedAt: OffsetDateTime
   ) extends BaseMeetup
 }
 
 object Converters {
   extension (meetup: in.Meetup) {
-    def toDB(updatedAt: ZonedDateTime = ZonedDateTime.now(ZoneId.of("CET"))): db.Meetup =
+    def toDB(updatedAt: OffsetDateTime = OffsetDateTime.now(time.CET)): db.Meetup =
       db.Meetup(
         meetup.id,
         meetup.name,
@@ -125,12 +131,12 @@ object Converters {
         event.kind,
         event.name,
         event.url,
-        dateTime = event.dateTime, // Timestamp.from(event.dateTime.toInstant)
+        dateTime = event.dateTime,
         dateTimeEnd = event.dateTimeEnd,
         location = event.location,
         meetupName = extraFields.meetupName,
-        updatedAt = ZonedDateTime.now(ZoneId.of("CET")),
-        weekNumber = extraFields.weekNumber,
+        updatedAt = OffsetDateTime.now(time.CET),
+        weekNumber = extraFields.weekNumber
       )
   }
 }

@@ -19,7 +19,7 @@ object Home {
       .groupBy(_.weekNumber)
       .toList
       .sortBy(_._1)
-      .map((week, events) =>
+      .map { case (week, events) =>
         week ->
           events
             .groupBy(e =>
@@ -30,8 +30,8 @@ object Home {
             )
             .toList
             .sortBy(_._1)
-            .map((day, events) => day -> events /* .sortBy(_.dateTime.toInstant(ZoneOffset.UTC))*/ )
-      )
+            .map((day, events) => day -> events.sortBy(_.dateTime.toInstant))
+      }
 
   private def whenAndWhere(event: Event) =
     (

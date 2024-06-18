@@ -16,6 +16,7 @@ trait MeetupsRepository[F[_], M, ID] extends Repository[F, M, ID] with Synchroni
 
 final class DBMeetupsRepository private (transactor: Transactor[IO]) extends MeetupsRepository[IO, Meetup, String] {
   import DBGivens.given
+  import doobie.postgres.implicits.given
 
   private val upsertQuery: Meetup => Update0 = meetup => sql"""INSERT INTO meetups (
           id, name, homepage_url, meetup_url, discord_url, linkedin_url, kompot_url, ical_url)
