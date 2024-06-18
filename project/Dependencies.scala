@@ -10,8 +10,9 @@ object Dependencies {
     val decline: Version       = "2.4.1"
     val log4cats: Version      = "2.7.0"
     val scalaTest: Version     = "3.2.18"
-    val doobie: Version        = "1.0.0-RC4"
+    val doobie: Version        = "1.0.0-RC5"
     val sentryLogback: Version = "7.10.0"
+    val ical4j: Version        = "4.0.0-rc6"
   }
 
   lazy val catsAndFriends: Modules = Seq(
@@ -66,10 +67,16 @@ object Dependencies {
   )
 
   lazy val db: Modules = Seq(
-    "org.flywaydb"  % "flyway-core"   % "10.14.0",
-    "org.xerial"    % "sqlite-jdbc"   % "3.46.0.0",
-    "org.tpolecat" %% "doobie-core"   % Versions.doobie,
-    "org.tpolecat" %% "doobie-hikari" % Versions.doobie
+    "org.flywaydb"   % "flyway-core"                % "10.15.0",
+    "org.tpolecat"  %% "doobie-core"                % Versions.doobie,
+    "org.tpolecat"  %% "doobie-hikari"              % Versions.doobie,
+    "org.tpolecat"  %% "doobie-postgres"            % Versions.doobie,
+    "org.postgresql" % "postgresql"                 % "42.7.3",
+    "org.flywaydb"   % "flyway-database-postgresql" % "10.15.0"
+  )
+
+  lazy val ical4j: Modules = Seq(
+    "org.mnode.ical4j" % "ical4j" % Versions.ical4j
   )
 
   lazy val projectResolvers: Seq[MavenRepository] = Seq(

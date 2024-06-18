@@ -13,7 +13,7 @@ lazy val root = (project in file("."))
   .settings(
     libraryDependencies ++= {
       catsAndFriends ++ fs2 ++ circe ++ logging ++
-        http4s ++ scalaTags ++ jsoup ++ testingDeps ++ db
+        http4s ++ scalaTags ++ jsoup ++ testingDeps ++ db ++ ical4j
     },
     scalacOptions ++= Seq(
       "-deprecation",

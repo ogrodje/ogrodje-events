@@ -2,15 +2,21 @@ package si.ogrodje.oge.model
 
 import org.http4s.Uri
 import si.ogrodje.oge.model.db.CollectedFields
+import time.CET
 
-import java.sql.Timestamp
 import java.time.temporal.Temporal
-import java.time.{LocalDateTime, ZoneId, ZonedDateTime}
+import java.time.{LocalDateTime, OffsetDateTime, ZoneId, ZoneOffset, ZonedDateTime}
+
+object time {
+  val CET: ZoneId            = ZoneId.of("CET")
+  val CET_OFFSET: ZoneOffset = CET.getRules.getOffset(ZonedDateTime.now().toInstant)
+}
 
 enum EventKind:
   case MeetupEvent
   case KompotEvent
   case MuzejEvent
+  case ICalEvent
 
 trait BaseMeetup {
   def id: String
@@ -20,6 +26,7 @@ trait BaseMeetup {
   def discordUrl: Option[Uri]
   def linkedInUrl: Option[Uri]
   def kompotUrl: Option[Uri]
+  def icalUrl: Option[Uri]
 }
 
 trait BaseEvent[At <: Temporal] {
@@ -28,7 +35,9 @@ trait BaseEvent[At <: Temporal] {
   def url: Uri
   def kind: EventKind
   def dateTime: At
+  def noStartTime: Boolean
   def dateTimeEnd: Option[At]
+  def noEndTime: Boolean
   def location: Option[String]
 }
 
@@ -40,7 +49,8 @@ object in {
     meetupUrl: Option[Uri],
     discordUrl: Option[Uri],
     linkedInUrl: Option[Uri],
-    kompotUrl: Option[Uri]
+    kompotUrl: Option[Uri],
+    icalUrl: Option[Uri]
   ) extends BaseMeetup
 
   final case class Event(
@@ -48,20 +58,20 @@ object in {
     kind: EventKind,
     name: String,
     url: Uri,
-    dateTime: ZonedDateTime,
-    dateTimeEnd: Option[ZonedDateTime] = None,
+    dateTime: OffsetDateTime,
+    noStartTime: Boolean,
+    dateTimeEnd: Option[OffsetDateTime] = None,
+    noEndTime: Boolean,
     location: Option[String] = None,
-    attendeesCount: Option[Int]
-  ) extends BaseEvent[ZonedDateTime]
+  ) extends BaseEvent[OffsetDateTime]
 }
 
 object db {
   trait CollectedFields {
     def meetupID: String
     def meetupName: String
-    def updatedAt: LocalDateTime    = LocalDateTime.now(ZoneId.of("CET"))
+    def updatedAt: OffsetDateTime = OffsetDateTime.now(time.CET)
     def weekNumber: Int
-    def attendeesCount: Option[Int] = None
   }
 
   final case class Event(
@@ -70,14 +80,15 @@ object db {
     kind: EventKind,
     name: String,
     url: Uri,
-    dateTime: LocalDateTime,
-    dateTimeEnd: Option[LocalDateTime],
+    dateTime: OffsetDateTime,
+    noStartTime: Boolean = false,
+    dateTimeEnd: Option[OffsetDateTime],
+    noEndTime: Boolean = false,
     location: Option[String] = None,
     meetupName: String,
-    override val updatedAt: LocalDateTime,
-    weekNumber: Int,
-    override val attendeesCount: Option[Int] = None
-  ) extends BaseEvent[LocalDateTime]
+    override val updatedAt: OffsetDateTime,
+    weekNumber: Int
+  ) extends BaseEvent[OffsetDateTime]
       with CollectedFields
 
   final case class Meetup(
@@ -88,13 +99,14 @@ object db {
     discordUrl: Option[Uri],
     linkedInUrl: Option[Uri],
     kompotUrl: Option[Uri],
-    updatedAt: LocalDateTime
+    icalUrl: Option[Uri],
+    updatedAt: OffsetDateTime
   ) extends BaseMeetup
 }
 
 object Converters {
   extension (meetup: in.Meetup) {
-    def toDB(updatedAt: LocalDateTime = LocalDateTime.now(ZoneId.of("CET"))): db.Meetup =
+    def toDB(updatedAt: OffsetDateTime = OffsetDateTime.now(time.CET)): db.Meetup =
       db.Meetup(
         meetup.id,
         meetup.name,
@@ -103,6 +115,7 @@ object Converters {
         meetup.discordUrl,
         meetup.linkedInUrl,
         meetup.kompotUrl,
+        meetup.icalUrl,
         updatedAt
       )
   }
@@ -117,13 +130,12 @@ object Converters {
         event.kind,
         event.name,
         event.url,
-        dateTime = event.dateTime.toLocalDateTime, // Timestamp.from(event.dateTime.toInstant)
-        dateTimeEnd = event.dateTimeEnd.map(_.toLocalDateTime),
+        dateTime = event.dateTime,
+        dateTimeEnd = event.dateTimeEnd,
         location = event.location,
         meetupName = extraFields.meetupName,
-        updatedAt = LocalDateTime.now(ZoneId.of("CET")),
-        weekNumber = extraFields.weekNumber,
-        attendeesCount = extraFields.attendeesCount
+        updatedAt = OffsetDateTime.now(time.CET),
+        weekNumber = extraFields.weekNumber
       )
   }
 }

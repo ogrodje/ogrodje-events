@@ -1,25 +1,23 @@
 package si.ogrodje.oge.view
 
 import cats.effect.IO
-import org.http4s.Response
-import si.ogrodje.oge.model.db.{Event, Meetup}
-import si.ogrodje.oge.repository.{EventsRepository, MeetupsRepository}
 import org.http4s.*
 import scalatags.Text.all.*
+import si.ogrodje.oge.model.db.{Event, Meetup}
+import si.ogrodje.oge.repository.{EventsRepository, MeetupsRepository}
 import si.ogrodje.oge.view.Layout.{defaultLayout, renderHtml}
 
-import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
-import java.util.Locale
 
 object Home {
+  import si.ogrodje.oge.model.MeetupOps.{*, given}
 
   private def groupEvents(events: Seq[Event]): Seq[(Int, Seq[(String, Seq[Event])])] =
     events
       .groupBy(_.weekNumber)
       .toList
       .sortBy(_._1)
-      .map((week, events) =>
+      .map { case (week, events) =>
         week ->
           events
             .groupBy(e =>
@@ -30,23 +28,8 @@ object Home {
             )
             .toList
             .sortBy(_._1)
-            .map((day, events) => day -> events.sortBy(_.dateTime.toInstant(ZoneOffset.UTC)))
-      )
-
-  private def whenAndWhere(event: Event) =
-    (
-      event.dateTime.format(
-        DateTimeFormatter.ofPattern("EEEE, d. MMMM y, HH:mm").withLocale(Locale.of("sl"))
-      ),
-      event.dateTimeEnd,
-      event.location
-    ) match
-      case (start, None, None)                => span(start)
-      case (start, None, Some(location))      => span(start + ", " + location)
-      case (start, Some(end), Some(location)) =>
-        span(start + " do " + end.format(DateTimeFormatter.ofPattern("HH:mm")) + ", " + location)
-      case (start, Some(end), None)           =>
-        span(start + " do " + end.format(DateTimeFormatter.ofPattern("HH:mm")))
+            .map((day, events) => day -> events.sortBy(_.dateTime.toInstant))
+      }
 
   private def renderEvents(meetupsCount: Long)(events: Seq[Event]): IO[Response[IO]] = renderHtml(
     defaultLayout(
@@ -63,7 +46,7 @@ object Home {
                     cls := "event",
                     div(cls := "event-name", a(href := event.url.toString, event.name)),
                     div(cls := "meetup-name", event.meetupName),
-                    div(cls := "event-datetime", whenAndWhere(event))
+                    div(cls := "event-datetime", span(event.humanWhenWhere))
                   )
                 }
               )

@@ -9,7 +9,8 @@ import org.http4s.*
 import org.typelevel.log4cats.slf4j.Slf4jFactory
 import si.ogrodje.oge.clients.HyGraph
 import si.ogrodje.oge.model.in.*
-import si.ogrodje.oge.parsers.{KompotSi, MeetupCom2, MuzejSi}
+import si.ogrodje.oge.parsers.{ICalFetch, KompotSi, MeetupCom2, MuzejSi, Parser as OGParser}
+import cats.syntax.all.*
 
 import scala.util.Try
 
@@ -17,7 +18,8 @@ final case class OgrodjeAPIService private (
   hyGraph: HyGraph,
   meetupComParser: MeetupCom2,
   kompotSi: KompotSi,
-  muzejSi: MuzejSi
+  muzejSi: MuzejSi,
+  icalParser: ICalFetch
 ):
   private val logger = Slf4jFactory.create[IO].getLogger
 
@@ -41,6 +43,7 @@ final case class OgrodjeAPIService private (
             |   discordUrl 
             |   linkedInUrl 
             |   kompotUrl
+            |   icalUrl
             | }
             |}""".stripMargin,
           "size" -> Json.fromInt(42)
@@ -52,16 +55,20 @@ final case class OgrodjeAPIService private (
   private def collectFromUri(maybeUri: Option[Uri], collector: Uri => IO[Seq[Event]]): IO[Seq[Event]] =
     maybeUri.fold(IO.pure(Seq.empty))(collector)
 
-  private def collectEvents(meetup: Meetup): IO[Seq[Event]] = for
-    meetupEvents   <- collectFromUri(meetup.meetupUrl, meetupComParser.safeCollect)
-    kompotSiEvents <- collectFromUri(meetup.kompotUrl, kompotSi.safeCollect)
-    muzejSiEvents  <- collectFromUri(
-      meetup.homePageUrl.filter(_.host.exists(_.value == "www.racunalniski-muzej.si")),
-      muzejSi.safeCollect
-    )
-  yield meetupEvents ++ kompotSiEvents ++ muzejSiEvents
+  private def collectWithParser[P <: OGParser](maybeUri: Option[Uri], parser: P): IO[Seq[Event]] =
+    maybeUri.fold(IO.pure(Seq.empty))(parser.safeCollect)
 
-  private val maxConcurrent                                       = 4
+  private def collectEvents(meetup: Meetup): IO[Seq[Event]] = (
+    collectWithParser(meetup.meetupUrl, meetupComParser),
+    collectWithParser(meetup.kompotUrl, kompotSi),
+    collectWithParser(
+      meetup.homePageUrl.filter(_.host.exists(_.value == "www.racunalniski-muzej.si")),
+      muzejSi
+    ),
+    collectWithParser(meetup.icalUrl, icalParser)
+  ).parMapN((a, b, c, d) => a ++ b ++ c ++ d)
+
+  private val maxConcurrent                                     = 4
   def streamMeetupsWithEvents: Stream[IO, (Meetup, Seq[Event])] =
     Stream
       .eval(allMeetups)
@@ -75,7 +82,8 @@ object OgrodjeAPIService:
       meetupComParser <- MeetupCom2.resource
       kompotSiParser  <- KompotSi.resource
       muzejSiParser   <- MuzejSi.resource
-    yield apply(hyGraph, meetupComParser, kompotSiParser, muzejSiParser)
+      iCalParser      <- ICalFetch.resource
+    yield apply(hyGraph, meetupComParser, kompotSiParser, muzejSiParser, iCalParser)
 
   def resource(config: Config): Resource[IO, OgrodjeAPIService] =
     HyGraph.resource(config).flatMap(resourceWithGraph)

@@ -19,7 +19,9 @@ object MainApp extends ResourceApp.Forever:
     config            <- Config.fromEnv.toResource
     _                 <- logger.info(s"Booting service with sync delay ${config.syncDelay}").toResource
     transactor        <- DB.resource(config)
-    meetupsRepository <- DBMeetupsRepository.resource(transactor)
+    meetupsRepository <- DBMeetupsRepository.resource(transactor).evalTap { m =>
+      IO.whenA(config.truncateOnBoot)(m.truncate *> logger.info("Meetups truncated"))
+    }
     eventsRepository  <- DBEventsRepository.resource(transactor)
     ogrodjeAPIService <- OgrodjeAPIService.resource(config)
     _                 <- (

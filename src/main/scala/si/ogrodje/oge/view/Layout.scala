@@ -45,12 +45,12 @@ object Layout:
           div(cls := "content", contentM),
           div(
             cls   := "footer",
-            div(cls := "logo", span("Powered by ", a(href := "https://ogrodje.si", "Ogrodje"))),
-            div(
-              cls   := "info",
+            p(cls := "logo", span("Powered by ", a(href := "https://ogrodje.si", "Ogrodje"))),
+            p(
+              cls := "info",
               a(href := "/api/events/upcoming", "API"),
               span(" / "),
-              a(href := "https://github.com/ogrodje/ogrodje-events", "Source Code")
+              a(href := "https://github.com/ogrodje/ogrodje-events", "Source Code @ GitHub")
             )
           )
         )

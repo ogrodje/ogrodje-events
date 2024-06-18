@@ -5,7 +5,6 @@ import com.zaxxer.hikari.HikariConfig
 import doobie.hikari.HikariTransactor
 import doobie.util.log.LogEvent
 import org.flywaydb.core.Flyway
-import org.sqlite.SQLiteDataSource
 import org.typelevel.log4cats.LoggerFactory
 import org.typelevel.log4cats.slf4j.Slf4jFactory
 
@@ -16,17 +15,24 @@ object DB:
   private val logger                       = factory.getLogger
 
   private def migrate(appConfig: Config): IO[Unit] = IO.fromTry {
-    val ds = new SQLiteDataSource()
-    ds.setUrl(appConfig.databaseUrl)
-    Try(Flyway.configure().dataSource(ds).locations("migrations").load().migrate())
+    Try(
+      Flyway
+        .configure()
+        .dataSource(appConfig.databaseUrl, appConfig.databaseUsername, appConfig.databasePassword)
+        .locations("migrations")
+        .load()
+        .migrate()
+    )
   }
 
   def resource(appConfig: Config): Resource[IO, HikariTransactor[IO]] = for
     _            <- migrate(appConfig).toResource
     hikariConfig <- Resource.pure {
       val config = new HikariConfig()
-      config.setDriverClassName("org.sqlite.JDBC")
+      config.setDriverClassName("org.postgresql.Driver")
       config.setJdbcUrl(appConfig.databaseUrl)
+      config.setPassword(appConfig.databasePassword)
+      config.setUsername(appConfig.databaseUsername)
       config
     }
     xa           <-
