@@ -13,6 +13,7 @@ env:
   SENTRY_DNS: ${{ secrets.SENTRY_DNS }}
   SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
   POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+  DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
 
 jobs:
   build:
