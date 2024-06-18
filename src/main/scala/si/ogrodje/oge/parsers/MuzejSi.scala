@@ -5,18 +5,16 @@ import cats.effect.{IO, Resource}
 import cats.syntax.all.*
 import fs2.Stream
 import org.http4s.Uri
-import org.http4s.blaze.client.BlazeClientBuilder
 import org.http4s.client.Client
 import org.jsoup.nodes.Document
-import org.typelevel.log4cats.LoggerFactory
-import org.typelevel.log4cats.slf4j.Slf4jFactory
 import si.ogrodje.oge.model.EventKind
 import si.ogrodje.oge.model.in.Event
+import si.ogrodje.oge.model.time.CET_OFFSET
 
 import java.nio.charset.Charset
 import java.security.MessageDigest
+import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
-import java.time.{ZoneId, ZonedDateTime}
 
 final class MuzejSi private (client: Client[IO]) extends Parser:
   import JsoupExtension.{*, given}
@@ -48,23 +46,22 @@ final class MuzejSi private (client: Client[IO]) extends Parser:
       val List(m)     = "(\\d+/\\d+/\\d+) - (\\d+:\\d+) - (\\d+:\\d+)".r.findAllMatchIn(rawStr).toList
       val (d, s, e)   = (m.group(1), m.group(2), m.group(3))
       val dateTime    =
-        ZonedDateTime.parse(d + " " + s, DateTimeFormatter.ofPattern("d/M/y H:m").withZone(ZoneId.of("CET")))
+        LocalDateTime.parse(d + " " + s, DateTimeFormatter.ofPattern("d/M/y H:m")).atOffset(CET_OFFSET)
       val dateTimeEnd =
-        ZonedDateTime.parse(d + " " + e, DateTimeFormatter.ofPattern("d/M/y H:m").withZone(ZoneId.of("CET")))
+        LocalDateTime.parse(d + " " + e, DateTimeFormatter.ofPattern("d/M/y H:m")).atOffset(CET_OFFSET)
 
       dateTime -> Some(dateTimeEnd)
     }
-    idHash                  <- hashString(id).map(r => "muzej:" + uri.toString)
+    idHash                  <- hashString(id + uri.toString).map(hash => s"muzej:$hash")
   yield Event(
     idHash,
     EventKind.MuzejEvent,
     name,
     uri,
-    dateTime.toOffsetDateTime,
+    dateTime,
     noStartTime = false,
-    dateTimeEnd.map(_.toOffsetDateTime),
+    dateTimeEnd,
     noEndTime = false,
-    None,
     None
   )
 

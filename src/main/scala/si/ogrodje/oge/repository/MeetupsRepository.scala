@@ -13,6 +13,7 @@ import si.ogrodje.oge.model.db.Meetup
 
 trait MeetupsRepository[F[_], M, ID] extends Repository[F, M, ID] with Synchronizable[F, M]:
   def count: IO[Long]
+  def truncate: IO[Unit]
 
 final class DBMeetupsRepository private (transactor: Transactor[IO]) extends MeetupsRepository[IO, Meetup, String] {
   import DBGivens.given
@@ -48,6 +49,11 @@ final class DBMeetupsRepository private (transactor: Transactor[IO]) extends Mee
          kompot_url, ical_url, updated_at FROM meetups"""
       .queryWithLabel[Meetup]("all-meetups")
   override def all: IO[Seq[Meetup]]     = allMeetups.to[Seq].transact(transactor)
+
+  override def truncate: IO[Unit] =
+    sql"""TRUNCATE TABLE meetups RESTART IDENTITY CASCADE;
+         TRUNCATE table events RESTART IDENTITY CASCADE;""".update.run.transact(transactor).void
+
 }
 
 object DBMeetupsRepository {

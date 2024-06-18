@@ -63,7 +63,6 @@ object in {
     dateTimeEnd: Option[OffsetDateTime] = None,
     noEndTime: Boolean,
     location: Option[String] = None,
-    attendeesCount: Option[Int]
   ) extends BaseEvent[OffsetDateTime]
 }
 

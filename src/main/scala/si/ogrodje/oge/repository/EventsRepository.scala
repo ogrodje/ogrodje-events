@@ -40,7 +40,7 @@ final class DBEventsRepository private (transactor: Transactor[IO]) extends Even
          |LEFT JOIN meetups AS m
          |ON e.meetup_id = m.id
          |WHERE DATE_PART('week', datetime_start_at) IS NOT NULL
-         |  AND (datetime_start_at between now() - interval '-1 day' AND now() + interval '1 month 3 weeks')
+         |  AND (datetime_start_at between now() - interval '-1 day' AND now() + interval '2 months')
          |ORDER BY e.datetime_start_at ASC""".stripMargin
       .queryWithLabel[Event]("upcoming-events")
 

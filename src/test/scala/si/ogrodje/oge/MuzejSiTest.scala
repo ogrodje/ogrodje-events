@@ -1,7 +1,6 @@
 package si.ogrodje.oge
 
 import cats.effect.*
-import cats.effect.unsafe.implicits.global
 import org.http4s.*
 import org.http4s.client.Client
 import org.http4s.dsl.io.*
@@ -29,9 +28,9 @@ final class MuzejSiTest extends AsyncFlatSpec with Matchers with AsyncParserSpec
       for
         seed   <- IO(Uri.unsafeFromString("https://www.racunalniski-muzej.si"))
         events <- parser.collectAll(seed)
-      yield {
-        // events.foreach(println)
 
+        lastEvent <- IO.fromOption(events.lastOption)(new RuntimeException("Failed getting last event"))
+      yield {
         events shouldNot be(empty)
         events.length shouldEqual 30
       }

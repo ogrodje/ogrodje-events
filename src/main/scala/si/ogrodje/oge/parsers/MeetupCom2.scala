@@ -15,7 +15,7 @@ import si.ogrodje.oge.model.EventKind.MeetupEvent
 import si.ogrodje.oge.model.in
 
 import java.time.ZonedDateTime
-import scala.collection.immutable.Map
+import scala.collection.immutable.{ArraySeq, Map}
 
 final class MeetupCom2 private (client: Client[IO]) extends Parser {
   import JsoupExtension.*
@@ -29,18 +29,17 @@ final class MeetupCom2 private (client: Client[IO]) extends Parser {
       dateTime    <- json.hcursor.get[ZonedDateTime]("dateTime").toTry
       dateTimeEnd <- json.hcursor.get[ZonedDateTime]("endTime").toTry
       maybeVenueID = json.hcursor.downField("venue").get[String]("__ref").toOption
-      going        = json.hcursor.downField("going").get[Int]("totalCount").toOption
+    // going        = json.hcursor.downField("going").get[Int]("totalCount").toOption
     yield in.Event(
       id = s"meetup:$id",
       kind = MeetupEvent,
       name,
       uri,
-      dateTime.toOffsetDateTime,
+      dateTime.toOffsetDateTime.plusHours(2),
       noStartTime = false,
-      Some(dateTimeEnd.toOffsetDateTime),
+      Some(dateTimeEnd.toOffsetDateTime.plusHours(2)),
       noEndTime = false,
-      maybeVenueID,
-      going
+      maybeVenueID
     )
   )
 
@@ -64,7 +63,7 @@ final class MeetupCom2 private (client: Client[IO]) extends Parser {
           case _                                => IO.pure(event)
         }
       }.parUnorderedSequence
-    yield eventsWithLocations.toArray
+    yield ArraySeq.unsafeWrapArray(eventsWithLocations.toArray)
 
   private def collectPage(uri: Uri): IO[Seq[in.Event]] = for
     document <- client.expect[Document](uri)

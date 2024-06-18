@@ -7,11 +7,16 @@ services:
 
     environment:
       HYGRAPH_ENDPOINT: ${HYGRAPH_ENDPOINT}
-      DATABASE_URL: jdbc:sqlite:/data/ogrodje_events.db
+      DATABASE_URL: jdbc:postgresql://pg:5432/og_events
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD}
       SENTRY_DNS: ${SENTRY_DNS}
       SENTRY_AUTH_TOKEN: ${SENTRY_AUTH_TOKEN}
       SENTRY_ENVIRONMENT: development
       SYNC_DELAY: 10 minutes
+    links:
+      - pg
+    depends_on:
+      - pg
 
   pg:
     image: postgres:16
@@ -20,5 +25,4 @@ services:
       - "0.0.0.0:5438:5432"
     environment:
       POSTGRES_DB: "og_events"
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}

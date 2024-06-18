@@ -32,14 +32,13 @@ object VEventOps:
         .map(f)
         .toRight(new RuntimeException(s"Failed getting value from $optional"))
 
-  private val UTC = ZoneId.of("UTC")
   extension (vevent: VEvent)
     private def parseRawDateTime(raw: String): Either[Throwable, (LocalDateTime, Boolean)] =
       if (raw.length == 8)
         Try(
           LocalDateTime.parse(
             raw + " 12:00:00", // Faking time for easier parsing.
-            DateTimeFormatter.ofPattern("yyyyMMdd[ [HH][:mm][:ss][.SSS]]").withZone(ZoneId.of("UTC"))
+            DateTimeFormatter.ofPattern("yyyyMMdd[ [HH][:mm][:ss][.SSS]]")
           )
         )
           .map(_ -> true)
@@ -57,24 +56,20 @@ object VEventOps:
       (dateTimeEnd, noEndTime) <-
         vevent.getEndDate.itsValue(_.getValue).flatMap(parseRawDateTime)
 
-      url = vevent.getUrl.itsValue(_.getValue).flatMap(Uri.fromString)
+      location = vevent.getLocation.itsValue(_.getValue).toOption
+      url      = vevent.getUrl.itsValue(_.getValue).flatMap(Uri.fromString)
     } yield Event(
       uid,
       EventKind.ICalEvent,
       name,
       url.getOrElse(baseUri),
-      dateTime = dateTime.atOffset(CET_OFFSET) /* dateTime.atZone(UTC) */,
+      dateTime = dateTime.atOffset(CET_OFFSET).plusHours(4),
       noStartTime = noStartTime,
-      dateTimeEnd = Some(dateTimeEnd.atOffset(CET_OFFSET)),
+      dateTimeEnd = Some(dateTimeEnd.atOffset(CET_OFFSET).plusHours(4)),
       noEndTime = noEndTime,
-      None,
-      None
+      location = location
     )
 
-/** Inspiration:
-  * https://github.com/OneCalendar/OneCalendar/blob/39c1d75ce12b065acafd2ca270011bd47525da12/app/api/icalendar/VEvent.scala
-  * @param client
-  */
 final class ICalFetch private (client: Client[IO]) extends Parser {
   import VEventOps.*
 
@@ -102,5 +97,6 @@ final class ICalFetch private (client: Client[IO]) extends Parser {
 }
 
 object ICalFetch extends ParserResource[ICalFetch] {
-  override def resourceWithClient(client: Client[IO]): Resource[IO, ICalFetch] = Resource.pure(new ICalFetch(client))
+  override def resourceWithClient(client: Client[IO]): Resource[IO, ICalFetch] =
+    Resource.pure(new ICalFetch(client))
 }

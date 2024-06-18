@@ -3,17 +3,16 @@ package si.ogrodje.oge.parsers
 import cats.effect.{IO, Resource}
 import io.circe.Json
 import org.http4s.Method.POST
-import org.http4s.blaze.client.BlazeClientBuilder
 import org.http4s.circe.CirceEntityCodec.*
 import org.http4s.client.Client
 import org.http4s.{Request, Uri}
-import org.typelevel.log4cats.LoggerFactory
 import org.typelevel.log4cats.slf4j.Slf4jFactory
 import si.ogrodje.oge.model.EventKind.KompotEvent
 import si.ogrodje.oge.model.in.Event
 
 import java.time.format.DateTimeFormatter
-import java.time.{LocalDateTime, ZoneId, ZonedDateTime}
+import java.time.{LocalDateTime, OffsetDateTime, ZonedDateTime}
+import scala.collection.immutable.ArraySeq
 import scala.util.Try
 
 final class KompotSi private (client: Client[IO]) extends Parser {
@@ -72,6 +71,7 @@ final class KompotSi private (client: Client[IO]) extends Parser {
                 |      title
                 |      uuid
                 |      beginsOn
+                |      endsOn
                 |      picture {
                 |        id
                 |        url
@@ -226,23 +226,23 @@ final class KompotSi private (client: Client[IO]) extends Parser {
     )
     payload <- client.expect[Json](request)
     events  <- IO(readEvents(payload))
-    _       <- logger.info(s"Collected events: ${events.size}")
-  } yield events.toArray
+  } yield ArraySeq.unsafeWrapArray(events.toArray)
 
-  private def readEvent(el: Json): Either[Throwable, Event] = for
-    name     <- el.hcursor.get[String]("title")
-    url      <- el.hcursor.get[String]("url").flatMap(Uri.fromString)
-    id       <- el.hcursor.get[String]("uuid")
-    dateTime <- el.hcursor.get[String]("beginsOn").flatMap(parseBeginsOn)
+  private def readEvent(json: Json): Either[Throwable, Event] = for
+    name     <- json.hcursor.get[String]("title")
+    url      <- json.hcursor.get[String]("url").flatMap(Uri.fromString)
+    id       <- json.hcursor.get[String]("uuid")
+    dateTime <- json.hcursor.get[String]("beginsOn").flatMap(parseBeginsOn)
+    endTime = json.hcursor.get[String]("endsOn").flatMap(parseBeginsOn)
   yield Event(
     id,
     KompotEvent,
     name,
     url,
-    dateTime.toOffsetDateTime,
+    dateTime = dateTime,
     noStartTime = false,
-    noEndTime = false,
-    attendeesCount = None
+    dateTimeEnd = endTime.toOption,
+    noEndTime = false
   )
 
   private def readEvents(raw: Json): List[Event] = (for {
@@ -252,9 +252,9 @@ final class KompotSi private (client: Client[IO]) extends Parser {
     events       <- elements.asArray.map(_.map(readEvent).toList.collect { case Right(v) => v })
   } yield events).toList.flatten
 
-  private def parseBeginsOn(raw: String): Either[Throwable, ZonedDateTime] = {
+  private def parseBeginsOn(raw: String): Either[Throwable, OffsetDateTime] = {
     val pattern = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:00z")
-    Try(ZonedDateTime.parse(raw, pattern)).toEither.fold(
+    Try(ZonedDateTime.parse(raw, pattern).toOffsetDateTime).toEither.fold(
       err => Left(err),
       zoned => Right(zoned.plusHours(2))
     )

@@ -15,7 +15,8 @@ final case class Config private (
   databaseUsername: String,
   syncDelay: FiniteDuration,
   port: Int,
-  hyGraphEndpoint: Uri
+  hyGraphEndpoint: Uri,
+  truncateOnBoot: Boolean
 )
 
 object Config {
@@ -25,7 +26,8 @@ object Config {
     databaseUsername = "postgres",
     syncDelay = 10.minutes,
     port = 7006,
-    hyGraphEndpoint = Uri.unsafeFromString("http://x")
+    hyGraphEndpoint = Uri.unsafeFromString("http://x"),
+    truncateOnBoot = false
   )
 
   private def fromEnvOr[T](key: String, defaultValue: T, conversion: String => IO[T]): IO[T] =
@@ -56,6 +58,11 @@ object Config {
       fromEnvOr("DATABASE_USERNAME", default.databaseUsername, pure),
       fromEnvOr("SYNC_DELAY", default.syncDelay, parseToFiniteDuration),
       fromEnvOr("PORT", default.port, parseInt),
-      fromEnvRequired("HYGRAPH_ENDPOINT", raw => IO(Uri.unsafeFromString(raw)))
+      fromEnvRequired("HYGRAPH_ENDPOINT", raw => IO(Uri.unsafeFromString(raw))),
+      fromEnvOr(
+        "TRUNCATE_ON_BOOT",
+        default.truncateOnBoot,
+        raw => IO.fromOption(raw.toBooleanOption)(new RuntimeException("Failed reading \"TRUNCATE_ON_BOOT\""))
+      )
     ).parMapN(default.copy)
 }
