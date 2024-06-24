@@ -43,11 +43,10 @@ object Config {
       .flatMap(conversion)
 
   private def parseToFiniteDuration(raw: String): IO[FiniteDuration] =
-    fromTry(Try(Duration(raw))).flatMap(duration =>
-      fromOption(Some(duration).collect { case d: FiniteDuration => d })(
-        new RuntimeException(s"""Can't parse - "$raw" - into finite duration.""")
-      )
-    )
+    IO.fromTry(Try(Duration(raw))).flatMap {
+      case finite: FiniteDuration => IO.pure(finite)
+      case _ => IO.raiseError(new RuntimeException(s"""Can't parse - "$raw" - into finite duration."""))
+    }
 
   private def parseInt(input: String): IO[Int] = fromTry(Try(Integer.parseInt(input)))
 

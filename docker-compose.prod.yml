@@ -6,6 +6,7 @@ services:
       SENTRY_ENVIRONMENT: production
       SYNC_DELAY: 1 hour
       DATABASE_PASSWORD: ${DATABASE_PASSWORD}
+      TRUNCATE_ON_BOOT: "true"
   pg:
     volumes:
       - events-pg-db:/var/lib/postgresql/data

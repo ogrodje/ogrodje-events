@@ -52,7 +52,7 @@ final class MuzejSi private (client: Client[IO]) extends Parser:
 
       dateTime -> Some(dateTimeEnd)
     }
-    idHash                  <- hashString(id + uri.toString).map(hash => s"muzej:$hash")
+    idHash                  <- hashString(name).map(hash => s"muzej:$hash")
   yield Event(
     idHash,
     EventKind.MuzejEvent,

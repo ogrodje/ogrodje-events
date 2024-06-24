@@ -54,7 +54,7 @@ object Home {
           )
         }
       ),
-      div(
+      p(
         cls := "info-observe",
         s"Opazujemo $meetupsCount organizacij in meetup-ov."
       )
