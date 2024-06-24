@@ -8,17 +8,23 @@ import si.ogrodje.oge.repository.{EventsRepository, MeetupsRepository}
 import si.ogrodje.oge.view.Layout.{defaultLayout, renderHtml}
 
 import java.time.format.DateTimeFormatter
+import java.util.{Calendar, Locale}
 
 object Home {
   import si.ogrodje.oge.model.MeetupOps.{*, given}
 
-  private def groupEvents(events: Seq[Event]): Seq[(Int, Seq[(String, Seq[Event])])] =
+  private val calendar                      = Calendar.getInstance(Locale.of("sl"))
+  private def weekOfYear: Int               = calendar.get(Calendar.WEEK_OF_YEAR)
+  private val isNextWeek: Int => Boolean    = _ == weekOfYear + 1
+  private val isCurrentWeek: Int => Boolean = _ == weekOfYear
+
+  private def groupEvents(events: Seq[Event]): Seq[((Int, Boolean, Boolean), Seq[(String, Seq[Event])])] =
     events
       .groupBy(_.weekNumber)
       .toList
       .sortBy(_._1)
       .map { case (week, events) =>
-        week ->
+        (week, isCurrentWeek(week), isNextWeek(week)) ->
           events
             .groupBy(e =>
               e.dateTime
@@ -35,22 +41,30 @@ object Home {
     defaultLayout(
       div(
         cls := "events",
-        groupEvents(events).map { (_, dates) =>
+        groupEvents(events).map { case ((week, isCurrentWeek, isNextWeek), dates) =>
           div(
             cls := "week",
-            dates.map { (_, events) =>
-              div(
-                cls := "date",
-                events.map { event =>
-                  div(
-                    cls := "event",
-                    div(cls := "event-name", a(href := event.url.toString, event.name)),
-                    div(cls := "meetup-name", event.meetupName),
-                    div(cls := "event-datetime", span(event.humanWhenWhere))
-                  )
-                }
-              )
-            }
+            div(
+              if isCurrentWeek then div(cls := "week-title", "Dogodki v tem tednu")
+              else if isNextWeek then div(cls := "week-title", "Prihodnji teden")
+              else div(cls                    := "other-week")
+            ),
+            div(
+              cls := "events",
+              dates.map { (_, events) =>
+                div(
+                  cls := "date",
+                  events.map { event =>
+                    div(
+                      cls := "event",
+                      div(cls := "event-name", a(href := event.url.toString, event.name)),
+                      div(cls := "meetup-name", event.meetupName),
+                      div(cls := "event-datetime", span(event.humanWhenWhere))
+                    )
+                  }
+                )
+              }
+            )
           )
         }
       ),

@@ -36,7 +36,8 @@ object Layout:
             |.event .event-name { font-weight: 700; font-size: 14pt; line-height: 20pt; }
             |.event .meetup-name {  }
             |.wrapper .footer { text-align: center; font-size: small; }
-            |.info-observe { padding: 5px; text-align: center; font-size: smaller; }""".stripMargin
+            |.info-observe { padding: 5px; text-align: center; font-size: smaller; }
+            |.other-week { display: none; }""".stripMargin
         )
       ),
       body(
