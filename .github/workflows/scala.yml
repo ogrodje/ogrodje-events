@@ -37,6 +37,8 @@ jobs:
               Hostname oto.srv4all.net
               IdentityFile ~/.ssh/id_rsa_og_events
               StrictHostKeyChecking no
+              ConnectTimeout 60
+              ConnectionAttempts 2
           if_key_exists: fail
 
       - name: Set up Docker Buildx
