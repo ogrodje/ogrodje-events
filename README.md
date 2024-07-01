@@ -10,15 +10,4 @@ Current production: [dogodki.ogrodje.si](https://dogodki.ogrodje.si)
 sbt run
 ```
 
-## Docker
-
-```bash
-docker run --rm
-  -e HYGRAPH_ENDPOINT=${HYGRAPH_ENDPOINT} \
-  -e DATABASE_URL="jdbc:sqlite:/tmp/ogrodje_events_pom.db" \
-  -e SYNC_DELAY="1 hour" \
-  -p 3000:7006 \
-  ghcr.io/ogrodje/ogrodje-events
-```
-
 \- [Oto Brglez](https://github.com/otobrglez)
