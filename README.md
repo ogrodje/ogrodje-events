@@ -13,10 +13,11 @@ sbt run
 ## TODO
 
 - [x] Add Meetup.com parser
-- [x] Add Računalniški Muzej
-- [x] Add Tehnološki Park
-- [x] Add Finance IKT Informator
+- [x] Add [Računalniški Muzej](https://www.racunalniski-muzej.si/)
+- [x] Add [Tehnološki Park Ljubljana](https://www.tp-lj.si)
+- [x] Add [Finance IKTInformator](https://www.finance.si/ikt)
 - [x] Add Kompot.si
+- [ ] Add [Primorski Tehnološki Park](https://www.primorski-tp.si/)
 - [ ] Sent automatic newsletter for weekly/monthly events
 - [ ] Allow users to be notified about new events
 - [ ] Expose the data via RSS feed
