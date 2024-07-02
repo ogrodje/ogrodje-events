@@ -48,8 +48,11 @@ object MeetupOps {
         case (start, true, Some(end), true, None, false) =>
           "5" withDbg (start.format(noHourF) + " do " + end.format(noHourF))
 
+        case (start, true, Some(end), true, None, true) =>
+          "6a" withDbg start.format(noHourF)
+
         case (start, false, Some(end), false, None, true) =>
-          "6" withDbg (start.format(withHourF) + " do " + end.format(hourF))
+          "6b" withDbg (start.format(withHourF) + " do " + end.format(hourF))
 
         case (start, false, Some(end), false, Some(location), false) =>
           if start.getYear == end.getYear && start.getMonth == start.getMonth then

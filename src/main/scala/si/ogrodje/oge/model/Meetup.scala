@@ -17,6 +17,7 @@ enum EventKind:
   case KompotEvent
   case MuzejEvent
   case ICalEvent
+  case TPEvent
 
 trait BaseMeetup {
   def id: String
@@ -62,7 +63,7 @@ object in {
     noStartTime: Boolean,
     dateTimeEnd: Option[OffsetDateTime] = None,
     noEndTime: Boolean,
-    location: Option[String] = None,
+    location: Option[String] = None
   ) extends BaseEvent[OffsetDateTime]
 }
 
@@ -81,9 +82,9 @@ object db {
     name: String,
     url: Uri,
     dateTime: OffsetDateTime,
-    noStartTime: Boolean = false,
+    noStartTime: Boolean,
     dateTimeEnd: Option[OffsetDateTime],
-    noEndTime: Boolean = false,
+    noEndTime: Boolean,
     location: Option[String] = None,
     meetupName: String,
     override val updatedAt: OffsetDateTime,
@@ -131,7 +132,9 @@ object Converters {
         event.name,
         event.url,
         dateTime = event.dateTime,
+        noStartTime = event.noStartTime,
         dateTimeEnd = event.dateTimeEnd,
+        noEndTime = event.noEndTime,
         location = event.location,
         meetupName = extraFields.meetupName,
         updatedAt = OffsetDateTime.now(time.CET),

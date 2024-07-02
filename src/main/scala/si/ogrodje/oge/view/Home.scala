@@ -11,6 +11,7 @@ import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
 import java.util.{Calendar, Locale}
 import cats.syntax.all.*
+import scalatags.Text
 
 enum Section:
   case ThisWeek()
@@ -25,12 +26,15 @@ enum Section:
 object Home {
   import si.ogrodje.oge.model.MeetupOps.{*, given}
 
-  private val calendar                         = Calendar.getInstance(Locale.of("sl"))
-  private def weekOfYear: Int                  = calendar.get(Calendar.WEEK_OF_YEAR)
-  private val isNextWeek: Int => Boolean       = _ == weekOfYear + 1
-  private val isCurrentWeek: Int => Boolean    = _ == weekOfYear
-  private val dayKey: OffsetDateTime => String =
+  private val sl: Locale                         = Locale.of("sl")
+  private val calendar                           = Calendar.getInstance(sl)
+  private def weekOfYear: Int                    = calendar.get(Calendar.WEEK_OF_YEAR)
+  private val isNextWeek: Int => Boolean         = _ == weekOfYear + 1
+  private val isCurrentWeek: Int => Boolean      = _ == weekOfYear
+  private val dayKey: OffsetDateTime => String   =
     _.withHour(0).withMinute(0).format(DateTimeFormatter.ofPattern("Y-MM-d"))
+  private val monthKey: OffsetDateTime => String =
+    _.withHour(0).withMinute(0).format(DateTimeFormatter.ofPattern("Y-MM-MMMM").withLocale(sl))
 
   private def groupEvents(events: Seq[Event]): (
     List[(Section, List[Event])],
@@ -69,14 +73,7 @@ object Home {
                   section.toString,
                   div(
                     cls := "events",
-                    events.sortBy(_.dateTime.toInstant).map { event =>
-                      div(
-                        cls := "event",
-                        div(cls := "event-name", a(href := event.url.toString, event.name)),
-                        div(cls := "meetup-name", event.meetupName),
-                        div(cls := "event-datetime", span(event.humanWhenWhere))
-                      )
-                    }
+                    events.sortBy(_.dateTime.toInstant).map(renderEvent)
                   )
                 )
               )
@@ -88,14 +85,19 @@ object Home {
                   "Prihodnost",
                   div(
                     cls := "events",
-                    otherEvents.flatMap(_._2).sortBy(_.dateTime.toInstant).map { event =>
-                      div(
-                        cls := "event",
-                        div(cls := "event-name", a(href := event.url.toString, event.name)),
-                        div(cls := "meetup-name", event.meetupName),
-                        div(cls := "event-datetime", span(event.humanWhenWhere))
-                      )
-                    }
+                    otherEvents
+                      .flatMap(_._2)
+                      .sortBy(_.dateTime.toInstant)
+                      .groupBy(e => monthKey(e.dateTime))
+                      .toList
+                      .sortBy(_._1)
+                      .map { (month, events) =>
+                        div(
+                          cls := "month",
+                          s"${month.toUpperCase.split("-").last}",
+                          div(events.sortBy(_.dateTime.toInstant).map(renderEvent))
+                        )
+                      }
                   )
                 )
               ) :: Nil
@@ -108,6 +110,13 @@ object Home {
         )
       )
     )
+  )
+
+  private def renderEvent(event: Event): Text.TypedTag[String] = div(
+    cls := "event",
+    div(cls := "event-name", a(href := event.url.toString, event.name)),
+    div(cls := "meetup-name", event.meetupName),
+    div(cls := "event-datetime", span(event.humanWhenWhere))
   )
 
   def renderHome(

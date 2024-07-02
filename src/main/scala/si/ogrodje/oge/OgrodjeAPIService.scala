@@ -9,7 +9,7 @@ import org.http4s.*
 import org.typelevel.log4cats.slf4j.Slf4jFactory
 import si.ogrodje.oge.clients.HyGraph
 import si.ogrodje.oge.model.in.*
-import si.ogrodje.oge.parsers.{ICalFetch, KompotSi, MeetupCom2, MuzejSi, Parser as OGParser}
+import si.ogrodje.oge.parsers.{Parser as OGParser, *}
 import cats.syntax.all.*
 
 import scala.util.Try
@@ -19,6 +19,7 @@ final case class OgrodjeAPIService private (
   meetupComParser: MeetupCom2,
   kompotSi: KompotSi,
   muzejSi: MuzejSi,
+  tpDogodki: TPDogodki,
   icalParser: ICalFetch
 ):
   private val logger = Slf4jFactory.create[IO].getLogger
@@ -58,15 +59,27 @@ final case class OgrodjeAPIService private (
   private def collectWithParser[P <: OGParser](maybeUri: Option[Uri], parser: P): IO[Seq[Event]] =
     maybeUri.fold(IO.pure(Seq.empty))(parser.safeCollect)
 
+  private val (
+    muzej,
+    tehnoloskiPark
+  ) = (
+    Uri.unsafeFromString("https://www.racunalniski-muzej.si"),
+    Uri.unsafeFromString("https://www.tp-lj.si")
+  )
+
   private def collectEvents(meetup: Meetup): IO[Seq[Event]] = (
     collectWithParser(meetup.meetupUrl, meetupComParser),
     collectWithParser(meetup.kompotUrl, kompotSi),
     collectWithParser(
-      meetup.homePageUrl.filter(_.host.exists(_.value == "www.racunalniski-muzej.si")),
+      meetup.homePageUrl.filter(_.host.exists(_.value == muzej.host.get.value)),
       muzejSi
     ),
+    collectWithParser(
+      meetup.homePageUrl.filter(_.host.exists(_.value == tehnoloskiPark.host.get.value)),
+      tpDogodki
+    ),
     collectWithParser(meetup.icalUrl, icalParser)
-  ).parMapN((a, b, c, d) => a ++ b ++ c ++ d)
+  ).parMapN((a, b, c, d, e) => a ++ b ++ c ++ d ++ e)
 
   private val maxConcurrent                                     = 4
   def streamMeetupsWithEvents: Stream[IO, (Meetup, Seq[Event])] =
@@ -78,12 +91,14 @@ final case class OgrodjeAPIService private (
 
 object OgrodjeAPIService:
   def resourceWithGraph(hyGraph: HyGraph): Resource[IO, OgrodjeAPIService] =
-    for
-      meetupComParser <- MeetupCom2.resource
-      kompotSiParser  <- KompotSi.resource
-      muzejSiParser   <- MuzejSi.resource
-      iCalParser      <- ICalFetch.resource
-    yield apply(hyGraph, meetupComParser, kompotSiParser, muzejSiParser, iCalParser)
+    (
+      Resource.pure(hyGraph),
+      MeetupCom2.resource,
+      KompotSi.resource,
+      MuzejSi.resource,
+      TPDogodki.resource,
+      ICalFetch.resource
+    ).parMapN(apply)
 
   def resource(config: Config): Resource[IO, OgrodjeAPIService] =
     HyGraph.resource(config).flatMap(resourceWithGraph)

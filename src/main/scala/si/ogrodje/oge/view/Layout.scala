@@ -31,6 +31,7 @@ object Layout:
             |.wrapper { margin: 0 auto; display:block; max-width:800px; padding-top: 50px; }
             |.week { margin-bottom: 50px; display:block; }
             |.week:last-child { margin: none; }
+            |.events { padding-left:5px; padding-right:5px; }
             |.event { border-top: 1px solid #2A2828; display:block; margin-bottom: 10px; padding: 15px; }
             |.event:first-child { border: none; }
             |.event .event-name { font-weight: 700; font-size: 14pt; line-height: 20pt; }
