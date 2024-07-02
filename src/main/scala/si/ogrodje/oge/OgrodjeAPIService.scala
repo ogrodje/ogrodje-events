@@ -67,19 +67,22 @@ final case class OgrodjeAPIService private (
     Uri.unsafeFromString("https://www.tp-lj.si")
   )
 
-  private def collectEvents(meetup: Meetup): IO[Seq[Event]] = (
-    collectWithParser(meetup.meetupUrl, meetupComParser),
-    collectWithParser(meetup.kompotUrl, kompotSi),
-    collectWithParser(
-      meetup.homePageUrl.filter(_.host.exists(_.value == muzej.host.get.value)),
-      muzejSi
-    ),
-    collectWithParser(
-      meetup.homePageUrl.filter(_.host.exists(_.value == tehnoloskiPark.host.get.value)),
-      tpDogodki
-    ),
-    collectWithParser(meetup.icalUrl, icalParser)
-  ).parMapN((a, b, c, d, e) => a ++ b ++ c ++ d ++ e)
+  private def collectEvents(meetup: Meetup): IO[Seq[Event]] = {
+    val urlsAndParsers = List(
+      meetup.icalUrl                                                                     -> icalParser,
+      meetup.meetupUrl                                                                   -> meetupComParser,
+      meetup.kompotUrl                                                                   -> kompotSi,
+      meetup.homePageUrl.filter(_.host.exists(_.value == muzej.host.get.value))          -> muzejSi,
+      meetup.homePageUrl.filter(_.host.exists(_.value == tehnoloskiPark.host.get.value)) -> tpDogodki
+    )
+
+    Stream
+      .emits(urlsAndParsers)
+      .parEvalMapUnordered(3)((uri, parser) => collectWithParser(uri, parser))
+      .flatMap(Stream.emits)
+      .compile
+      .toVector
+  }
 
   private val maxConcurrent                                     = 4
   def streamMeetupsWithEvents: Stream[IO, (Meetup, Seq[Event])] =
