@@ -13,6 +13,7 @@ object Dependencies {
     val doobie: Version        = "1.0.0-RC5"
     val sentryLogback: Version = "7.10.0"
     val ical4j: Version        = "4.0.0-rc6"
+    val quartz: Version        = "2.3.2"
   }
 
   lazy val catsAndFriends: Modules = Seq(
@@ -78,6 +79,10 @@ object Dependencies {
   lazy val ical4j: Modules = Seq(
     "org.mnode.ical4j" % "ical4j" % Versions.ical4j
   )
+
+  lazy val quartz: Modules = Seq(
+    "org.quartz-scheduler" % "quartz"
+  ).map(_ % Versions.quartz)
 
   lazy val projectResolvers: Seq[MavenRepository] = Seq(
     // Resolver.sonatypeOssRepos("snapshots"),

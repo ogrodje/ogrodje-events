@@ -5,7 +5,17 @@ import cats.syntax.all.*
 import org.typelevel.log4cats.LoggerFactory
 import org.typelevel.log4cats.slf4j.Slf4jFactory
 import si.ogrodje.oge.repository.{DBEventsRepository, DBMeetupsRepository}
+import si.ogrodje.oge.scheduler.{QScheduler, Task}
 import si.ogrodje.oge.sync.Sync
+import org.quartz.JobBuilder.*
+import org.quartz.JobExecutionContext
+import org.quartz.TriggerBuilder.*
+import cats.effect.unsafe.implicits.global
+import org.quartz.SimpleScheduleBuilder.simpleSchedule
+
+class SayHello extends Task {
+  override def task: IO[Unit] = IO.println("Hello, sir.")
+}
 
 import java.util.{Locale, TimeZone}
 object MainApp extends ResourceApp.Forever:
@@ -24,8 +34,24 @@ object MainApp extends ResourceApp.Forever:
     }
     eventsRepository  <- DBEventsRepository.resource(transactor)
     ogrodjeAPIService <- OgrodjeAPIService.resource(config)
+
+    _ <- QScheduler.resource.flatMap { scheduler =>
+      for {
+        _ <-
+          Resource.eval(
+            scheduler.schedule[SayHello](simpleSchedule().withIntervalInSeconds(2).repeatForever())
+          )
+        _ <-
+          Resource.eval(
+            scheduler.schedule[SayHello](simpleSchedule().withIntervalInSeconds(3).repeatForever())
+          )
+        _ <- APIServer(config, meetupsRepository, eventsRepository).resource
+      } yield ()
+    }
+
+  /*
     _                 <- (
       Sync.resource(config.syncDelay, ogrodjeAPIService, meetupsRepository, eventsRepository),
       APIServer(config, meetupsRepository, eventsRepository).resource
-    ).parTupled
+    ).parTupled */
   yield ()
