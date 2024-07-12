@@ -22,7 +22,7 @@ final case class Sync private (
   private given factory: LoggerFactory[IO] = Slf4jFactory.create[IO]
   private val logger                       = factory.getLogger
 
-  private def syncAll(): IO[Unit] =
+  def syncAll(): IO[Unit] =
     service.streamMeetupsWithEvents
       .parEvalMapUnordered(2)((meetup, events) =>
         meetupsRepository.sync(meetup.toDB()).flatTap {
@@ -33,9 +33,9 @@ final case class Sync private (
             .emits(events)
             .map { event =>
               event.toDB(new CollectedFields {
-                override val meetupName: String          = meetup.name
-                override val meetupID: String            = meetup.id
-                override val weekNumber: Int             = -1
+                override val meetupName: String = meetup.name
+                override val meetupID: String   = meetup.id
+                override val weekNumber: Int    = -1
               })
             }
             .evalMap(eventsRepository.sync)
@@ -51,7 +51,7 @@ final case class Sync private (
       .handleErrorWith(th => logger.warn(th)(s"Sync failed with - ${th.getMessage}"))
 
 object Sync:
-  def resource(
+  def resourceAndSync(
     delay: FiniteDuration,
     service: OgrodjeAPIService,
     meetupsRepository: MeetupsRepository[IO, Meetup, String],
@@ -61,3 +61,10 @@ object Sync:
       sync <- Resource.pure(Sync(service, meetupsRepository, eventsRepository))
       _    <- (sync.syncAll() *> IO.sleep(delay)).foreverM.background.evalMap(_.void)
     yield ()
+
+  def resource(
+    service: OgrodjeAPIService,
+    meetups: MeetupsRepository[IO, Meetup, String],
+    events: EventsRepository[IO, Event, String]
+  ): Resource[IO, Sync] =
+    Resource.pure(Sync(service, meetups, events))
