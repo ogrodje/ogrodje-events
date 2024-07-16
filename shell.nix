@@ -14,6 +14,7 @@ mkShell {
     sbt
     kubectl
     flyctl
+    yq
   ];
 
   NIX_ENFORCE_PURITY = 0;

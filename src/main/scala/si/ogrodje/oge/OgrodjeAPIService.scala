@@ -31,30 +31,25 @@ final case class OgrodjeAPIService private (
 
   final private case class AllMeetups(meetups: Array[Meetup])
 
-  private val allMeetups: IO[Array[Meetup]] = for
-    meetups <-
-      hyGraph
-        .query[AllMeetups](
-          """query AllMeetups($size: Int) {
-            | meetups(first: $size) { 
-            |   id 
-            |   name 
-            |   homePageUrl 
-            |   meetupUrl 
-            |   discordUrl 
-            |   linkedInUrl 
-            |   kompotUrl
-            |   icalUrl
-            | }
-            |}""".stripMargin,
-          "size" -> Json.fromInt(42)
-        )
-        .map(_.meetups)
-    _       <- logger.info(s"Number of meetups collected ${meetups.length}")
-  yield meetups
-
-  private def collectFromUri(maybeUri: Option[Uri], collector: Uri => IO[Seq[Event]]): IO[Seq[Event]] =
-    maybeUri.fold(IO.pure(Seq.empty))(collector)
+  private val allMeetups: IO[Array[Meetup]] =
+    hyGraph
+      .query[AllMeetups](
+        """query AllMeetups($size: Int) {
+          | meetups(first: $size) { 
+          |   id 
+          |   name 
+          |   homePageUrl 
+          |   meetupUrl 
+          |   discordUrl 
+          |   linkedInUrl 
+          |   kompotUrl
+          |   icalUrl
+          | }
+          |}""".stripMargin,
+        "size" -> Json.fromInt(42)
+      )
+      .map(_.meetups)
+      .flatTap(meetups => logger.info(s"Number of meetups collected ${meetups.length}"))
 
   private def collectWithParser[P <: OGParser](maybeUri: Option[Uri], parser: P): IO[Seq[Event]] =
     maybeUri.fold(IO.pure(Seq.empty))(parser.safeCollect)
@@ -78,7 +73,7 @@ final case class OgrodjeAPIService private (
 
     Stream
       .emits(urlsAndParsers)
-      .parEvalMapUnordered(3)((uri, parser) => collectWithParser(uri, parser))
+      .parEvalMapUnordered(3)(collectWithParser)
       .flatMap(Stream.emits)
       .compile
       .toVector

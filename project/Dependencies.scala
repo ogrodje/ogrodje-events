@@ -9,10 +9,10 @@ object Dependencies {
     val fs2: Version           = "3.10.2"
     val decline: Version       = "2.4.1"
     val log4cats: Version      = "2.7.0"
-    val scalaTest: Version     = "3.2.18"
+    val scalaTest: Version     = "3.2.19"
     val doobie: Version        = "1.0.0-RC5"
-    val sentryLogback: Version = "7.10.0"
-    val ical4j: Version        = "4.0.0-rc6"
+    val sentryLogback: Version = "7.12.0"
+    val ical4j: Version        = "4.0.1"
     val quartz: Version        = "2.3.2"
   }
 
@@ -60,20 +60,20 @@ object Dependencies {
   ).map(_ % Versions.scalaTest % "test")
 
   lazy val scalaTags: Modules = Seq(
-    "com.lihaoyi" %% "scalatags" % "0.12.0"
+    "com.lihaoyi" %% "scalatags" % "0.13.1"
   )
 
   lazy val jsoup: Modules = Seq(
-    "org.jsoup" % "jsoup" % "1.17.2"
+    "org.jsoup" % "jsoup" % "1.18.1"
   )
 
   lazy val db: Modules = Seq(
-    "org.flywaydb"   % "flyway-core"                % "10.15.0",
+    "org.flywaydb"   % "flyway-core"                % "10.15.2",
     "org.tpolecat"  %% "doobie-core"                % Versions.doobie,
     "org.tpolecat"  %% "doobie-hikari"              % Versions.doobie,
     "org.tpolecat"  %% "doobie-postgres"            % Versions.doobie,
     "org.postgresql" % "postgresql"                 % "42.7.3",
-    "org.flywaydb"   % "flyway-database-postgresql" % "10.15.0"
+    "org.flywaydb"   % "flyway-database-postgresql" % "10.15.2"
   )
 
   lazy val ical4j: Modules = Seq(
