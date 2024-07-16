@@ -11,10 +11,11 @@ lazy val root = (project in file("."))
   .enablePlugins(JavaServerAppPackaging, DockerPlugin)
   .settings(name := "ogrodje-events")
   .settings(
+    Compile / mainClass := Some("si.ogrodje.oge.MainApp"),
     libraryDependencies ++= {
       catsAndFriends ++ fs2 ++ circe ++ logging ++
         http4s ++ scalaTags ++ jsoup ++ testingDeps ++ db ++
-        ical4j ++ quartz
+        ical4j ++ quartz ++ crypto
     },
     scalacOptions ++= Seq(
       "-deprecation",
@@ -44,14 +45,15 @@ lazy val root = (project in file("."))
     }
   )
   .settings(
-    dockerExposedPorts    := Seq(7006),
-    dockerExposedUdpPorts := Seq.empty[Int],
-    dockerUsername        := Some("ogrodje"),
-    dockerUpdateLatest    := true,
-    dockerRepository      := Some("ghcr.io"),
-    dockerBaseImage       := "azul/zulu-openjdk-alpine:21-latest",
-    packageName           := "ogrodje-events",
-    dockerCommands        := dockerCommands.value.flatMap {
+    Universal / mappings += file("subscribers.yml") -> "subscribers.yml",
+    dockerExposedPorts                        := Seq(7006),
+    dockerExposedUdpPorts                     := Seq.empty[Int],
+    dockerUsername                            := Some("ogrodje"),
+    dockerUpdateLatest                        := true,
+    dockerRepository                          := Some("ghcr.io"),
+    dockerBaseImage                           := "azul/zulu-openjdk-alpine:21-latest",
+    packageName                               := "ogrodje-events",
+    dockerCommands                            := dockerCommands.value.flatMap {
       case add @ Cmd("RUN", args @ _*) if args.contains("id") =>
         List(
           Cmd("LABEL", "maintainer Oto Brglez <otobrglez@gmail.com>"),

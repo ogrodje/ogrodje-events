@@ -91,4 +91,8 @@ object Dependencies {
     "Sonatype staging" at "https://oss.sonatype.org/content/repositories/staging",
     "Java.net Maven2 Repository" at "https://download.java.net/maven/2/"
   )
+
+  lazy val crypto: Modules = Seq(
+    "io.github.felipebonezi" % "cipherizy-lib" % "1.2.0"
+  )
 }

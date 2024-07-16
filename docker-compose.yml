@@ -13,6 +13,7 @@ services:
       SENTRY_AUTH_TOKEN: ${SENTRY_AUTH_TOKEN}
       SENTRY_ENVIRONMENT: development
       SYNC_DELAY: 10 minutes
+      SUB_SECRET: ${SUB_SECRET}
     links:
       - pg
     depends_on:
