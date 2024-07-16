@@ -16,8 +16,13 @@ sbt run
 - [x] Add [Računalniški Muzej](https://www.racunalniski-muzej.si/)
 - [x] Add [Tehnološki Park Ljubljana](https://www.tp-lj.si)
 - [x] Add [Finance IKTInformator](https://www.finance.si/ikt)
-- [x] Add Kompot.si
+- [x] Add [Kompot](https://kompot.si/)
 - [ ] Add [Primorski Tehnološki Park](https://www.primorski-tp.si/)
+- [ ] Add [SAŠA Inkubator](https://sasainkubator.si/dogodki/)
+- [ ] Add [START:UP Slovenija](https://www.startup.si/sl-si/dogodki)
+- [ ] Add [Kovačnica](https://kovacnica.si/dogodki/)
+- [ ] Add [Podjetniški inkubator Perspektiva](https://www.inkubator-perspektiva.si/)
+- [ ] Add [Inkubator Savinjske regije](https://inkubatorsr.si/)
 - [ ] Sent automatic newsletter for weekly/monthly events
 - [ ] Allow users to be notified about new events
 - [ ] Expose the data via RSS feed
