@@ -14,6 +14,7 @@ env:
   SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
   POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
   DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
+  SUB_SECRET: ${{ secrets.SUB_SECRET }}
 
 jobs:
   build:
