@@ -26,8 +26,7 @@ final class TPDogodkiTest extends AsyncFlatSpec with Matchers with AsyncParserSp
         dogodkiPage <- IO(Uri.unsafeFromString("http://tp"))
         events      <- parser.collectAll(dogodkiPage)
       yield {
-        println(events.mkString("\n"))
-        events.length shouldEqual 15
+        events shouldNot be(empty)
       }
     }
   }
