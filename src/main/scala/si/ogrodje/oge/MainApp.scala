@@ -39,7 +39,7 @@ object MainApp extends ResourceApp.Forever:
     _                 <-
       QScheduler.resource.flatMap { scheduler =>
         (
-          scheduler.at(cronSchedule("0 6 0 ? * *").inTimeZone(CET), "letter-daily")(
+          scheduler.at(cronSchedule("0 0 6 ? * *").inTimeZone(CET), "letter-daily")(
             Newsletter.send(subscribers, _.subscriptions.contains(Daily))
           ),
           scheduler.at(cronSchedule("0 15 10 ? * SUN").inTimeZone(CET), "letter-weekly")(
@@ -48,7 +48,7 @@ object MainApp extends ResourceApp.Forever:
           scheduler.at(cronSchedule("0 0 10 L * ?").inTimeZone(CET), "letter-monthly")(
             Newsletter.send(subscribers, _.subscriptions.contains(Monthly))
           ),
-          scheduler.at(sch.withIntervalInMinutes(2).repeatForever())(sync.syncAll()),
+          // scheduler.at(sch.withIntervalInMinutes(2).repeatForever())(sync.syncAll()),
           APIServer(config, meetupsRepository, eventsRepository).resource
         ).parTupled
       }
