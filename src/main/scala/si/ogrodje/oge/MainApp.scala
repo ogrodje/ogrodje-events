@@ -4,7 +4,7 @@ import cats.effect.kernel.Ref
 import cats.effect.{IO, Resource, ResourceApp}
 import cats.syntax.all.*
 import org.quartz.CronScheduleBuilder.cronSchedule
-import org.quartz.SimpleScheduleBuilder.simpleSchedule as sch
+import org.quartz.SimpleScheduleBuilder.simpleSchedule as schedule
 import org.typelevel.log4cats.LoggerFactory
 import org.typelevel.log4cats.slf4j.Slf4jFactory
 import si.ogrodje.oge.letter.Newsletter
@@ -48,7 +48,8 @@ object MainApp extends ResourceApp.Forever:
           scheduler.at(cronSchedule("0 0 10 L * ?").inTimeZone(CET), "letter-monthly")(
             Newsletter.send(subscribers, _.subscriptions.contains(Monthly))
           ),
-          // scheduler.at(sch.withIntervalInMinutes(2).repeatForever())(sync.syncAll()),
+          scheduler
+            .at(schedule.withIntervalInMinutes(config.syncDelay.toMinutes.toInt).repeatForever())(sync.syncAll()),
           APIServer(config, meetupsRepository, eventsRepository).resource
         ).parTupled
       }

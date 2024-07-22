@@ -1,23 +1,16 @@
 package si.ogrodje.oge.repository
 
+import cats.effect.IO.fromEither
 import cats.effect.{IO, Resource}
 import doobie.implicits.*
-import doobie.implicits.javasql.*
-import doobie.implicits.javatimedrivernative.*
+import doobie.postgres.*
 import doobie.util.transactor.Transactor
 import doobie.{Query0 as Query, *}
-import doobie.postgres.*
-import doobie.postgres.implicits.*
 import org.http4s.*
-import org.typelevel.log4cats.LoggerFactory
-import org.typelevel.log4cats.slf4j.Slf4jFactory
 import si.ogrodje.oge.model.EventKind
 import si.ogrodje.oge.model.db.Event
 
-import java.sql.Timestamp
-import java.time.format.DateTimeFormatter
-import java.time.{LocalDateTime, ZoneOffset}
-import scala.util.Try
+import java.time.LocalDateTime
 
 trait EventsRepository[F[_], M, ID] extends Repository[F, M, ID] with Synchronizable[F, M]:
   def forDate(date: String): IO[Seq[Event]]
@@ -26,8 +19,6 @@ trait EventsRepository[F[_], M, ID] extends Repository[F, M, ID] with Synchroniz
 final class DBEventsRepository private (transactor: Transactor[IO]) extends EventsRepository[IO, Event, String] {
   import DBGivens.given
   import doobie.postgres.implicits.given
-  private given factory: LoggerFactory[IO] = Slf4jFactory.create[IO]
-  private val logger                       = factory.getLogger
 
   private def upcomingEvents(from: FromDate, to: ToDate): Query[Event] =
     sql"""SELECT
@@ -47,14 +38,18 @@ final class DBEventsRepository private (transactor: Transactor[IO]) extends Even
          |FROM events AS e
          |LEFT JOIN meetups AS m
          |ON e.meetup_id = m.id
-         |WHERE DATE_PART('week', datetime_start_at) IS NOT NULL
-         |  AND (datetime_start_at between ${from.date} - interval '-1 day' AND ${to.date})
-         |ORDER BY e.datetime_start_at ASC""".stripMargin
+         |WHERE 
+         |  DATE_PART('week', datetime_start_at) IS NOT NULL 
+         |  AND (
+         |    datetime_start_at::date BETWEEN
+         |      ${from.date} - interval '1 day' AND
+         |      ${to.date} + interval '1 day'
+         |  )
+         |ORDER BY e.datetime_start_at""".stripMargin
       .queryWithLabel[Event]("upcoming-events")
 
   override def between(fromDate: FromDate, to: ToDate): IO[Seq[Event]] =
-    logger.info(s"Selecting event from: ${fromDate.date} to ${to.date}") *>
-      upcomingEvents(fromDate, to).to[Seq].transact(transactor)
+    upcomingEvents(fromDate, to).to[Seq].transact(transactor)
 
   override def all: IO[Seq[Event]] =
     between(
@@ -62,14 +57,10 @@ final class DBEventsRepository private (transactor: Transactor[IO]) extends Even
       ToDate.from(LocalDateTime.now.plusMonths(3))
     )
 
-  def forDate(date: String): IO[Seq[Event]] = {
-    val range = for {
-      from <- FromDate.make(date)
-      to   <- Right(ToDate.from(from.date.plusDays(1)))
-    } yield (from, to)
-
-    IO.fromEither(range).flatMap(between)
-  }
+  def forDate(date: String): IO[Seq[Event]] = fromEither(for {
+    from <- FromDate.make(date)
+    to   <- Right(ToDate.from(from.date.plusDays(1)))
+  } yield (from, to)).flatMap(between)
 
   private val upsertEvent: Event => Update0 = { event =>
     sql"""INSERT INTO events (id, meetup_id, kind, name, url, location,

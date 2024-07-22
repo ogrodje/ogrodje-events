@@ -12,6 +12,8 @@ import java.time.format.DateTimeFormatter
 import java.util.{Calendar, Locale}
 import cats.syntax.all.*
 import scalatags.Text
+import scalatags.Text.{Modifier, TypedTag}
+import si.ogrodje.oge.letter.LetterKinds
 
 enum Section:
   case ThisWeek()
@@ -60,47 +62,54 @@ object Home {
         case _                    => true
       }
 
-  private def renderEvents(meetupsCount: Long)(events: Seq[Event]): IO[Response[IO]] = renderHtml(
-    defaultLayout(
+  private def renderEvents(
+    events: Seq[Event],
+    meetupsCount: Long = -1,
+    layout: Seq[Modifier] => TypedTag[String] = Layout.defaultLayout
+  ): IO[Response[IO]] = renderHtml(
+    layout(
       div(
         cls := "events",
         groupEvents(events)
           .bimap(
-            _.map { case (section, events) =>
-              div(
-                cls := "week",
+            _.map {
+              case (section, events) if events.nonEmpty =>
                 div(
-                  section.toString,
+                  cls := "week",
                   div(
-                    cls := "events",
-                    events.sortBy(_.dateTime.toInstant).map(renderEvent)
+                    section.toString,
+                    div(
+                      cls := "events",
+                      events.sortBy(_.dateTime.toInstant).map(renderEvent)
+                    )
                   )
                 )
-              )
             },
             otherEvents => {
-              div(
-                cls := "week",
+              if (otherEvents.nonEmpty) {
                 div(
-                  "Prihodnost",
+                  cls := "week",
                   div(
-                    cls := "events",
-                    otherEvents
-                      .flatMap(_._2)
-                      .sortBy(_.dateTime.toInstant)
-                      .groupBy(e => monthKey(e.dateTime))
-                      .toList
-                      .sortBy(_._1)
-                      .map { (month, events) =>
-                        div(
-                          cls := "month",
-                          s"${month.toUpperCase.split("-").last}",
-                          div(events.sortBy(_.dateTime.toInstant).map(renderEvent))
-                        )
-                      }
+                    "Prihodnost",
+                    div(
+                      cls := "events",
+                      otherEvents
+                        .flatMap(_._2)
+                        .sortBy(_.dateTime.toInstant)
+                        .groupBy(e => monthKey(e.dateTime))
+                        .toList
+                        .sortBy(_._1)
+                        .map { (month, events) =>
+                          div(
+                            cls := "month",
+                            s"${month.toUpperCase.split("-").last}",
+                            div(events.sortBy(_.dateTime.toInstant).map(renderEvent))
+                          )
+                        }
+                    )
                   )
-                )
-              ) :: Nil
+                ) :: Nil
+              } else Nil
             }
           )
           .toList,
@@ -108,7 +117,7 @@ object Home {
           cls := "info-observe",
           s"Opazujemo $meetupsCount organizacij in meetup-ov."
         )
-      )
+      ) :: Nil
     )
   )
 
@@ -125,6 +134,6 @@ object Home {
   ): IO[Response[IO]] = for
     meetupsCount <- meetupsRepository.count
     events       <- eventsRepository.all
-    out          <- renderEvents(meetupsCount)(events)
+    out          <- renderEvents(events, meetupsCount)
   yield out
 }
