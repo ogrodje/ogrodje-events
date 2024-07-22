@@ -1,27 +1,26 @@
 package si.ogrodje.oge.repository
 
+import cats.effect.IO.fromEither
 import cats.effect.{IO, Resource}
 import doobie.implicits.*
-import doobie.implicits.javasql.*
-import doobie.implicits.javatimedrivernative.*
+import doobie.postgres.*
 import doobie.util.transactor.Transactor
 import doobie.{Query0 as Query, *}
-import doobie.postgres.*
-import doobie.postgres.implicits.*
 import org.http4s.*
 import si.ogrodje.oge.model.EventKind
 import si.ogrodje.oge.model.db.Event
 
-import java.sql.Timestamp
-import java.time.ZoneOffset
+import java.time.LocalDateTime
 
 trait EventsRepository[F[_], M, ID] extends Repository[F, M, ID] with Synchronizable[F, M]:
   def forDate(date: String): IO[Seq[Event]]
+  def between(fromDate: FromDate, to: ToDate): IO[Seq[Event]]
 
 final class DBEventsRepository private (transactor: Transactor[IO]) extends EventsRepository[IO, Event, String] {
   import DBGivens.given
   import doobie.postgres.implicits.given
-  private val upcomingEvents: String => Query[Event] = date =>
+
+  private def upcomingEvents(from: FromDate, to: ToDate): Query[Event] =
     sql"""SELECT
          |    e.id,
          |    e.meetup_id,
@@ -39,14 +38,29 @@ final class DBEventsRepository private (transactor: Transactor[IO]) extends Even
          |FROM events AS e
          |LEFT JOIN meetups AS m
          |ON e.meetup_id = m.id
-         |WHERE DATE_PART('week', datetime_start_at) IS NOT NULL
-         |  AND (datetime_start_at between now() - interval '-1 day' AND now() + interval '3 months')
-         |ORDER BY e.datetime_start_at ASC""".stripMargin
+         |WHERE 
+         |  DATE_PART('week', datetime_start_at) IS NOT NULL 
+         |  AND (
+         |    datetime_start_at::date BETWEEN
+         |      ${from.date} - interval '1 day' AND
+         |      ${to.date} + interval '1 day'
+         |  )
+         |ORDER BY e.datetime_start_at""".stripMargin
       .queryWithLabel[Event]("upcoming-events")
 
-  override def all: IO[Seq[Event]] = upcomingEvents("now").to[Seq].transact(transactor)
+  override def between(fromDate: FromDate, to: ToDate): IO[Seq[Event]] =
+    upcomingEvents(fromDate, to).to[Seq].transact(transactor)
 
-  def forDate(date: String): IO[Seq[Event]] = upcomingEvents(date).to[Seq].transact(transactor)
+  override def all: IO[Seq[Event]] =
+    between(
+      FromDate.from(LocalDateTime.now()),
+      ToDate.from(LocalDateTime.now.plusMonths(3))
+    )
+
+  def forDate(date: String): IO[Seq[Event]] = fromEither(for {
+    from <- FromDate.make(date)
+    to   <- Right(ToDate.from(from.date.plusDays(1)))
+  } yield (from, to)).flatMap(between)
 
   private val upsertEvent: Event => Update0 = { event =>
     sql"""INSERT INTO events (id, meetup_id, kind, name, url, location,

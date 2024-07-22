@@ -21,7 +21,9 @@
         <minimumBreadcrumbLevel>INFO</minimumBreadcrumbLevel>
     </appender>
 
-    <logger name="com.ogrodje.oge" level="DEBUG"/>
+    <logger name="si.ogrodje.oge" level="DEBUG"/>
+    <logger name="si.ogrodje.oge.DB" level="DEBUG"/>
+
     <logger name="org.http4s.blaze.client" level="INFO"/>
     <logger name="net.fortuna.ical4j.model" level="ERROR"/>
     <logger name="org.quartz" level="INFO"/>
