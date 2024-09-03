@@ -23,23 +23,24 @@ object NewsletterView {
   private val dayFormat        = DateTimeFormatter.ofPattern("d. MMMM y").withLocale(siLocale)
   private val singleDayFormat  = DateTimeFormatter.ofPattern("EEEE, d. MMMM y").withLocale(siLocale)
 
+  private def mkTitle: LetterKinds => String = {
+    case LetterKinds.Daily(from, _)   => s"Dogodki za dan - ${from.date.format(singleDayFormat)}"
+    case LetterKinds.Weekly(from, to) =>
+      s"Dogodki za teden: ${from.date.format(dayFormat)} - ${to.date.format(dayFormat)}."
+    case LetterKinds.Monthly(from, _) => s"Dogodki za ${from.date.format(monthFormat)}."
+  }
+
   private def renderEvents(
     events: Seq[Event],
-    letterKinds: LetterKinds
+    letterKind: LetterKinds
   ): IO[Response[IO]] =
     renderHtml(
       letterLayout(
+        title = mkTitle(letterKind),
         p("Pozdrav!"),
-        letterKinds match {
-          case LetterKinds.Daily(from, _)   =>
-            p(s"Dogodki za dan - ${from.date.format(singleDayFormat)}")
-          case LetterKinds.Weekly(from, to) =>
-            p(s"Dogodki za teden: ${from.date.format(dayFormat)} - ${to.date.format(dayFormat)}.")
-          case LetterKinds.Monthly(from, _) =>
-            p(s"Dogodki za ${from.date.format(monthFormat)}.")
-        },
+        p(mkTitle(letterKind)),
         ul(cls := "events", events.map(renderEvent)),
-        p("Lep pozdrav,"),
+        p("Lep pozdrav!"),
         p("- ", a(href := "https://ogrodje.si", "Ogrodje"))
       )
     )
@@ -51,11 +52,11 @@ object NewsletterView {
     div(cls := "event-datetime", span(event.humanWhenWhere))
   )
 
-  private def letterLayout(contentM: Modifier*): TypedTag[String] =
+  private def letterLayout(title: String, contentM: Modifier*): TypedTag[String] =
     html(
       lang := "sl",
       head(
-        titleTag("Ogrodje / Dogodki"),
+        titleTag(s"Ogrodje / $title"),
         meta(charset := "utf-8"),
         meta(
           name       := "viewport",
@@ -63,6 +64,7 @@ object NewsletterView {
         ),
         styleTag(
           """html,body,td,th { font-family:sans-serif; font-size:12pt; line-height:18pt }
+            |html, body { margin:0; padding: 0; }
             |body { padding: 10px; }
             |a { color: #EB3F6C; text-decoration: none;  }
             |li { margin-bottom: 15px; }""".stripMargin
@@ -71,12 +73,25 @@ object NewsletterView {
       div(cls := "content", contentM)
     )
 
+  private def getBodyAsString(response: Response[IO]): IO[String] =
+    response.body.through(fs2.text.utf8.decode).compile.string
+
   def renderNewsletter(
     eventsRepository: EventsRepository[IO, Event, String]
   )(
     letterKind: LetterKinds
-  ): IO[Response[IO]] = for {
-    events <- eventsRepository.between(letterKind.fromDate, letterKind.toDate)
-    out    <- renderEvents(events, letterKind)
-  } yield out
+  ): IO[(String, Response[IO])] = for {
+    events   <- eventsRepository.between(letterKind.fromDate, letterKind.toDate)
+    htmlBody <- renderEvents(events, letterKind)
+    title    <- IO(mkTitle(letterKind))
+  } yield title -> htmlBody
+
+  def renderNewsletterAsString(
+    eventsRepository: EventsRepository[IO, Event, String]
+  )(
+    letterKind: LetterKinds
+  ): IO[(String, String)] =
+    renderNewsletter(eventsRepository)(letterKind).flatMap { (title, response) =>
+      getBodyAsString(response).map(title -> _)
+    }
 }

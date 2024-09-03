@@ -20,6 +20,7 @@ final case class OgrodjeAPIService private (
   kompotSi: KompotSi,
   muzejSi: MuzejSi,
   tpDogodki: TPDogodki,
+  sasaDogodki: SasaDogodki,
   icalParser: ICalFetch
 ):
   private val logger = Slf4jFactory.create[IO].getLogger
@@ -54,21 +55,27 @@ final case class OgrodjeAPIService private (
   private def collectWithParser[P <: OGParser](maybeUri: Option[Uri], parser: P): IO[Seq[Event]] =
     maybeUri.fold(IO.pure(Seq.empty))(parser.safeCollect)
 
-  private val (
-    muzej,
-    tehnoloskiPark
-  ) = (
-    Uri.unsafeFromString("https://www.racunalniski-muzej.si"),
-    Uri.unsafeFromString("https://www.tp-lj.si")
-  )
+  private def isHostMatch(uri: Uri)(uriB: Uri): Boolean =
+    uri.host.exists(_.value == uriB.host.get.value)
 
-  private def collectEvents(meetup: Meetup): IO[Seq[Event]] = {
+  private def collectEvents(meetup: Meetup): IO[Seq[Event]] =
+    val List(
+      muzej,
+      tehnoloskiPark,
+      sasainkubator
+    ) = List(
+      "https://www.racunalniski-muzej.si",
+      "https://www.tp-lj.si",
+      "https://sasainkubator.si"
+    ).map(Uri.unsafeFromString)
+
     val urlsAndParsers = List(
-      meetup.icalUrl                                                                     -> icalParser,
-      meetup.meetupUrl                                                                   -> meetupComParser,
-      meetup.kompotUrl                                                                   -> kompotSi,
-      meetup.homePageUrl.filter(_.host.exists(_.value == muzej.host.get.value))          -> muzejSi,
-      meetup.homePageUrl.filter(_.host.exists(_.value == tehnoloskiPark.host.get.value)) -> tpDogodki
+      meetup.icalUrl                                         -> icalParser,
+      meetup.meetupUrl                                       -> meetupComParser,
+      meetup.kompotUrl                                       -> kompotSi,
+      meetup.homePageUrl.filter(isHostMatch(muzej))          -> muzejSi,
+      meetup.homePageUrl.filter(isHostMatch(tehnoloskiPark)) -> tpDogodki,
+      meetup.homePageUrl.filter(isHostMatch(sasainkubator))  -> sasaDogodki
     )
 
     Stream
@@ -77,7 +84,6 @@ final case class OgrodjeAPIService private (
       .flatMap(Stream.emits)
       .compile
       .toVector
-  }
 
   private val maxConcurrent                                     = 4
   def streamMeetupsWithEvents: Stream[IO, (Meetup, Seq[Event])] =
@@ -95,6 +101,7 @@ object OgrodjeAPIService:
       KompotSi.resource,
       MuzejSi.resource,
       TPDogodki.resource,
+      SasaDogodki.resource,
       ICalFetch.resource
     ).parMapN(apply)
 

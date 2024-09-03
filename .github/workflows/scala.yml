@@ -15,6 +15,7 @@ env:
   POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
   DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
   SUB_SECRET: ${{ secrets.SUB_SECRET }}
+  POSTMARK_SERVER_TOKEN: ${{ secrets.POSTMARK_SERVER_TOKEN }}
 
 jobs:
   build:

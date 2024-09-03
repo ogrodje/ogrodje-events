@@ -16,7 +16,9 @@ final case class Config private (
   syncDelay: FiniteDuration,
   port: Int,
   hyGraphEndpoint: Uri,
-  truncateOnBoot: Boolean
+  truncateOnBoot: Boolean,
+  postmarkServerToken: String,
+  postmarkSender: String
 )
 
 object Config {
@@ -27,7 +29,9 @@ object Config {
     syncDelay = 10.minutes,
     port = 7006,
     hyGraphEndpoint = Uri.unsafeFromString("http://x"),
-    truncateOnBoot = false
+    truncateOnBoot = false,
+    postmarkServerToken = "",
+    postmarkSender = "oto.brglez@ogrodje.si"
   )
 
   private def fromEnvOr[T](key: String, defaultValue: T, conversion: String => IO[T]): IO[T] =
@@ -39,11 +43,11 @@ object Config {
   private def fromEnvRequired[T](key: String, conversion: String => IO[T]): IO[T] =
     envForIO
       .get(key)
-      .flatMap(IO.fromOption(_)(new RuntimeException(s"Missing $key environment variable") with NoStackTrace))
+      .flatMap(fromOption(_)(new RuntimeException(s"Missing $key environment variable") with NoStackTrace))
       .flatMap(conversion)
 
   private def parseToFiniteDuration(raw: String): IO[FiniteDuration] =
-    IO.fromTry(Try(Duration(raw))).flatMap {
+    fromTry(Try(Duration(raw))).flatMap {
       case finite: FiniteDuration => IO.pure(finite)
       case _ => IO.raiseError(new RuntimeException(s"""Can't parse - "$raw" - into finite duration."""))
     }
@@ -61,7 +65,9 @@ object Config {
       fromEnvOr(
         "TRUNCATE_ON_BOOT",
         default.truncateOnBoot,
-        raw => IO.fromOption(raw.toBooleanOption)(new RuntimeException("Failed reading \"TRUNCATE_ON_BOOT\""))
-      )
+        raw => fromOption(raw.toBooleanOption)(new RuntimeException("Failed reading \"TRUNCATE_ON_BOOT\""))
+      ),
+      fromEnvRequired("POSTMARK_SERVER_TOKEN", pure),
+      fromEnvOr("POSTMARK_SENDER", default.postmarkSender, pure)
     ).parMapN(default.copy)
 }

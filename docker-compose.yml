@@ -14,6 +14,7 @@ services:
       SENTRY_ENVIRONMENT: development
       SYNC_DELAY: 10 minutes
       SUB_SECRET: ${SUB_SECRET}
+      POSTMARK_SERVER_TOKEN: ${POSTMARK_SERVER_TOKEN}
     links:
       - pg
     depends_on:
