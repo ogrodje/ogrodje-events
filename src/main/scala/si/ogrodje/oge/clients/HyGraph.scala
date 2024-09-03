@@ -12,8 +12,6 @@ import org.typelevel.log4cats.LoggerFactory
 import org.typelevel.log4cats.slf4j.Slf4jFactory
 import si.ogrodje.oge.Config
 
-import scala.util.control.NoStackTrace
-
 type HyGraphEndpoint = Uri
 
 final class HyGraph private (

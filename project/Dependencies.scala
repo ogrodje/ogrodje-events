@@ -6,14 +6,17 @@ object Dependencies {
 
   object Versions {
     val http4s: Version        = "1.0.0-M40"
-    val fs2: Version           = "3.10.2"
+    val fs2: Version           = "3.11.0"
     val decline: Version       = "2.4.1"
     val log4cats: Version      = "2.7.0"
     val scalaTest: Version     = "3.2.19"
     val doobie: Version        = "1.0.0-RC5"
-    val sentryLogback: Version = "7.12.0"
-    val ical4j: Version        = "4.0.1"
+    val sentryLogback: Version = "7.14.0"
+    val ical4j: Version        = "4.0.3"
     val quartz: Version        = "2.3.2"
+    val circe: Version         = "0.15.0-M1"
+    val flyway: Version        = "10.17.3"
+    val postgresql: Version    = "42.7.4"
   }
 
   lazy val catsAndFriends: Modules = Seq(
@@ -29,7 +32,7 @@ object Dependencies {
     "io.circe" %% "circe-core",
     "io.circe" %% "circe-generic",
     "io.circe" %% "circe-parser"
-  ).map(_ % "0.15.0-M1")
+  ).map(_ % Versions.circe)
 
   lazy val fs2: Modules = Seq(
     "co.fs2" %% "fs2-core",
@@ -46,7 +49,7 @@ object Dependencies {
   ).map(_ % Versions.http4s)
 
   lazy val logging: Modules = Seq(
-    "ch.qos.logback" % "logback-classic" % "1.5.6"
+    "ch.qos.logback" % "logback-classic" % "1.5.7"
   ) ++ Seq(
     "org.typelevel" %% "log4cats-core",
     "org.typelevel" %% "log4cats-slf4j"
@@ -68,12 +71,14 @@ object Dependencies {
   )
 
   lazy val db: Modules = Seq(
-    "org.flywaydb"   % "flyway-core"                % "10.15.2",
-    "org.tpolecat"  %% "doobie-core"                % Versions.doobie,
-    "org.tpolecat"  %% "doobie-hikari"              % Versions.doobie,
-    "org.tpolecat"  %% "doobie-postgres"            % Versions.doobie,
-    "org.postgresql" % "postgresql"                 % "42.7.3",
-    "org.flywaydb"   % "flyway-database-postgresql" % "10.15.2"
+    "org.flywaydb" % "flyway-core",
+    "org.flywaydb" % "flyway-database-postgresql"
+  ).map(_ % Versions.flyway) ++ Seq(
+    "org.tpolecat" %% "doobie-core",
+    "org.tpolecat" %% "doobie-hikari",
+    "org.tpolecat" %% "doobie-postgres"
+  ).map(_ % Versions.doobie) ++ Seq(
+    "org.postgresql" % "postgresql" % Versions.postgresql
   )
 
   lazy val ical4j: Modules = Seq(
@@ -86,10 +91,11 @@ object Dependencies {
 
   lazy val projectResolvers: Seq[MavenRepository] = Seq(
     // Resolver.sonatypeOssRepos("snapshots"),
+    // "s01 snapshots" at "https://s01.oss.sonatype.org/content/repositories/snapshots/"
     "Sonatype releases" at "https://oss.sonatype.org/content/repositories/releases",
     "Sonatype snapshots" at "https://oss.sonatype.org/content/repositories/snapshots",
     "Sonatype staging" at "https://oss.sonatype.org/content/repositories/staging",
-    "Java.net Maven2 Repository" at "https://download.java.net/maven/2/"
+    "Java.net Maven2 Repository" at "https://download.java.net/maven/2/",
   )
 
   lazy val crypto: Modules = Seq(

@@ -3,9 +3,10 @@ import com.typesafe.sbt.packager.docker.Cmd
 import com.typesafe.sbt.packager.docker.DockerPlugin.autoImport._
 import Dependencies.*
 
-ThisBuild / version            := "0.0.1"
-ThisBuild / scalaVersion       := "3.4.2"
+ThisBuild / version            := "0.0.2"
+ThisBuild / scalaVersion       := "3.5.0"
 ThisBuild / evictionErrorLevel := Level.Info
+ThisBuild / resolvers ++= projectResolvers
 
 lazy val root = (project in file("."))
   .enablePlugins(JavaServerAppPackaging, DockerPlugin)
@@ -46,14 +47,14 @@ lazy val root = (project in file("."))
   )
   .settings(
     Universal / mappings += file("subscribers.yml") -> "subscribers.yml",
-    dockerExposedPorts                        := Seq(7006),
-    dockerExposedUdpPorts                     := Seq.empty[Int],
-    dockerUsername                            := Some("ogrodje"),
-    dockerUpdateLatest                        := true,
-    dockerRepository                          := Some("ghcr.io"),
-    dockerBaseImage                           := "azul/zulu-openjdk-alpine:21-latest",
-    packageName                               := "ogrodje-events",
-    dockerCommands                            := dockerCommands.value.flatMap {
+    dockerExposedPorts                              := Seq(7006),
+    dockerExposedUdpPorts                           := Seq.empty[Int],
+    dockerUsername                                  := Some("ogrodje"),
+    dockerUpdateLatest                              := true,
+    dockerRepository                                := Some("ghcr.io"),
+    dockerBaseImage                                 := "azul/zulu-openjdk-alpine:21-latest",
+    packageName                                     := "ogrodje-events",
+    dockerCommands                                  := dockerCommands.value.flatMap {
       case add @ Cmd("RUN", args @ _*) if args.contains("id") =>
         List(
           Cmd("LABEL", "maintainer Oto Brglez <otobrglez@gmail.com>"),

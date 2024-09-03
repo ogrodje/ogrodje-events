@@ -4,10 +4,11 @@ import cats.effect.kernel.Ref
 import cats.effect.{IO, Resource, ResourceApp}
 import cats.syntax.all.*
 import org.quartz.CronScheduleBuilder.cronSchedule
-import org.quartz.SimpleScheduleBuilder.simpleSchedule as sch
+import org.quartz.SimpleScheduleBuilder.simpleSchedule as schedule
 import org.typelevel.log4cats.LoggerFactory
 import org.typelevel.log4cats.slf4j.Slf4jFactory
-import si.ogrodje.oge.letter.Newsletter
+import si.ogrodje.oge.clients.Postmark
+import si.ogrodje.oge.letter.{LetterKinds, Newsletter}
 import si.ogrodje.oge.repository.{DBEventsRepository, DBMeetupsRepository}
 import si.ogrodje.oge.scheduler.QScheduler
 import si.ogrodje.oge.subs.SubscribersLoader
@@ -31,25 +32,46 @@ object MainApp extends ResourceApp.Forever:
     }
     eventsRepository  <- DBEventsRepository.resource(transactor)
     ogrodjeAPIService <- OgrodjeAPIService.resource(config)
+    postmark          <- Postmark.resource(config)
     sync              <- Sync.resource(ogrodjeAPIService, meetupsRepository, eventsRepository)
     subscribers       <-
-      Ref.ofEffect(SubscribersLoader.readEncryptedSubscribers()).toResource.evalTap { p =>
-        p.get.flatTap(l => logger.info(s"Number of subscribers: ${l.size}"))
-      }
+      Ref
+        .ofEffect(SubscribersLoader.readEncryptedSubscribers())
+        .toResource
+        .evalTap(_.get.flatTap(l => logger.info(s"Number of subscribers: ${l.size}")))
     _                 <-
       QScheduler.resource.flatMap { scheduler =>
         (
-          scheduler.at(cronSchedule("0 6 0 ? * *").inTimeZone(CET), "letter-daily")(
-            Newsletter.send(subscribers, _.subscriptions.contains(Daily))
+          scheduler.at(cronSchedule("0 0 6 ? * *").inTimeZone(CET), "letter-daily")(
+            Newsletter.send(
+              postmark,
+              eventsRepository,
+              LetterKinds.mkDaily,
+              subscribers,
+              _.subscriptions.contains(Daily)
+            )
           ),
           scheduler.at(cronSchedule("0 15 10 ? * SUN").inTimeZone(CET), "letter-weekly")(
-            Newsletter.send(subscribers, _.subscriptions.contains(Weekly))
+            Newsletter.send(
+              postmark,
+              eventsRepository,
+              LetterKinds.mkWeekly,
+              subscribers,
+              _.subscriptions.contains(Weekly)
+            )
           ),
           scheduler.at(cronSchedule("0 0 10 L * ?").inTimeZone(CET), "letter-monthly")(
-            Newsletter.send(subscribers, _.subscriptions.contains(Monthly))
+            Newsletter.send(
+              postmark,
+              eventsRepository,
+              LetterKinds.mkMonthly,
+              subscribers,
+              _.subscriptions.contains(Monthly)
+            )
           ),
-          scheduler.at(sch.withIntervalInMinutes(2).repeatForever())(sync.syncAll()),
-          APIServer(config, meetupsRepository, eventsRepository).resource
+          scheduler
+            .at(schedule.withIntervalInMinutes(config.syncDelay.toMinutes.toInt).repeatForever())(sync.syncAll()),
+          APIServer(config, meetupsRepository, eventsRepository, postmark, subscribers).resource
         ).parTupled
       }
   yield ()
