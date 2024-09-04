@@ -20,6 +20,7 @@ sbt run
 - [x] Sent automatic newsletter for weekly/monthly events (via [Postmark](https://postmarkapp.com/))
 - [x] Add Sentry for error and release tracking
 - [ ] Improve Sentry integration for better observability
+- [ ] Add [GDG Ljubljana](https://gdg.community.dev/gdg-ljubljana/)
 - [ ] Add [GZS ZIT Dogodki](https://www.gzs.si/zdruzenje_za_informatiko_in_telekomunikacije/vsebina/Dogodki)
 - [ ] Add [Primorski Tehnološki Park](https://www.primorski-tp.si/)
 - [ ] Add [SAŠA Inkubator](https://sasainkubator.si/dogodki/)
