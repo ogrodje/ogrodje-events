@@ -28,9 +28,10 @@ sbt run
 - [ ] Add [Podjetniški inkubator Perspektiva](https://www.inkubator-perspektiva.si/)
 - [ ] Add [Inkubator Savinjske regije](https://inkubatorsr.si/)
 - [ ] Allow manual adding of events
+- [ ] Send batch emails via Postmark ([API documentation](https://postmarkapp.com/developer/user-guide/send-email-with-api/batch-emails))
 - [ ] Allow users to be notified about new events
 - [ ] Expose the data via RSS feed
-- [ ] Expose the data via iCal format / feed
+- [ ] Expose the data via iCal format/feed
 - [ ] Integrate the system into [Ogrodje.si](https://ogrodje.si)
 - [ ] Add parser for Facebook Events
 - [ ] Add parser for LinkedIn Events
