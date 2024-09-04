@@ -17,7 +17,9 @@ sbt run
 - [x] Add [Tehnološki Park Ljubljana](https://www.tp-lj.si)
 - [x] Add [Finance IKTInformator](https://www.finance.si/ikt)
 - [x] Add [Kompot](https://kompot.si/)
-- [x] Sent automatic newsletter for weekly/monthly events (via [Postmark](https://postmarkapp.com/)
+- [x] Sent automatic newsletter for weekly/monthly events (via [Postmark](https://postmarkapp.com/))
+- [x] Add Sentry for error and release tracking
+- [ ] Improve Sentry integration for better observability 
 - [ ] Add [Primorski Tehnološki Park](https://www.primorski-tp.si/)
 - [ ] Add [SAŠA Inkubator](https://sasainkubator.si/dogodki/)
 - [ ] Add [START:UP Slovenija](https://www.startup.si/sl-si/dogodki)
