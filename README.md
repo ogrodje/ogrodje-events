@@ -19,7 +19,8 @@ sbt run
 - [x] Add [Kompot](https://kompot.si/)
 - [x] Sent automatic newsletter for weekly/monthly events (via [Postmark](https://postmarkapp.com/))
 - [x] Add Sentry for error and release tracking
-- [ ] Improve Sentry integration for better observability 
+- [ ] Improve Sentry integration for better observability
+- [ ] Add [GZS ZIT Dogodki](https://www.gzs.si/zdruzenje_za_informatiko_in_telekomunikacije/vsebina/Dogodki)
 - [ ] Add [Primorski Tehnološki Park](https://www.primorski-tp.si/)
 - [ ] Add [SAŠA Inkubator](https://sasainkubator.si/dogodki/)
 - [ ] Add [START:UP Slovenija](https://www.startup.si/sl-si/dogodki)
