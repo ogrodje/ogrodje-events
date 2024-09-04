@@ -13,7 +13,8 @@ enum SubscriptionKind:
 
 final case class Subscriber(
   email: String,
-  subscriptions: NonEmptySet[SubscriptionKind]
+  subscriptions: NonEmptySet[SubscriptionKind],
+  tags: Set[String]
 )
 
 object Subscriber {

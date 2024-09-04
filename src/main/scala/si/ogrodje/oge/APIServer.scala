@@ -35,6 +35,8 @@ final case class APIServer[R](
   private val service = HttpRoutes.of[IO] {
     case GET -> Root                                       =>
       view.Home.renderHome(meetupsRepository, eventsRepository)
+    case GET -> Root / "create-event"                      =>
+      view.CreateEvent.renderEventForm(meetupsRepository, eventsRepository)
     case GET -> Root / "api" / "events" / "upcoming"       =>
       eventsRepository.all.flatMap(events => Ok(events.asJson))
     case GET -> Root / "api" / "events" / "forDate" / date =>

@@ -40,6 +40,13 @@ object NewsletterView {
         p("Pozdrav!"),
         p(mkTitle(letterKind)),
         ul(cls := "events", events.map(renderEvent)),
+        p(
+          "P.s.: Dogodki @ Ogrodje je prototip. Sporočite nam svoje želje in hrošče 🐞 via ",
+          a(href := "https://github.com/ogrodje/ogrodje-events/issues", "GitHub / Issues"),
+          " ali pa nas obiščite na ",
+          a(href := "https://bit.ly/discord-ogrodje", "Discordu"),
+          ". Hvala! 🚀"
+        ),
         p("Lep pozdrav!"),
         p("- ", a(href := "https://ogrodje.si", "Ogrodje"))
       )

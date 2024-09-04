@@ -18,6 +18,7 @@ enum EventKind:
   case MuzejEvent
   case ICalEvent
   case TPEvent
+  case ManualEvent
 
 trait BaseMeetup {
   def id: String
