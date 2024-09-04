@@ -1,5 +1,0 @@
-app = "ogrodje-events"
-primary_region = "fra"
-
-[build]
-dockerfile = "target/docker/stage/Dockerfile"
