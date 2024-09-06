@@ -9,11 +9,14 @@ import si.ogrodje.oge.repository.{EventsRepository, MeetupsRepository}
 import si.ogrodje.oge.view.Layout.renderHtml
 import org.http4s.*
 import scalatags.Text.all.*
+import si.ogrodje.oge.model.EventForm
 
 object CreateEvent:
   def renderEventForm(
     meetupsRepository: MeetupsRepository[IO, Meetup, String],
     eventsRepository: EventsRepository[IO, Event, String],
+    eventForm: EventForm = EventForm.empty,
+    maybeError: Option[Throwable] = None,
     layout: Seq[Modifier] => TypedTag[String] = Layout.defaultLayout
   ): IO[Response[IO]] = for
     meetups <- meetupsRepository.all
@@ -21,7 +24,8 @@ object CreateEvent:
       layout(
         div(
           cls := "create-event",
-          h1("Dodaj dogodek"),
+          h1("Dodaj dogodek 📅"),
+          maybeError.fold(span(""))(th => div(cls := "error", p(th.getMessage))),
           div(
             cls := "event-form",
             form(
@@ -35,13 +39,16 @@ object CreateEvent:
                   id                       := "name",
                   name                     := "name",
                   placeholder              := "Ime dogodka",
-                  required                 := "required"
+                  required                 := "required",
+                  value                    := eventForm.name
                 )
               ),
               div(
                 cls := "input-wrap",
                 label("Organizacija / Meetup", `for` := "meetup_id"),
                 select(
+                  name                               := "meetup_id",
+                  id                                 := "meetup_id",
                   for { meetup <- meetups.sortBy(_.name) } yield option(value := meetup.id, meetup.name)
                 )
               ),
@@ -53,7 +60,8 @@ object CreateEvent:
                   id                          := "url",
                   name                        := "url",
                   placeholder                 := "URL / povezava",
-                  required                    := "required"
+                  required                    := "required",
+                  value                       := eventForm.url
                 )
               ),
               div(
@@ -63,7 +71,8 @@ object CreateEvent:
                   `type`                := "text",
                   id                    := "location",
                   name                  := "location",
-                  placeholder           := "Lokacija"
+                  placeholder           := "Lokacija",
+                  value                 := eventForm.location
                 )
               ),
               div(
@@ -73,7 +82,8 @@ object CreateEvent:
                   `type`                             := "datetime-local",
                   id                                 := "datetime_start_at",
                   name                               := "datetime_start_at",
-                  required                           := "required"
+                  required                           := "required",
+                  value                              := eventForm.dateTimeStartAt
                 )
               ),
               div(
@@ -83,7 +93,8 @@ object CreateEvent:
                   `type`                              := "datetime-local",
                   id                                  := "datetime_end_at",
                   name                                := "datetime_end_at",
-                  required                            := "required"
+                  required                            := "required",
+                  value                               := eventForm.dateTimeEndAt
                 )
               ),
               div(
@@ -93,7 +104,9 @@ object CreateEvent:
                   `type`                       := "email",
                   id                           := "email",
                   name                         := "email",
-                  placeholder                  := "Kontaktni email"
+                  placeholder                  := "Kontaktni email",
+                  required                     := "required",
+                  value                        := eventForm.email
                 )
               ),
               div(

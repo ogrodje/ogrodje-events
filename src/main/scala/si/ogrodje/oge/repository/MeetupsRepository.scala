@@ -14,8 +14,9 @@ import si.ogrodje.oge.model.db.Meetup
 trait MeetupsRepository[F[_], M, ID] extends Repository[F, M, ID] with Synchronizable[F, M]:
   def count: IO[Long]
   def truncate: IO[Unit]
+  def find(id: String): IO[Meetup]
 
-final class DBMeetupsRepository private (transactor: Transactor[IO]) extends MeetupsRepository[IO, Meetup, String] {
+final class DBMeetupsRepository private (transactor: Transactor[IO]) extends MeetupsRepository[IO, Meetup, String]:
   import DBGivens.given
   import doobie.postgres.implicits.given
 
@@ -54,9 +55,14 @@ final class DBMeetupsRepository private (transactor: Transactor[IO]) extends Mee
     sql"""TRUNCATE TABLE meetups RESTART IDENTITY CASCADE;
          TRUNCATE table events RESTART IDENTITY CASCADE;""".update.run.transact(transactor).void
 
-}
+  override def find(id: String): IO[Meetup] =
+    sql"""SELECT id, name, homepage_url, meetup_url, discord_url, linkedin_url, kompot_url, ical_url, updated_at
+         |FROM meetups WHERE id = $id""".stripMargin
+      .queryWithLabel[Meetup]("find-meetup")
+      .option
+      .transact(transactor)
+      .flatMap(IO.fromOption(_)(new RuntimeException(s"Could not find meetup with ID: ${id}")))
 
-object DBMeetupsRepository {
+object DBMeetupsRepository:
   def resource(transactor: Transactor[IO]): Resource[IO, DBMeetupsRepository] =
     Resource.pure(new DBMeetupsRepository(transactor))
-}

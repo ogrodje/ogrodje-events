@@ -4,18 +4,17 @@ import cats.effect.IO
 import org.http4s.Response
 import scalatags.Text
 import scalatags.Text.TypedTag
-import si.ogrodje.oge.letter.LetterKinds
-import si.ogrodje.oge.model.db.{Event, Meetup}
-import si.ogrodje.oge.repository.{EventsRepository, MeetupsRepository}
-import si.ogrodje.oge.view.Home.renderEvents
-import si.ogrodje.oge.view.Layout.{defaultLayout, renderHtml}
 import scalatags.Text.all.*
-import scalatags.Text.tags2.title as titleTag
-import scalatags.Text.tags2.style as styleTag
+import scalatags.Text.tags2.{style as styleTag, title as titleTag}
+import si.ogrodje.oge.letter.LetterKinds
+import si.ogrodje.oge.model.db.Event
+import si.ogrodje.oge.repository.EventsRepository
+import si.ogrodje.oge.view.Layout.renderHtml
+
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
-object NewsletterView {
+object NewsletterView:
   import si.ogrodje.oge.model.MeetupOps.{*, given}
 
   private val siLocale: Locale = Locale.of("sl")
@@ -30,7 +29,14 @@ object NewsletterView {
     case LetterKinds.Monthly(from, _) => s"Dogodki za ${from.date.format(monthFormat)}."
   }
 
-  private def renderEvents(
+  private def renderEventsOrNot(events: Seq[Event], letterKind: LetterKinds): TypedTag[String] =
+    letterKind -> events.nonEmpty match
+      case (kind, true)  =>
+        ul(cls := "events", events.map(renderEvent))
+      case (kind, false) =>
+        p("V izbranem obdobju nismo zaznali nobenih dogodkov.")
+
+  private def renderEventsView(
     events: Seq[Event],
     letterKind: LetterKinds
   ): IO[Response[IO]] =
@@ -39,13 +45,15 @@ object NewsletterView {
         title = mkTitle(letterKind),
         p("Pozdrav!"),
         p(mkTitle(letterKind)),
-        ul(cls := "events", events.map(renderEvent)),
+        renderEventsOrNot(events, letterKind),
         p(
-          "P.s.: Dogodki @ Ogrodje je prototip. Sporočite nam svoje želje in hrošče 🐞 via ",
-          a(href := "https://github.com/ogrodje/ogrodje-events/issues", "GitHub / Issues"),
-          " ali pa nas obiščite na ",
-          a(href := "https://bit.ly/discord-ogrodje", "Discordu"),
-          ". Hvala! 🚀"
+          i(
+            "P.s.: Dogodki @ Ogrodje je prototip. Sporočite nam svoje želje in hrošče 🐞 via ",
+            a(href := "https://github.com/ogrodje/ogrodje-events/issues", "GitHub / Issues"),
+            " ali pa nas obiščite na ",
+            a(href := "https://bit.ly/discord-ogrodje", "Discordu"),
+            ". Hvala! 🚀"
+          )
         ),
         p("Lep pozdrav!"),
         p("- ", a(href := "https://ogrodje.si", "Ogrodje"))
@@ -84,12 +92,11 @@ object NewsletterView {
     response.body.through(fs2.text.utf8.decode).compile.string
 
   def renderNewsletter(
-    eventsRepository: EventsRepository[IO, Event, String]
-  )(
+    eventsRepository: EventsRepository[IO, Event, String],
     letterKind: LetterKinds
   ): IO[(String, Response[IO])] = for {
     events   <- eventsRepository.between(letterKind.fromDate, letterKind.toDate)
-    htmlBody <- renderEvents(events, letterKind)
+    htmlBody <- renderEventsView(events, letterKind)
     title    <- IO(mkTitle(letterKind))
   } yield title -> htmlBody
 
@@ -98,7 +105,5 @@ object NewsletterView {
   )(
     letterKind: LetterKinds
   ): IO[(String, String)] =
-    renderNewsletter(eventsRepository)(letterKind).flatMap { (title, response) =>
-      getBodyAsString(response).map(title -> _)
-    }
-}
+    renderNewsletter(eventsRepository, letterKind)
+      .flatMap((title, response) => getBodyAsString(response).map(title -> _))

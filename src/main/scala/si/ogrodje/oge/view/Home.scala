@@ -25,7 +25,7 @@ enum Section:
     case NextWeek() => "Prihodnji teden"
     case _          => "Prihodnost"
 
-object Home {
+object Home:
   import si.ogrodje.oge.model.MeetupOps.{*, given}
 
   private val sl: Locale                         = Locale.of("sl")
@@ -136,4 +136,3 @@ object Home {
     events       <- eventsRepository.all
     out          <- renderEvents(events, meetupsCount)
   yield out
-}

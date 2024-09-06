@@ -7,7 +7,7 @@ import doobie.postgres.*
 import doobie.util.transactor.Transactor
 import doobie.{Query0 as Query, *}
 import org.http4s.*
-import si.ogrodje.oge.model.EventKind
+import si.ogrodje.oge.model.{EventForm, EventKind}
 import si.ogrodje.oge.model.db.Event
 
 import java.time.LocalDateTime
@@ -15,8 +15,9 @@ import java.time.LocalDateTime
 trait EventsRepository[F[_], M, ID] extends Repository[F, M, ID] with Synchronizable[F, M]:
   def forDate(date: String): IO[Seq[Event]]
   def between(fromDate: FromDate, to: ToDate): IO[Seq[Event]]
+  def create(eventForm: EventForm): IO[Event]
 
-final class DBEventsRepository private (transactor: Transactor[IO]) extends EventsRepository[IO, Event, String] {
+final class DBEventsRepository private (transactor: Transactor[IO]) extends EventsRepository[IO, Event, String]:
   import DBGivens.given
   import doobie.postgres.implicits.given
 
@@ -91,9 +92,11 @@ final class DBEventsRepository private (transactor: Transactor[IO]) extends Even
 
   override def sync(event: Event): IO[Int] =
     upsertEvent(event).run.transact(transactor)
-}
 
-object DBEventsRepository {
+  override def create(eventForm: EventForm): IO[Event] =
+    // TODO: Continue here.
+    IO.raiseError(new RuntimeException("Not yet implemented"))
+
+object DBEventsRepository:
   def resource(transactor: Transactor[IO]): Resource[IO, DBEventsRepository] =
     Resource.pure(new DBEventsRepository(transactor))
-}

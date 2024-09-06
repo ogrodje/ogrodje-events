@@ -2,10 +2,9 @@ package si.ogrodje.oge.model
 
 import org.http4s.Uri
 import si.ogrodje.oge.model.db.CollectedFields
-import time.CET
 
 import java.time.temporal.Temporal
-import java.time.{LocalDateTime, OffsetDateTime, ZoneId, ZoneOffset, ZonedDateTime}
+import java.time.{OffsetDateTime, ZoneId, ZoneOffset, ZonedDateTime}
 
 object time {
   val CET: ZoneId            = ZoneId.of("CET")

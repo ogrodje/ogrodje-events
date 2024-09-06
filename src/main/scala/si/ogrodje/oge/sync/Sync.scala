@@ -31,13 +31,11 @@ final case class Sync private (
         } *>
           Stream
             .emits(events)
-            .map { event =>
-              event.toDB(new CollectedFields {
-                override val meetupName: String = meetup.name
-                override val meetupID: String   = meetup.id
-                override val weekNumber: Int    = -1
-              })
-            }
+            .map(_.toDB(new CollectedFields {
+              override val meetupName: String = meetup.name
+              override val meetupID: String   = meetup.id
+              override val weekNumber: Int    = -1
+            }))
             .evalMap(eventsRepository.sync)
             .compile
             .count

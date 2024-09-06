@@ -15,7 +15,7 @@ import scala.jdk.CollectionConverters.*
   * outside. Meaning that if io changes; the job will still have the same data as it was scheduled.
   * @param scheduler
   */
-final class NGScheduler private (scheduler: Scheduler) {
+final class NGScheduler private (scheduler: Scheduler):
   private given lf: LoggerFactory[IO] = Slf4jFactory.create[IO]
   private val logger                  = lf.getLogger
 
@@ -28,7 +28,7 @@ final class NGScheduler private (scheduler: Scheduler) {
       val callback: String => AnyRef = context.getMergedJobDataMap.get("callback").asInstanceOf[String => AnyRef]
       callback(name)
 
-  def schedule[T](schedulerBuilder: SimpleScheduleBuilder)(io: IO[T]): IO[Unit] = {
+  def schedule[T](schedulerBuilder: SimpleScheduleBuilder)(io: IO[T]): IO[Unit] =
     val classOfT: Class[? <: org.quartz.Job] = new InternalJob().getClass
 
     val jMap: java.util.Map[String, String => T] = Map("callback" -> { (_: String) =>
@@ -41,12 +41,9 @@ final class NGScheduler private (scheduler: Scheduler) {
       .build()
     val trigger: SimpleTrigger = newTrigger().startNow().withSchedule(schedulerBuilder).build()
     IO(scheduler.scheduleJob(job, trigger)).void
-  }
-}
 
-object NGScheduler {
+object NGScheduler:
   def resource: Resource[IO, NGScheduler] =
     Resource
       .make(IO.pure(new NGScheduler(StdSchedulerFactory.getDefaultScheduler)))(_.stop)
       .evalTap(_.start)
-}

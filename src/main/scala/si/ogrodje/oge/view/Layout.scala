@@ -48,8 +48,10 @@ object Layout:
             |.create-event form .input-wrap input[type=url],
             |.create-event form .input-wrap input[type=number],
             |.create-event form .input-wrap input[type=email],
-            |.create-event form .input-wrap select
-            | { border-radius: 3px; margin-right:10px; display:inline-block; width: 60% }""".stripMargin
+            |.create-event form .input-wrap select {
+            | border-radius: 3px; margin-right:10px; display:inline-block; width: 60% }
+            |.create-event .error { padding: 10px; color: red; }
+            |""".stripMargin
         )
       ),
       body(
