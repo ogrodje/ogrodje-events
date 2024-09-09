@@ -1,10 +1,11 @@
 package si.ogrodje.oge.model
 
 import org.http4s.Uri
-import si.ogrodje.oge.model.db.CollectedFields
+import si.ogrodje.oge.model.db.{CollectedFields, ManualSubmitFields}
 
 import java.time.temporal.Temporal
 import java.time.{OffsetDateTime, ZoneId, ZoneOffset, ZonedDateTime}
+import java.util.UUID
 
 object time {
   val CET: ZoneId            = ZoneId.of("CET")
@@ -75,6 +76,13 @@ object db {
     def weekNumber: Int
   }
 
+  trait ManualSubmitFields {
+    def eventID: UUID
+    def meetupID: String
+    def modToken: UUID
+    def contactEmail: String
+  }
+
   final case class Event(
     id: String,
     meetupID: String,
@@ -88,7 +96,11 @@ object db {
     location: Option[String] = None,
     meetupName: String,
     override val updatedAt: OffsetDateTime,
-    weekNumber: Int
+    weekNumber: Int,
+    contactEmail: Option[String] = None,
+    featuredAt: Option[OffsetDateTime] = None,
+    publishedAt: Option[OffsetDateTime] = None,
+    modToken: Option[UUID] = None
   ) extends BaseEvent[OffsetDateTime]
       with CollectedFields
 
@@ -139,6 +151,27 @@ object Converters {
         meetupName = extraFields.meetupName,
         updatedAt = OffsetDateTime.now(time.CET),
         weekNumber = extraFields.weekNumber
+      )
+
+    def toDB(
+      extraFields: ManualSubmitFields
+    ): db.Event =
+      db.Event(
+        event.id,
+        meetupID = extraFields.meetupID,
+        event.kind,
+        event.name,
+        event.url,
+        dateTime = event.dateTime,
+        noStartTime = false,
+        dateTimeEnd = event.dateTimeEnd,
+        noEndTime = false,
+        location = event.location,
+        meetupName = "",
+        updatedAt = OffsetDateTime.now(time.CET),
+        weekNumber = -1,
+        modToken = Some(extraFields.modToken),
+        contactEmail = Some(extraFields.contactEmail),
       )
   }
 }

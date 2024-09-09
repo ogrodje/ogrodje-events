@@ -1,0 +1,5 @@
+Subject: Test Email
+From: oto.brglez@ogrodje.si
+To: otobrglez@gmail.com
+
+This is a test email sent from a Linux machine using a local SMTP server.

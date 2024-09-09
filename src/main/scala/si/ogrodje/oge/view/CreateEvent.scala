@@ -17,6 +17,7 @@ object CreateEvent:
     eventsRepository: EventsRepository[IO, Event, String],
     eventForm: EventForm = EventForm.empty,
     maybeError: Option[Throwable] = None,
+    maybeEvent: Option[Event] = None,
     layout: Seq[Modifier] => TypedTag[String] = Layout.defaultLayout
   ): IO[Response[IO]] = for
     meetups <- meetupsRepository.all
@@ -26,6 +27,14 @@ object CreateEvent:
           cls := "create-event",
           h1("Dodaj dogodek 📅"),
           maybeError.fold(span(""))(th => div(cls := "error", p(th.getMessage))),
+          maybeEvent.fold(span("")) { event =>
+            div(
+              cls := "event",
+              h3(s"Podrobnosti: ${event.name}"),
+              p("Dogodek je shranjen. Hvala!"),
+              p(s"Event ID: ${event.id}")
+            )
+          },
           div(
             cls := "event-form",
             form(

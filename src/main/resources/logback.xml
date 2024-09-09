@@ -23,6 +23,9 @@
 
     <logger name="si.ogrodje.oge" level="DEBUG"/>
     <logger name="si.ogrodje.oge.DB" level="DEBUG"/>
+    <logger name="si.ogrodje.oge.clients" level="DEBUG"/>
+    <logger name="jakarta.mail" level="DEBUG"/>
+    <logger name="si.ogrodje.oge.model.EventForm" level="DEBUG"/>
 
     <logger name="org.http4s.blaze.client" level="INFO"/>
     <logger name="net.fortuna.ical4j.model" level="ERROR"/>

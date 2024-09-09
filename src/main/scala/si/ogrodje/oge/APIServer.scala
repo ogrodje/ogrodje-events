@@ -17,8 +17,9 @@ import org.http4s.implicits.*
 import org.http4s.server.Server
 import org.typelevel.log4cats.LoggerFactory
 import org.typelevel.log4cats.slf4j.Slf4jFactory
+import si.ogrodje.oge.Environment.development
 import si.ogrodje.oge.clients.MailSender
-import si.ogrodje.oge.letter.LetterKinds
+import si.ogrodje.oge.letter.{LetterKinds, Newsletter}
 import si.ogrodje.oge.model.EventForm
 import si.ogrodje.oge.model.db.*
 import si.ogrodje.oge.repository.{EventsRepository, MeetupsRepository}
@@ -39,11 +40,6 @@ final case class APIServer[R](
     view.Home.renderHome(meetupsRepository, eventsRepository)
   }
 
-  private def createFromForm(eventForm: EventForm): IO[Event] = for
-    meetup <- meetupsRepository.find(eventForm.meetupID)
-    event  <- eventsRepository.create(eventForm.copy(meetupID = meetup.id))
-  yield event
-
   private val createEvent = HttpRoutes.of[IO] {
     case GET -> Root / "create-event"        =>
       view.CreateEvent.renderEventForm(meetupsRepository, eventsRepository)
@@ -51,14 +47,15 @@ final case class APIServer[R](
       for {
         eventForm  <- req.as[EventForm]
         maybeEvent <-
-          createFromForm(eventForm)
+          EventForm
+            .create(meetupsRepository, eventsRepository, eventForm)
             .map(Right(_))
             .handleErrorWith(th => IO.pure(Left(th)))
         response   <- view.CreateEvent.renderEventForm(
           meetupsRepository,
           eventsRepository,
-          eventForm,
-          maybeError = maybeEvent.fold(Some(_), _ => None)
+          maybeError = maybeEvent.fold(Some(_), _ => None),
+          maybeEvent = maybeEvent.toOption
         )
       } yield response
   }
@@ -78,20 +75,19 @@ final case class APIServer[R](
     case GET -> Root / "letter" / "monthly" / date =>
       fromEither(LetterKinds.mkMonthly(date)).flatMap(renderNewsletter(eventsRepository, _).map(_._2))
 
-    /*
     case GET -> Root / "letter" / "monthly" / date / "send" =>
-      Newsletter
-        .send(
-          mailSender,
-          eventsRepository,
-          LetterKinds.mkMonthly,
-          subscribers,
-          _.subscriptions.contains(Monthly),
-          date = Some(date)
-        )
-        .flatMap(_ => Ok("Emails sent."))
-
-     */
+      if config.environment == development then
+        Newsletter
+          .send(
+            mailSender,
+            eventsRepository,
+            LetterKinds.mkMonthly,
+            subscribers,
+            _.tags.contains("mail-tester"),
+            date = Some(date)
+          )
+          .flatMap(_ => Ok("Emails sent."))
+      else Ok("Available only in development.")
   }
 
   def resource: Resource[IO, Server] =
