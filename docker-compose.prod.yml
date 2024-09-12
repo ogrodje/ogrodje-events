@@ -1,5 +1,6 @@
 services:
   events:
+    restart: always
     volumes:
       - events-db:/data
     environment:
@@ -8,6 +9,7 @@ services:
       DATABASE_PASSWORD: ${DATABASE_PASSWORD}
       TRUNCATE_ON_BOOT: "true"
   pg:
+    restart: always
     volumes:
       - events-pg-db:/var/lib/postgresql/data
 
