@@ -79,8 +79,9 @@ object db {
   trait ManualSubmitFields {
     def eventID: UUID
     def meetupID: String
-    def modToken: UUID
     def contactEmail: String
+    def modToken: UUID
+    def verifyToken: UUID
   }
 
   final case class Event(
@@ -100,7 +101,9 @@ object db {
     contactEmail: Option[String] = None,
     featuredAt: Option[OffsetDateTime] = None,
     publishedAt: Option[OffsetDateTime] = None,
-    modToken: Option[UUID] = None
+    modToken: Option[UUID] = None,
+    verifiedAt: Option[OffsetDateTime] = None,
+    verifyToken: Option[UUID] = None
   ) extends BaseEvent[OffsetDateTime]
       with CollectedFields
 
@@ -171,7 +174,8 @@ object Converters {
         updatedAt = OffsetDateTime.now(time.CET),
         weekNumber = -1,
         modToken = Some(extraFields.modToken),
-        contactEmail = Some(extraFields.contactEmail),
+        verifyToken = Some(extraFields.verifyToken),
+        contactEmail = Some(extraFields.contactEmail)
       )
   }
 }

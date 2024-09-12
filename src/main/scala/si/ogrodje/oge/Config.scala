@@ -16,6 +16,7 @@ val defaultEnvironment: Environment = Environment.development
 
 final case class Config private (
   environment: Environment,
+  hostnameUrl: String,
   databaseUrl: String,
   databasePassword: String,
   databaseUsername: String,
@@ -36,6 +37,7 @@ final case class Config private (
 object Config {
   private val default: Config = apply(
     environment = defaultEnvironment,
+    hostnameUrl = "https://dogodki.ogrodje.si",
     databaseUrl = "jdbc:postgresql://localhost:5438/og_events",
     databasePassword = "",
     databaseUsername = "postgres",
@@ -80,6 +82,7 @@ object Config {
   def fromEnv: IO[Config] =
     (
       fromEnvOr("ENVIRONMENT", default.environment, parseEnvironment),
+      fromEnvOr("HOSTNAME_URL", default.hostnameUrl, pure),
       fromEnvOr("DATABASE_URL", default.databaseUrl, pure),
       fromEnvRequired("DATABASE_PASSWORD", pure),
       fromEnvOr("DATABASE_USERNAME", default.databaseUsername, pure),

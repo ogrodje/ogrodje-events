@@ -4,6 +4,7 @@ import cats.effect.IO.fromEither
 import cats.effect.{IO, Resource}
 import doobie.implicits.*
 import doobie.postgres.*
+import doobie.util.fragment
 import doobie.util.transactor.Transactor
 import doobie.{Query0 as Query, *}
 import org.http4s.*
@@ -19,7 +20,10 @@ trait EventsRepository[F[_], M, ID] extends Repository[F, M, ID] with Synchroniz
   def forDate(date: String): IO[Seq[Event]]
   def between(fromDate: FromDate, to: ToDate): IO[Seq[Event]]
   def create(event: Event): IO[Event]
-  def find(id: String): IO[Event]
+  def verify(event: Event): IO[Event]
+  def findByID(id: String): IO[Event]
+  def findByVerifyToken(id: String): IO[Event]
+  def findByModToken(id: String): IO[Event]
 
 final class DBEventsRepository private (transactor: Transactor[IO]) extends EventsRepository[IO, Event, String]:
   import DBGivens.given
@@ -43,7 +47,9 @@ final class DBEventsRepository private (transactor: Transactor[IO]) extends Even
          |    e.contact_email,
          |    e.featured_at,
          |    e.published_at,
-         |    e.mod_token
+         |    e.mod_token,
+         |    e.verified_at,
+         |    e.verify_token
          |FROM events AS e
          |LEFT JOIN meetups AS m
          |ON e.meetup_id = m.id
@@ -57,31 +63,38 @@ final class DBEventsRepository private (transactor: Transactor[IO]) extends Even
          |ORDER BY e.datetime_start_at""".stripMargin
       .queryWithLabel[Event]("upcoming-events")
 
-  def find(id: String): IO[Event] =
-    sql"""SELECT
-            e.id,
-            e.meetup_id,
-            e.kind,
-            e.name,
-            e.url,
-            e.datetime_start_at,
-            e.no_start_time,
-            e.datetime_end_at,
-            e.no_end_time,
-            e.location,
-            m.name as meetup_name,
-            e.updated_at,
-            DATE_PART('week', datetime_start_at) as week,
-            e.contact_email,
-            e.featured_at,
-            e.published_at,
-            e.mod_token
-        FROM events AS e LEFT JOIN meetups AS m ON e.meetup_id = m.id WHERE e.id = $id
-         """
+  def findByID(id: String): IO[Event]          = find(sql"""e.id = ${id}""")
+  def findByModToken(id: String): IO[Event]    = find(sql"""e.mod_token = ${id}::uuid""")
+  def findByVerifyToken(id: String): IO[Event] = find(sql"""e.verify_token = ${id}::uuid""")
+
+  private def find(where: fragment.Fragment): IO[Event] =
+    val findQuery = sql"""SELECT
+          e.id,
+          e.meetup_id,
+          e.kind,
+          e.name,
+          e.url,
+          e.datetime_start_at,
+          e.no_start_time,
+          e.datetime_end_at,
+          e.no_end_time,
+          e.location,
+          m.name as meetup_name,
+          e.updated_at,
+          DATE_PART('week', datetime_start_at) as week,
+          e.contact_email,
+          e.featured_at,
+          e.published_at,
+          e.mod_token,
+          e.verified_at,
+          e.verify_token
+      FROM events AS e LEFT JOIN meetups AS m ON e.meetup_id = m.id WHERE
+       """ ++ where
+    findQuery
       .queryWithLabel[Event]("find-event")
       .option
       .transact(transactor)
-      .flatMap(IO.fromOption(_)(new RuntimeException(s"Could not find event with ID: ${id}")))
+      .flatMap(IO.fromOption(_)(new RuntimeException(s"Could not find event.")))
 
   override def between(fromDate: FromDate, to: ToDate): IO[Seq[Event]] =
     upcomingEvents(fromDate, to).to[Seq].transact(transactor)
@@ -127,7 +140,7 @@ final class DBEventsRepository private (transactor: Transactor[IO]) extends Even
   private val proposeEvent: Event => Update0 = { event =>
     sql"""INSERT INTO events (
          id, meetup_id, kind, name, url, location, 
-         datetime_start_at, datetime_end_at, contact_email, mod_token
+         datetime_start_at, datetime_end_at, contact_email, mod_token, verify_token, published_at
        ) VALUES (
           ${event.id},
           ${event.meetupID},
@@ -138,8 +151,15 @@ final class DBEventsRepository private (transactor: Transactor[IO]) extends Even
           ${event.dateTime},
           ${event.dateTimeEnd},
           ${event.contactEmail},
-          ${event.modToken}
+          ${event.modToken},
+          ${event.verifyToken},
+          NULL
        )""".updateWithLabel("insert-event")
+  }
+
+  private val verifyEvent: Event => Update0 = { event =>
+    sql"""UPDATE events SET verified_at = now(), updated_at = now() WHERE events.id = ${event.id}"""
+      .updateWithLabel("verify-event")
   }
 
   override def sync(event: Event): IO[Int] =
@@ -148,47 +168,14 @@ final class DBEventsRepository private (transactor: Transactor[IO]) extends Even
   override def create(event: Event): IO[Event] =
     proposeEvent(event).run
       .transact(transactor)
-      .flatMap(_ => find(event.id))
+      .flatMap(_ => findByID(event.id))
 
-  /*
-  override def createX(eventForm: EventForm): IO[Event] = {
-    import si.ogrodje.oge.model.in.Event
-    import si.ogrodje.oge.model.Converters.*
-    val format      = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm")
-    val newEventID  = UUID.randomUUID()
-    val newModToken = UUID.randomUUID()
-
-    val event = Event(
-      id = newEventID.toString,
-      kind = EventKind.ManualEvent,
-      name = eventForm.name.trim,
-      url = Uri.unsafeFromString(eventForm.url),
-      location = Some(eventForm.location.trim),
-      dateTime = LocalDateTime.parse(eventForm.dateTimeStartAt, format).atOffset(CET_OFFSET),
-      noStartTime = false,
-      dateTimeEnd = Some(
-        LocalDateTime.parse(eventForm.dateTimeEndAt, format).atOffset(CET_OFFSET)
-      ),
-      noEndTime = false
-    ).toDB(new ManualSubmitFields {
-      override def eventID: UUID        = newEventID
-      override def contactEmail: String = eventForm.email
-      override def meetupID: String     = eventForm.meetupID
-      override def modToken: UUID       = newModToken
-    })
-
-    proposeEvent(event).run
-      .transact(transactor)
-      .flatMap(n =>
-        IO.println(s"GOT N = ${n}") *>
-          find(event.id)
-      )
-
-    // println(s"event -> ${event}")
-
-    // TODO: Continue here.
-    // IO.raiseError(new RuntimeException("Not yet implemented"))
-  } */
+  override def verify(event: Event): IO[Event] =
+    verifyEvent(event).run.transact(transactor) *> findByID(event.id)
+    /*
+    if event.verifiedAt.isDefined then IO.raiseError(new RuntimeException("Event was already verified."))
+    else verifyEvent(event).run.transact(transactor) *> findByID(event.id)
+    */
 
 object DBEventsRepository:
   def resource(transactor: Transactor[IO]): Resource[IO, DBEventsRepository] =

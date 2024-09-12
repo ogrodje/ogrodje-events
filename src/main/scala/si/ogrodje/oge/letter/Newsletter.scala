@@ -54,7 +54,7 @@ object Newsletter:
     subscribers  <- subscribersRef.get.map(_.toList).map(_.filter(filter))
     letterKind   <- IO.fromEither(eventsFetcher(selectedDate))
 
-    (title, htmlBody) <- NewsletterView.renderNewsletterAsString(eventsRepository)(letterKind)
+    (title, htmlBody) <- NewsletterView.renderAsString(eventsRepository)(letterKind)
 
     _ <- logger.info(
       s"Sending email with title: $title " +

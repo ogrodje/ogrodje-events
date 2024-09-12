@@ -39,7 +39,8 @@ object DB:
       HikariTransactor
         .fromHikariConfig[IO](
           hikariConfig,
-          logHandler = Some((logEvent: LogEvent) => logger.debug(s"[${logEvent.label}] - ${logEvent.sql}"))
+          logHandler = Some((logEvent: LogEvent) => IO.println(logEvent))
+          // logger.debug(s"[${logEvent.label}] - ${logEvent.sql}"))
         )
         .evalTap(_ => logger.info("Booted HikariTransactor"))
         .onFinalize(logger.info("Closed HikariTransactor"))

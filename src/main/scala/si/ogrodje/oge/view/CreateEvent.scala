@@ -18,30 +18,52 @@ object CreateEvent:
     eventForm: EventForm = EventForm.empty,
     maybeError: Option[Throwable] = None,
     maybeEvent: Option[Event] = None,
+    isPublish: Boolean = false,
     layout: Seq[Modifier] => TypedTag[String] = Layout.defaultLayout
   ): IO[Response[IO]] = for
     meetups <- meetupsRepository.all
-    out     <- renderHtml(
+    actionUrl = Option
+      .when(!isPublish)("/create-event")
+      .getOrElse(s"/publish-event/${eventForm.modToken.getOrElse("")}")
+    out <- renderHtml(
       layout(
         div(
           cls := "create-event",
-          h1("Dodaj dogodek 📅"),
-          maybeError.fold(span(""))(th => div(cls := "error", p(th.getMessage))),
-          maybeEvent.fold(span("")) { event =>
+          (if isPublish then h1("Objava in urejanje dogodka")
+           else h1("Dodaj dogodek 📅")),
+          maybeError.fold(span(""))(th =>
             div(
-              cls := "event",
-              h3(s"Podrobnosti: ${event.name}"),
-              p("Dogodek je shranjen. Hvala!"),
-              p(s"Event ID: ${event.id}")
+              cls := "error",
+              p(
+                s"${th.getClass.getSimpleName}: ${th.getMessage}."
+              )
             )
+          ),
+          maybeEvent.map(_ -> isPublish).fold(span("")) {
+            case (event, false) =>
+              div(
+                cls := "event",
+                h3(s"Podrobnosti: ${event.name}"),
+                p("Dogodek je uspešno shranjen!"),
+                p(
+                  s"Prosim potrdite ga z obiskom povezave, ki je bila poslana na mail: ${event.contactEmail.getOrElse("NO MAIL")}"
+                ),
+                p(s"Hvala!"),
+                p(small(s"Event ID: ${event.id}"))
+              )
+            case (event, true)  =>
+              div(s"Urejanje dogodka: ${event.name}")
           },
           div(
             cls := "event-form",
             form(
               method := "POST",
-              action := "/create-event",
+              action := actionUrl,
+              input(`type` := "hidden", name := "event_id", value     := eventForm.eventID.getOrElse("")),
+              input(`type` := "hidden", name := "mod_token", value    := eventForm.modToken.getOrElse("")),
+              input(`type` := "hidden", name := "published_at", value := eventForm.publishedAt.getOrElse("")),
               div(
-                cls := "input-wrap",
+                cls        := "input-wrap",
                 label("Ime dogodka", `for` := "name"),
                 input(
                   `type`                   := "text",
@@ -53,7 +75,7 @@ object CreateEvent:
                 )
               ),
               div(
-                cls := "input-wrap",
+                cls        := "input-wrap",
                 label("Organizacija / Meetup", `for` := "meetup_id"),
                 select(
                   name                               := "meetup_id",
@@ -62,7 +84,7 @@ object CreateEvent:
                 )
               ),
               div(
-                cls := "input-wrap",
+                cls        := "input-wrap",
                 label("URL / povezava", `for` := "url"),
                 input(
                   `type`                      := "url",
@@ -74,7 +96,7 @@ object CreateEvent:
                 )
               ),
               div(
-                cls := "input-wrap",
+                cls        := "input-wrap",
                 label("Lokacija", `for` := "location"),
                 input(
                   `type`                := "text",
@@ -85,7 +107,7 @@ object CreateEvent:
                 )
               ),
               div(
-                cls := "input-wrap",
+                cls        := "input-wrap",
                 label("Datum in ura pričetka", `for` := "datetime_start_at"),
                 input(
                   `type`                             := "datetime-local",
@@ -96,7 +118,7 @@ object CreateEvent:
                 )
               ),
               div(
-                cls := "input-wrap",
+                cls        := "input-wrap",
                 label("Datum in ura zaključka", `for` := "datetime_end_at"),
                 input(
                   `type`                              := "datetime-local",
@@ -107,7 +129,7 @@ object CreateEvent:
                 )
               ),
               div(
-                cls := "input-wrap",
+                cls        := "input-wrap",
                 label("Kontaktni email", `for` := "email"),
                 input(
                   `type`                       := "email",
@@ -119,10 +141,13 @@ object CreateEvent:
                 )
               ),
               div(
-                cls := "input-wrap",
+                cls        := "input-wrap",
                 input(
                   `type` := "submit",
-                  value  := "Shrani"
+                  value  := {
+                    if isPublish && !maybeEvent.exists(_.publishedAt.isDefined) then "Shrani && Objavi"
+                    else "Shrani"
+                  }
                 )
               )
             ),

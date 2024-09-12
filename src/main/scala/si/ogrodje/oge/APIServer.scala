@@ -13,6 +13,7 @@ import org.http4s.FormDataDecoder.*
 import org.http4s.blaze.server.BlazeServerBuilder
 import org.http4s.circe.*
 import org.http4s.dsl.io.*
+import org.http4s.headers.`Content-Type`
 import org.http4s.implicits.*
 import org.http4s.server.Server
 import org.typelevel.log4cats.LoggerFactory
@@ -33,6 +34,7 @@ final case class APIServer[R](
   mailSender: MailSender[R],
   subscribers: Ref[IO, NonEmptyList[Subscriber]]
 ):
+  private val H: String                    = "<!DOCTYPE html>"
   private given factory: LoggerFactory[IO] = Slf4jFactory.create[IO]
   private val logger                       = factory.getLogger
 
@@ -41,14 +43,14 @@ final case class APIServer[R](
   }
 
   private val createEvent = HttpRoutes.of[IO] {
-    case GET -> Root / "create-event"        =>
+    case GET -> Root / "create-event"               =>
       view.CreateEvent.renderEventForm(meetupsRepository, eventsRepository)
-    case req @ POST -> Root / "create-event" =>
+    case req @ POST -> Root / "create-event"        =>
       for {
         eventForm  <- req.as[EventForm]
         maybeEvent <-
           EventForm
-            .create(meetupsRepository, eventsRepository, eventForm)
+            .create(config, meetupsRepository, eventsRepository, mailSender, eventForm)
             .map(Right(_))
             .handleErrorWith(th => IO.pure(Left(th)))
         response   <- view.CreateEvent.renderEventForm(
@@ -58,6 +60,53 @@ final case class APIServer[R](
           maybeEvent = maybeEvent.toOption
         )
       } yield response
+    case GET -> Root / "verify-event" / verifyToken =>
+      for {
+        event    <- eventsRepository.findByVerifyToken(verifyToken)
+        _        <- EventForm.verify(
+          config,
+          eventsRepository,
+          mailSender,
+          event,
+          subscribers,
+          sub => sub.tags.contains("mail-tester") || sub.tags.contains("events-verifier")
+        )
+        response <- Ok(H + "<html><p>Dogodek je bil potrjen. Hvala!</p></html>", `Content-Type`(MediaType.text.html))
+      } yield response
+
+    case GET -> Root / "publish-event" / modToken        =>
+      for {
+        event <- eventsRepository.findByModToken(modToken)
+        maybeEvent: Either[Throwable, Event] = Right(event)
+        eventForm                            = EventForm.fromEvent(event)
+
+        _        <- IO.println(eventForm)
+        response <- view.CreateEvent.renderEventForm(
+          meetupsRepository,
+          eventsRepository,
+          eventForm = eventForm,
+          maybeError = maybeEvent.fold(Some(_), _ => None),
+          maybeEvent = maybeEvent.toOption,
+          isPublish = true
+        )
+      } yield response
+    case req @ POST -> Root / "publish-event" / modToken =>
+      for {
+        event <- eventsRepository.findByModToken(modToken)
+        maybeEvent: Either[Throwable, Event] = Right(event)
+        eventForm                            = EventForm.fromEvent(event)
+
+        _        <- IO.println(eventForm)
+        response <- view.CreateEvent.renderEventForm(
+          meetupsRepository,
+          eventsRepository,
+          eventForm = eventForm,
+          maybeError = maybeEvent.fold(Some(_), _ => None),
+          maybeEvent = maybeEvent.toOption,
+          isPublish = true
+        )
+      } yield response
+
   }
 
   private val api = HttpRoutes.of[IO] {

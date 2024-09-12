@@ -94,13 +94,13 @@ object NewsletterView:
   def renderNewsletter(
     eventsRepository: EventsRepository[IO, Event, String],
     letterKind: LetterKinds
-  ): IO[(String, Response[IO])] = for {
+  ): IO[(String, Response[IO])] = for
     events   <- eventsRepository.between(letterKind.fromDate, letterKind.toDate)
     htmlBody <- renderEventsView(events, letterKind)
     title    <- IO(mkTitle(letterKind))
-  } yield title -> htmlBody
+  yield title -> htmlBody
 
-  def renderNewsletterAsString(
+  def renderAsString(
     eventsRepository: EventsRepository[IO, Event, String]
   )(
     letterKind: LetterKinds
