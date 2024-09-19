@@ -7,7 +7,7 @@ import org.quartz.CronScheduleBuilder.cronSchedule
 import org.quartz.SimpleScheduleBuilder.simpleSchedule as schedule
 import org.typelevel.log4cats.LoggerFactory
 import org.typelevel.log4cats.slf4j.Slf4jFactory
-import si.ogrodje.oge.clients.Postmark
+import si.ogrodje.oge.clients.{Postmark, SMTPSender}
 import si.ogrodje.oge.letter.{LetterKinds, Newsletter}
 import si.ogrodje.oge.repository.{DBEventsRepository, DBMeetupsRepository}
 import si.ogrodje.oge.scheduler.QScheduler
@@ -25,14 +25,17 @@ object MainApp extends ResourceApp.Forever:
 
   def run(args: List[String]): Resource[IO, Unit] = for
     config            <- Config.fromEnv.toResource
-    _                 <- logger.info(s"Booting service with sync delay ${config.syncDelay}").toResource
+    _                 <- logger
+      .info(s"Booting service with sync delay ${config.syncDelay} in environment ${config.environment}")
+      .toResource
     transactor        <- DB.resource(config)
     meetupsRepository <- DBMeetupsRepository.resource(transactor).evalTap { m =>
       IO.whenA(config.truncateOnBoot)(m.truncate *> logger.info("Meetups truncated"))
     }
     eventsRepository  <- DBEventsRepository.resource(transactor)
     ogrodjeAPIService <- OgrodjeAPIService.resource(config)
-    postmark          <- Postmark.resource(config)
+    mailSender        <- Postmark.resource(config)
+    // mailSender        <- SMTPSender.resource(config)
     sync              <- Sync.resource(ogrodjeAPIService, meetupsRepository, eventsRepository)
     subscribers       <-
       Ref
@@ -44,7 +47,7 @@ object MainApp extends ResourceApp.Forever:
         (
           scheduler.at(cronSchedule("0 0 6 ? * *").inTimeZone(CET), "letter-daily")(
             Newsletter.send(
-              postmark,
+              mailSender,
               eventsRepository,
               LetterKinds.mkDaily,
               subscribers,
@@ -53,7 +56,7 @@ object MainApp extends ResourceApp.Forever:
           ),
           scheduler.at(cronSchedule("0 15 10 ? * SUN").inTimeZone(CET), "letter-weekly")(
             Newsletter.send(
-              postmark,
+              mailSender,
               eventsRepository,
               LetterKinds.mkWeekly,
               subscribers,
@@ -62,7 +65,7 @@ object MainApp extends ResourceApp.Forever:
           ),
           scheduler.at(cronSchedule("0 0 10 L * ?").inTimeZone(CET), "letter-monthly")(
             Newsletter.send(
-              postmark,
+              mailSender,
               eventsRepository,
               LetterKinds.mkMonthly,
               subscribers,
@@ -71,7 +74,7 @@ object MainApp extends ResourceApp.Forever:
           ),
           scheduler
             .at(schedule.withIntervalInMinutes(config.syncDelay.toMinutes.toInt).repeatForever())(sync.syncAll()),
-          APIServer(config, meetupsRepository, eventsRepository, postmark, subscribers).resource
+          APIServer(config, meetupsRepository, eventsRepository, mailSender, subscribers).resource
         ).parTupled
       }
   yield ()

@@ -13,10 +13,11 @@ enum SubscriptionKind:
 
 final case class Subscriber(
   email: String,
-  subscriptions: NonEmptySet[SubscriptionKind]
+  subscriptions: NonEmptySet[SubscriptionKind],
+  tags: Set[String]
 )
 
-object Subscriber {
+object Subscriber:
   given Decoder[SubscriptionKind] = Decoder[String].emapTry { raw =>
     Try(SubscriptionKind.valueOf(raw.substring(0, 1).toUpperCase + raw.substring(1)))
   }
@@ -28,4 +29,3 @@ object Subscriber {
     Decoder[List[SubscriptionKind]].emapTry(raw => Try(NonEmptySet.fromSetUnsafe(SortedSet.from(raw))))
 
   given Encoder[SubscriptionKind] = (s: SubscriptionKind) => Json.fromString(s.toString.toLowerCase)
-}

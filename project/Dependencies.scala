@@ -89,13 +89,17 @@ object Dependencies {
     "org.quartz-scheduler" % "quartz"
   ).map(_ % Versions.quartz)
 
+  lazy val mail: Modules = Seq(
+    "org.eclipse.angus" % "angus-mail" % "2.0.3"
+  )
+
   lazy val projectResolvers: Seq[MavenRepository] = Seq(
     // Resolver.sonatypeOssRepos("snapshots"),
     // "s01 snapshots" at "https://s01.oss.sonatype.org/content/repositories/snapshots/"
     "Sonatype releases" at "https://oss.sonatype.org/content/repositories/releases",
     "Sonatype snapshots" at "https://oss.sonatype.org/content/repositories/snapshots",
     "Sonatype staging" at "https://oss.sonatype.org/content/repositories/staging",
-    "Java.net Maven2 Repository" at "https://download.java.net/maven/2/",
+    "Java.net Maven2 Repository" at "https://download.java.net/maven/2/"
   )
 
   lazy val crypto: Modules = Seq(

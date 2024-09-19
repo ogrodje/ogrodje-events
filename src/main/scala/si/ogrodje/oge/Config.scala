@@ -9,7 +9,14 @@ import org.http4s.Uri
 import scala.util.Try
 import scala.util.control.NoStackTrace
 
+enum Environment:
+  case development, production
+
+val defaultEnvironment: Environment = Environment.development
+
 final case class Config private (
+  environment: Environment,
+  hostnameUrl: String,
   databaseUrl: String,
   databasePassword: String,
   databaseUsername: String,
@@ -19,10 +26,18 @@ final case class Config private (
   truncateOnBoot: Boolean,
   postmarkServerToken: String,
   postmarkSender: String
+  /*
+  smtpHost: String,
+  smtpPort: Int,
+  smtpUsername: String,
+  smtpPassword: String
+   */
 )
 
 object Config {
   private val default: Config = apply(
+    environment = defaultEnvironment,
+    hostnameUrl = "https://dogodki.ogrodje.si",
     databaseUrl = "jdbc:postgresql://localhost:5438/og_events",
     databasePassword = "",
     databaseUsername = "postgres",
@@ -32,6 +47,13 @@ object Config {
     truncateOnBoot = false,
     postmarkServerToken = "",
     postmarkSender = "oto.brglez@ogrodje.si"
+    /*
+    smtpHost = "",
+    smtpPort = 1025,
+    smtpUsername = "oto.brglez@ogrodje.si",
+    smtpPassword = ""
+
+     */
   )
 
   private def fromEnvOr[T](key: String, defaultValue: T, conversion: String => IO[T]): IO[T] =
@@ -54,8 +76,13 @@ object Config {
 
   private def parseInt(input: String): IO[Int] = fromTry(Try(Integer.parseInt(input)))
 
+  private def parseEnvironment(input: String): IO[Environment] =
+    fromTry(Try(Environment.valueOf(input)))
+
   def fromEnv: IO[Config] =
     (
+      fromEnvOr("ENVIRONMENT", default.environment, parseEnvironment),
+      fromEnvOr("HOSTNAME_URL", default.hostnameUrl, pure),
       fromEnvOr("DATABASE_URL", default.databaseUrl, pure),
       fromEnvRequired("DATABASE_PASSWORD", pure),
       fromEnvOr("DATABASE_USERNAME", default.databaseUsername, pure),
@@ -69,5 +96,11 @@ object Config {
       ),
       fromEnvRequired("POSTMARK_SERVER_TOKEN", pure),
       fromEnvOr("POSTMARK_SENDER", default.postmarkSender, pure)
+      /*
+      fromEnvRequired("SMTP_HOST", pure),
+      fromEnvRequired("SMTP_PORT", parseInt),
+      fromEnvRequired("SMTP_USERNAME", pure),
+      fromEnvRequired("SMTP_PASSWORD", pure)
+       */
     ).parMapN(default.copy)
 }

@@ -6,6 +6,7 @@ services:
       - "0.0.0.0:3000:7006"
 
     environment:
+      ENVIRONMENT: development
       HYGRAPH_ENDPOINT: ${HYGRAPH_ENDPOINT}
       DATABASE_URL: jdbc:postgresql://pg:5432/og_events
       DATABASE_PASSWORD: ${DATABASE_PASSWORD}

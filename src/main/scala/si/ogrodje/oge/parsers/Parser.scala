@@ -8,7 +8,7 @@ import org.typelevel.log4cats.LoggerFactory
 import org.typelevel.log4cats.slf4j.Slf4jFactory
 import si.ogrodje.oge.model.in.Event
 
-trait Parser {
+trait Parser:
   private given factory: LoggerFactory[IO] = Slf4jFactory.create[IO]
   private val logger                       = factory.getLogger
 
@@ -21,11 +21,9 @@ trait Parser {
     }.timed
       .flatTap((duration, items) => logger.info(s"Collected ${items.length} from $uri in ${duration.toMillis} ms."))
       .map(_._2)
-}
 
-trait ParserResource[Out <: Parser] {
+trait ParserResource[Out <: Parser]:
   given LoggerFactory[IO] = Slf4jFactory.create[IO]
 
   def resourceWithClient(client: Client[IO]): Resource[IO, Out]
   def resource: Resource[IO, Out] = BlazeClientBuilder[IO].resource.flatMap(resourceWithClient)
-}

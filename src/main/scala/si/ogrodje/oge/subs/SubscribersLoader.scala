@@ -11,7 +11,7 @@ import java.io.InputStreamReader
 import java.nio.file.{Files, Path}
 import scala.util.Try
 
-object SubscribersLoader {
+object SubscribersLoader:
   import si.ogrodje.oge.subs.SecretString.*
   import si.ogrodje.oge.subs.Subscriber.given
 
@@ -39,4 +39,3 @@ object SubscribersLoader {
       .flatMap(json => fromEither(json.as[List[Subscriber]]))
       .flatMap(decryptEmails)
       .flatMap(list => fromTry(Try(NonEmptyList.fromListUnsafe(list))))
-}

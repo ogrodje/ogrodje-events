@@ -37,7 +37,7 @@ object LetterKinds:
     to   <- Right(ToDate.from(from.date.plusDays(30)))
   yield LetterKinds.Monthly(from = from, to = to)
 
-object Newsletter {
+object Newsletter:
   private val logger = Slf4jFactory.create[IO].getLogger
 
   private def todayAsString: String = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
@@ -49,12 +49,12 @@ object Newsletter {
     subscribersRef: Ref[IO, NonEmptyList[Subscriber]],
     filter: Subscriber => Boolean,
     date: Option[String] = None
-  ): IO[Unit] = for {
+  ): IO[Unit] = for
     selectedDate <- IO(date.getOrElse(todayAsString))
     subscribers  <- subscribersRef.get.map(_.toList).map(_.filter(filter))
     letterKind   <- IO.fromEither(eventsFetcher(selectedDate))
 
-    (title, htmlBody) <- NewsletterView.renderNewsletterAsString(eventsRepository)(letterKind)
+    (title, htmlBody) <- NewsletterView.renderAsString(eventsRepository)(letterKind)
 
     _ <- logger.info(
       s"Sending email with title: $title " +
@@ -70,5 +70,4 @@ object Newsletter {
       .drain
 
     _ <- logger.info(s"Emails for $letterKind sent.")
-  } yield ()
-}
+  yield ()

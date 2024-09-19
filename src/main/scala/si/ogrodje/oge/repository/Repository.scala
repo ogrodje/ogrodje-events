@@ -1,16 +1,9 @@
 package si.ogrodje.oge.repository
 
-import cats.effect.{IO, Resource}
 import doobie.*
-import doobie.implicits.*
-import doobie.util.Put
 import org.http4s.*
-import si.ogrodje.oge.model.EventKind
 import si.ogrodje.oge.*
-import doobie.implicits.javasql.TimestampMeta
-
-import java.sql.Timestamp
-import java.time.{ZoneId, ZonedDateTime}
+import si.ogrodje.oge.model.EventKind
 
 trait Synchronizable[F[_], M]:
   def sync(model: M): F[Int]
@@ -18,7 +11,7 @@ trait Synchronizable[F[_], M]:
 trait Repository[F[_], M, ID]:
   def all: F[Seq[M]]
 
-object DBGivens {
+object DBGivens:
 
   given uri: Meta[Uri] = Meta[String].imap(Uri.unsafeFromString)(_.toString)
 
@@ -28,11 +21,3 @@ object DBGivens {
   }(_.toString)
 
   given eventKind: Meta[EventKind] = Meta[String].imap(EventKind.valueOf)(_.toString)
-
-  /*
-  given zonedDateTimePut: Put[ZonedDateTime]   = Put[Timestamp].tcontramap(t => Timestamp.from(t.toInstant))
-  given zonedDateTimeRead: Read[ZonedDateTime] =
-    Read[Timestamp].map(ts => ZonedDateTime.ofInstant(ts.toInstant, ZoneId.of("CET")))
-
-   */
-}

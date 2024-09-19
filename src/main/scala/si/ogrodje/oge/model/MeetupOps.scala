@@ -5,7 +5,7 @@ import si.ogrodje.oge.model.db.{Event, Meetup}
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
-object MeetupOps {
+object MeetupOps:
   private val siLocale: Locale             = Locale.of("sl")
   private val hourF: DateTimeFormatter     = DateTimeFormatter.ofPattern("HH:mm")
   private val noHourF: DateTimeFormatter   = DateTimeFormatter.ofPattern("EEEE, d. MMMM y").withLocale(siLocale)
@@ -75,4 +75,3 @@ object MeetupOps {
 
         case (start, true, _, _, _, _) =>
           "rest" withDbg (start.format(noHourF))
-}

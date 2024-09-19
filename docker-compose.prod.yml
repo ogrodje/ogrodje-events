@@ -4,6 +4,7 @@ services:
     volumes:
       - events-db:/data
     environment:
+      ENVIRONMENT: production
       SENTRY_ENVIRONMENT: production
       SYNC_DELAY: 1 hour
       DATABASE_PASSWORD: ${DATABASE_PASSWORD}
