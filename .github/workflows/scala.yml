@@ -68,9 +68,8 @@ jobs:
           cache: 'sbt'
 
       - uses: sbt/setup-sbt@v1
-      
-      - name: Run tests
-        run: sbt "test"
+
+      - run: sbt "test"
 
       - name: Setup Sentry CLI
         if: ${{ github.ref == 'refs/heads/master' }}
