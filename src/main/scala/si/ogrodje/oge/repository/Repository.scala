@@ -7,7 +7,6 @@ import doobie.util.Put
 import org.http4s.*
 import si.ogrodje.oge.model.EventKind
 import si.ogrodje.oge.*
-import doobie.implicits.javasql.TimestampMeta
 
 import java.sql.Timestamp
 import java.time.{ZoneId, ZonedDateTime}

@@ -12,8 +12,6 @@ mkShell {
   buildInputs = [
     jdk21_headless
     sbt
-    kubectl
-    flyctl
     yq
   ];
 
@@ -22,7 +20,6 @@ mkShell {
   NIXPKGS_ALLOW_UNFREE = 1;
   
   shellHook = ''
-    export KUBECONFIG=`pwd`/nuc-kube-config
     export JAVA_HOME="${jdk21_headless}"
     echo JAVA_HOME=$JAVA_HOME
   '';

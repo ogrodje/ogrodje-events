@@ -75,7 +75,7 @@ final class ICalFetch private (client: Client[IO]) extends Parser {
 
   private def since: OffsetDateTime = OffsetDateTime.now(time.CET).minusMonths(3)
 
-  override def collectAll(uri: Uri): IO[Seq[Event]] = for {
+  def collectAllUnfiltered(uri: Uri): IO[Seq[Event]] = for {
     calendar <- client.expect[String](uri).flatMap(parseICal)
     events   <- IO(
       calendar
@@ -83,10 +83,13 @@ final class ICalFetch private (client: Client[IO]) extends Parser {
         .asInstanceOf[util.ArrayList[AnyRef]]
         .asScala
         .map(parseToEvent(uri))
-        .collect { case Right(v) if v.dateTime.isAfter(since) => v }
+        .collect { case Right(v) => v }
         .toIndexedSeq
     )
   } yield events
+
+  override def collectAll(uri: Uri): IO[Seq[Event]] =
+    collectAllUnfiltered(uri).map(_.filter(_.dateTime.isAfter(since)))
 }
 
 object ICalFetch extends ParserResource[ICalFetch] {

@@ -3,8 +3,8 @@ import com.typesafe.sbt.packager.docker.Cmd
 import com.typesafe.sbt.packager.docker.DockerPlugin.autoImport._
 import Dependencies.*
 
-ThisBuild / version            := "0.0.2"
-ThisBuild / scalaVersion       := "3.5.0"
+ThisBuild / version            := "0.0.3"
+ThisBuild / scalaVersion       := "3.6.3"
 ThisBuild / evictionErrorLevel := Level.Info
 ThisBuild / resolvers ++= projectResolvers
 

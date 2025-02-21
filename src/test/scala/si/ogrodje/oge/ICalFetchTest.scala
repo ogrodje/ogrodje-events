@@ -26,15 +26,11 @@ final class ICalFetchTest extends AsyncFlatSpec with Matchers with AsyncParserSp
     ICalFetch.resourceWithClient(Client.fromHttpApp(fakeICalService)).use { parser =>
       for
         financeIKTEvents <- IO(Uri.unsafeFromString("http://server/calendar/ical/secret-id/public/basic"))
-        events           <- parser.collectAll(financeIKTEvents)
+        events           <- parser.collectAllUnfiltered(financeIKTEvents)
         dragonSecICal    <- IO(Uri.unsafeFromString("http://server/events/ical"))
-        dragonSecEvents  <- parser.collectAll(dragonSecICal)
+        dragonSecEvents  <- parser.collectAllUnfiltered(dragonSecICal)
       yield {
         val lastEvent = events.last
-
-        println(
-          s"Last Event ${lastEvent.name} / ${lastEvent.dateTime} / ${lastEvent.location}"
-        )
 
         dragonSecEvents should be(empty)
         events shouldNot be(empty)

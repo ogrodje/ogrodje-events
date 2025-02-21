@@ -84,6 +84,7 @@ object Home {
                     )
                   )
                 )
+              case _                                    => div()
             },
             otherEvents => {
               if (otherEvents.nonEmpty) {

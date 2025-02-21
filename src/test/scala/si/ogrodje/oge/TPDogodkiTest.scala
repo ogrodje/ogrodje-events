@@ -24,7 +24,7 @@ final class TPDogodkiTest extends AsyncFlatSpec with Matchers with AsyncParserSp
     TPDogodki.resourceWithClient(Client.fromHttpApp(fakeTpSite)).use { parser =>
       for
         dogodkiPage <- IO(Uri.unsafeFromString("http://tp"))
-        events      <- parser.collectAll(dogodkiPage)
+        events      <- parser.collectAllUnfiltered(dogodkiPage)
       yield {
         events shouldNot be(empty)
       }

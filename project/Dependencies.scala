@@ -5,22 +5,22 @@ object Dependencies {
   type Modules = Seq[ModuleID]
 
   object Versions {
-    val http4s: Version        = "1.0.0-M40"
+    val http4s: Version        = "1.0.0-M41"
     val fs2: Version           = "3.11.0"
-    val decline: Version       = "2.4.1"
+    val decline: Version       = "2.5.0"
     val log4cats: Version      = "2.7.0"
     val scalaTest: Version     = "3.2.19"
-    val doobie: Version        = "1.0.0-RC5"
-    val sentryLogback: Version = "7.14.0"
+    val doobie: Version        = "1.0.0-RC7"
+    val sentryLogback: Version = "8.2.0"
     val ical4j: Version        = "4.0.3"
-    val quartz: Version        = "2.3.2"
+    val quartz: Version        = "2.5.0"
     val circe: Version         = "0.15.0-M1"
-    val flyway: Version        = "10.17.3"
-    val postgresql: Version    = "42.7.4"
+    val flyway: Version        = "11.3.3"
+    val postgresql: Version    = "42.7.5"
   }
 
   lazy val catsAndFriends: Modules = Seq(
-    "org.typelevel" %% "cats-effect" % "3.5.4"
+    "org.typelevel" %% "cats-effect" % "3.5.7"
   ) ++ Seq(
     "com.monovore" %% "decline",
     "com.monovore" %% "decline-effect"
@@ -49,7 +49,7 @@ object Dependencies {
   ).map(_ % Versions.http4s)
 
   lazy val logging: Modules = Seq(
-    "ch.qos.logback" % "logback-classic" % "1.5.7"
+    "ch.qos.logback" % "logback-classic" % "1.5.16"
   ) ++ Seq(
     "org.typelevel" %% "log4cats-core",
     "org.typelevel" %% "log4cats-slf4j"
@@ -67,7 +67,7 @@ object Dependencies {
   )
 
   lazy val jsoup: Modules = Seq(
-    "org.jsoup" % "jsoup" % "1.18.1"
+    "org.jsoup" % "jsoup" % "1.18.3"
   )
 
   lazy val db: Modules = Seq(
@@ -95,7 +95,7 @@ object Dependencies {
     "Sonatype releases" at "https://oss.sonatype.org/content/repositories/releases",
     "Sonatype snapshots" at "https://oss.sonatype.org/content/repositories/snapshots",
     "Sonatype staging" at "https://oss.sonatype.org/content/repositories/staging",
-    "Java.net Maven2 Repository" at "https://download.java.net/maven/2/",
+    "Java.net Maven2 Repository" at "https://download.java.net/maven/2/"
   )
 
   lazy val crypto: Modules = Seq(

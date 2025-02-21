@@ -50,7 +50,7 @@ final class TPDogodki private (client: Client[IO]) extends Parser:
       IO.raiseError(new RuntimeException(s"Failed parsing - ${errors.map(_.message).mkString("; ")}"))
     else IO.pure(values)
 
-  override def collectAll(uri: Uri): IO[Seq[Event]] = for {
+  def collectAllUnfiltered(uri: Uri): IO[Seq[Event]] = for {
     document   <- client.expect[Document](uri.withPath(Uri.Path.unsafeFromString("/sl/koledar-dogodkov")))
     scriptTag  <- (document $$ "script").map(_.map(_.data()).find(_.contains("dogodkiJSON")))
     dogodkiTag <- fromOption(scriptTag)(new RuntimeException("Missing a tag with \"dogodkiJSON\""))
@@ -60,7 +60,10 @@ final class TPDogodki private (client: Client[IO]) extends Parser:
       )
         .flatMap(r => fromTry(parseJSON(r).toTry))
         .flatMap(eventsFromJson(uri))
-  } yield events.filter(_.dateTime.isAfter(since))
+  } yield events
+
+  override def collectAll(uri: Uri): IO[Seq[Event]] =
+    collectAllUnfiltered(uri).map(_.filter(_.dateTime.isAfter(since)))
 
 object TPDogodki extends ParserResource[TPDogodki]:
   def resourceWithClient(client: Client[IO]): Resource[IO, TPDogodki] = Resource.pure(new TPDogodki(client))
