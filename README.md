@@ -1,5 +1,8 @@
 # Ogrodje Events
 
+> ⚠️ This project is slowly being replaced by a more capable system named [goo](https://github.com/ogrodje/goo).
+
+
 This is a tool and a service for collecting internal and external events we are passionate about.
 
 Current production: [dogodki.ogrodje.si](https://dogodki.ogrodje.si)
